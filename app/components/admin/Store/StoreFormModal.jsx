@@ -53,7 +53,8 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ name, logoUrl, isBast, logoFile });
+    // أرسل فقط name و isBast في values، و logoFile كـ imageFile
+    onSubmit({ Name: name, IsBast: isBast }, logoFile);
   };
 
   // إغلاق عند الضغط على الخلفية

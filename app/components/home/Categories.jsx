@@ -23,6 +23,33 @@ export default function Categories() {
     fetchCategories();
   }, []);
 
+  // Helper to ensure iconUrl is always valid
+  const getSafeIconUrl = (iconUrl) => {
+    const baseUrl = 'http://147.93.126.19:8080/uploads/';
+    if (!iconUrl) {
+      return '/logo.png'; // fallback
+    }
+    try {
+      // If already a valid http(s) url
+      const url = new URL(iconUrl);
+      if (url.protocol === 'http:' || url.protocol === 'https:') {
+        return iconUrl;
+      }
+    } catch (_) {
+      // Not a full URL, try to construct
+    }
+    // If it's a path, construct the full URL
+    const fullUrl = iconUrl.startsWith('/') ? `${baseUrl}${iconUrl}` : `${baseUrl}/${iconUrl}`;
+    try {
+      const url = new URL(fullUrl);
+      if (url.protocol === 'http:' || url.protocol === 'https:') {
+        return fullUrl;
+      }
+    } catch (_) {}
+    // fallback
+    return '/logo.png';
+  };
+
   return (
     <div className="w-full py-10 md:px-20 px-8">
       <div className="flex justify-between items-center mb-4">
@@ -46,12 +73,12 @@ export default function Categories() {
       >
         {categories.map((cat) => (
           <SwiperSlide key={cat.id}>
-            <div className="flex flex-col items-center gap-2 py-2">
+            <Link href={`/categories/${cat.id}`} className="flex flex-col items-center gap-2 py-2">
               <div className="rounded-full bg-gradient-to-tr from-teal-200 via-white to-teal-100 shadow-xl flex items-center justify-center w-24 h-24 mb-2 hover:scale-110 hover:shadow-2xl transition-all border-2 border-teal-200 hover:border-teal-400">
-                <Image src={cat.iconUrl} alt={cat.name} width={60} height={60} className="rounded-full" />
+                <Image src={getSafeIconUrl(cat.iconUrl)} alt={cat.name} width={60} height={60} className="rounded-full" />
               </div>
               <span className="text-sm font-semibold text-gray-700">{cat.name}</span>
-            </div>
+            </Link>
           </SwiperSlide>
         ))}
       </Swiper>

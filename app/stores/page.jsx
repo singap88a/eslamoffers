@@ -19,38 +19,47 @@ const StoreCardSkeleton = () => (
   </div>
 );
 
-const StoreCard = ({ store }) => (
-  <div className="bg-white rounded-lg overflow-hidden transform transition-all hover:-translate-y-2 duration-300 ease-in-out border-2 border-dashed border-gray-200 hover:border-teal-500 h-full flex flex-col">
-    <div className="relative h-40 bg-gray-50 p-4 flex items-center justify-center">
-      <img
-        src={store.logoUrl}
-        alt={`${store.name} logo`}
-        className="max-w-full max-h-full object-contain"
-      />
-    </div>
-    <div className="p-4 text-center border-t border-gray-100 flex-grow flex flex-col justify-center">
-      <h3 className="text-lg font-bold text-gray-800 mb-3 truncate">
-        {store.name}
-      </h3>
-      <div className="flex justify-center items-center gap-2 text-xs text-gray-600">
-        <span
-          className={`px-3 py-1 rounded-full font-semibold text-sm ${
-            store.isactive
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
-          }`}
-        >
-          {store.isactive ? "نشط" : "غير نشط"}
-        </span>
-        {store.isBast && (
-          <span className="bg-yellow-100 text-yellow-800 font-semibold px-3 py-1 rounded-full text-sm">
-            الأفضل
-          </span>
-        )}
+const StoreCard = ({ store }) => {
+  const getLogoSrc = () => {
+    if (!store.logoUrl) return '/logo.png';
+    if (store.logoUrl.startsWith('http') || store.logoUrl.startsWith('https')) {
+      return store.logoUrl;
+    }
+    return `http://147.93.126.19:8080/uploads/${store.logoUrl}`;
+  };
+  return (
+    <div className="bg-white rounded-lg overflow-hidden transform transition-all hover:-translate-y-2 duration-300 ease-in-out border-2 border-dashed border-gray-200 hover:border-teal-500 h-full flex flex-col">
+      <div className="relative h-40 bg-gray-50 p-4 flex items-center justify-center">
+        <img
+          src={getLogoSrc()}
+          alt={`${store.name} logo`}
+          className="max-w-full max-h-full object-contain"
+        />
+      </div>
+      <div className="p-4 text-center border-t border-gray-100 flex-grow flex flex-col justify-center">
+        <h3 className="text-lg font-bold text-gray-800 mb-3 truncate">
+          {store.name}
+        </h3>
+        <div className="flex justify-center items-center gap-2 text-xs text-gray-600">
+          {/* <span
+            className={`px-3 py-1 rounded-full font-semibold text-sm ${
+              store.isactive
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
+          >
+            {store.isactive ? "نشط" : "غير نشط"}
+          </span> */}
+          {store.isBast && (
+            <span className="bg-yellow-100 text-yellow-800 font-semibold px-3 py-1 rounded-full text-sm">
+              الأفضل
+            </span>
+          )}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const StoresPage = () => {
   const [stores, setStores] = useState([]);

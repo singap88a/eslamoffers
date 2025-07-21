@@ -2,6 +2,7 @@ import { Cairo } from 'next/font/google';
 import "./globals.css";
 import Navbar from "./components/home/Navbar";
 import Footer from './components/home/Footer';
+import { ToastContainer } from "react-toastify";
 
 const cairo = Cairo({
   subsets: ['arabic', 'latin'],
@@ -20,11 +21,11 @@ export default function RootLayout({ children }) {
       <head>
         {/* أي محتوى إضافي */}
       </head>
-      <body className={cairo.className}>
-      <Navbar/>
+      <body className={cairo.className} suppressHydrationWarning>
+        <Navbar />
+        <ToastContainer />
         {children}
-            <Footer/>
-
+        <Footer />
       </body>
     </html>
   );

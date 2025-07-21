@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 const Sidebar = () => {
   return (
-    <aside className="h-screen w-64 bg-white shadow-md flex flex-col p-4 border-l border-gray-200">
+    <aside className="  w-64 bg-white shadow-md flex flex-col p-4 border-l border-gray-200  ">
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">لوحة الأدمن</h2>
         <div className="h-px bg-gray-200" />

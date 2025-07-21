@@ -3,6 +3,15 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+const isValidHttpUrl = (string) => {
+  try {
+    const url = new URL(string);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch (_) {
+    return false;
+  }
+};
+
 const BestStores = () => {
   const [stores, setStores] = useState([]);
 
@@ -20,6 +29,26 @@ const BestStores = () => {
     fetchStores();
   }, []);
 
+  const getSafeLogoUrl = (logoUrl) => {
+    const baseUrl = 'http://147.93.126.19:8080/uploads/';
+    
+    if (!logoUrl) {
+      return '/logo.png'; // Fallback for null, undefined, or empty string
+    }
+
+    if (isValidHttpUrl(logoUrl)) {
+      return logoUrl;
+    }
+
+    const fullUrl = logoUrl.startsWith('/') ? `${baseUrl}${logoUrl}` : `${baseUrl}/${logoUrl}`;
+
+    if (isValidHttpUrl(fullUrl)) {
+      return fullUrl;
+    }
+
+    return '/logo.png';
+  };
+
   return (
     <div className=" md:px-4">
       <div className="bg-white  p-4 rounded-2xl shadow-lg w-full max-w-md lg:max-w-full mx-auto border border-gray-100">
@@ -30,12 +59,13 @@ const BestStores = () => {
 
         <div className="grid grid-cols-3 gap-3">
           {stores.slice(0, 9).map((store) => (
-            <div
+            <Link
               key={store.id}
+              href={`/stores/${store.id}`}
               className="bg-gray-50 p-3 rounded-xl flex items-center justify-center border border-gray-200 hover:shadow-md transition duration-200 ease-in-out hover:border-[#14b8a6]"
             >
-              <Image src={store.logoUrl} alt={store.name} width={60} height={30} />
-            </div>
+              <Image src={getSafeLogoUrl(store.logoUrl)} alt={store.name} width={60} height={30} />
+            </Link>
           ))}
         </div>
       </div>
