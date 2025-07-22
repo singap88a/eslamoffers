@@ -4,25 +4,14 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { FiCopy, FiCheck, FiX } from 'react-icons/fi';
 
-const CouponCard = ({ coupon }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const CouponCard = ({ coupon, onGetCode }) => {
+  const [showModal, setShowModal] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(coupon.couponCode);
     setIsCopied(true);
   };
-
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setIsCopied(false);
-  };
-
-  const maskedCode = `${coupon.couponCode.substring(0, 2)}••••••••${coupon.couponCode.substring(
-    coupon.couponCode.length - 2
-  )}`;
-  const isValidUrl = coupon.imageUrl && (coupon.imageUrl.startsWith('http') || coupon.imageUrl.startsWith('https'));
 
   const getImageSrc = () => {
     if (!coupon.imageUrl) return '/logo.png';
@@ -32,15 +21,25 @@ const CouponCard = ({ coupon }) => {
     return `http://147.93.126.19:8080/uploads/${coupon.imageUrl}`;
   };
 
+  const isExpired = !coupon.isActive || new Date(coupon.endDate || coupon.end_date) < new Date();
+
   return (
     <>
-      <div className="bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-2xl transform   hover:-translate-y-2 duration-300 ease-in-out  transition-all p-6 w-full max-w-sm flex flex-col justify-between">
-        <div className=" mx-auto text-center mb-6">
+      <div className="relative bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-2xl transform hover:-translate-y-2 duration-300 ease-in-out transition-all p-6 w-full max-w-sm flex flex-col justify-between">
+        {/* شارة الحالة */}
+        <span
+          className={`absolute top-2 left-2 px-3 py-1 rounded-full text-xs font-bold ${
+            isExpired ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'
+          }`}
+        >
+          {isExpired ? 'منتهي' : 'نشط'}
+        </span>
+        <div className="mx-auto text-center mb-6">
           <a
             href={coupon.linkRealStore}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-24 h-16 relative      flex justify-center items-center"
+            className="w-24 h-16 relative flex justify-center items-center"
           >
             <Image
               src={getImageSrc()}
@@ -58,7 +57,14 @@ const CouponCard = ({ coupon }) => {
 
         <div className="flex items-center justify-between gap-2 mt-4">
           <button
-            onClick={openModal}
+            onClick={() => {
+              if (onGetCode) {
+                onGetCode(coupon);
+              } else {
+                setShowModal(true);
+                setIsCopied(false);
+              }
+            }}
             className="w-full bg-gradient-to-r from-teal-500 to-teal-600 text-white font-semibold px-4 py-2 rounded-lg hover:from-teal-600 hover:to-teal-700 transition"
           >
             الحصول على الكود
@@ -66,17 +72,18 @@ const CouponCard = ({ coupon }) => {
         </div>
       </div>
 
-      {isModalOpen && (
+      {/* مودال الكود - مطابق لمودال CouponSlider */}
+      {showModal && (
         <div
-          onClick={closeModal}
+          onClick={() => { setShowModal(false); setIsCopied(false); }}
           className="fixed inset-0 bg-[#00000079] bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm"
         >
           <div
-            onClick={(e) => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
             className="bg-white rounded-xl p-8 shadow-2xl max-w-md w-full relative animate-fadeIn"
           >
             <button
-              onClick={closeModal}
+              onClick={() => { setShowModal(false); setIsCopied(false); }}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
             >
               <FiX size={24} />

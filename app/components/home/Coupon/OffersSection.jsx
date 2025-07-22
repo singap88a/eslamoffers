@@ -2,7 +2,7 @@ import CouponSlider from "./CouponSlider";
 import SubscribeBox from "./SubscribeBox";
 import AppPromotionBox from "./AppPromotionBox";
 import PromoCard from "./PromoCard";
-
+ 
 const OffersSection = () => {
   return (
     <section className="py-10 px-4  " dir="rtl">
@@ -10,7 +10,7 @@ const OffersSection = () => {
         {/* ✅ سلايدر العروض */}
         <div className="lg:col-span-4">
           <CouponSlider />
-        </div>
+         </div>
         {/* ✅ العمود الأيسر */}
         <div className="lg:col-span-2 ">
           <SubscribeBox />

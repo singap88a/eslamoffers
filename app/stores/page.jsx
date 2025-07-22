@@ -28,34 +28,29 @@ const StoreCard = ({ store }) => {
     return `http://147.93.126.19:8080/uploads/${store.logoUrl}`;
   };
   return (
-    <div className="bg-white rounded-lg overflow-hidden transform transition-all hover:-translate-y-2 duration-300 ease-in-out border-2 border-dashed border-gray-200 hover:border-teal-500 h-full flex flex-col">
-      <div className="relative h-40 bg-gray-50 p-4 flex items-center justify-center">
+    <div className="bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-xl overflow-hidden shadow-sm h-full flex flex-col relative transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl">
+      <div className="relative w-full h-48 bg-gray-100 flex items-center justify-center">
+        {/* شارة الأفضل على الجنب */}
+        {store.isBast && (
+          <div className="absolute top-4 right-6 flex items-center gap-1 bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full border border-yellow-200 text-xs font-bold shadow-sm z-10">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" className="w-3 h-3 text-yellow-500">
+              <path d="M10 2l2.39 4.84 5.34.78-3.87 3.77.91 5.33L10 14.77l-4.77 2.51.91-5.33-3.87-3.77 5.34-.78L10 2z" />
+            </svg>
+            الأفضل
+          </div>
+        )}
+        {/* صورة المتجر تغطي كامل الهيدر */}
         <img
           src={getLogoSrc()}
           alt={`${store.name} logo`}
-          className="max-w-full max-h-full object-contain"
+          className="w-full h-full object-cover"
         />
       </div>
+      {/* اسم المتجر */}
       <div className="p-4 text-center border-t border-gray-100 flex-grow flex flex-col justify-center">
-        <h3 className="text-lg font-bold text-gray-800 mb-3 truncate">
+        <h3 className="text-lg font-bold text-gray-800 mb-2 truncate">
           {store.name}
         </h3>
-        <div className="flex justify-center items-center gap-2 text-xs text-gray-600">
-          {/* <span
-            className={`px-3 py-1 rounded-full font-semibold text-sm ${
-              store.isactive
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
-            }`}
-          >
-            {store.isactive ? "نشط" : "غير نشط"}
-          </span> */}
-          {store.isBast && (
-            <span className="bg-yellow-100 text-yellow-800 font-semibold px-3 py-1 rounded-full text-sm">
-              الأفضل
-            </span>
-          )}
-        </div>
       </div>
     </div>
   );
@@ -66,6 +61,7 @@ const StoresPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [visibleCount, setVisibleCount] = useState(9);
 
   useEffect(() => {
     const fetchStores = async () => {
@@ -88,6 +84,10 @@ const StoresPage = () => {
   const filteredStores = stores.filter((store) =>
     store.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // عرض فقط العدد المطلوب
+  const visibleStores = filteredStores.slice(0, visibleCount);
+  const hasMore = filteredStores.length > visibleCount;
 
   return (
     <div className="  min-h-screen" dir="rtl">
@@ -140,21 +140,33 @@ const StoresPage = () => {
             )}
 
             {!loading && !error && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-3 gap-4">
-                {filteredStores.length > 0 ? (
-                  filteredStores.map((store) => (
-                    <Link href={`/stores/${store.id}`} key={store.id}>
-                      <StoreCard store={store} />
-                    </Link>
-                  ))
-                ) : (
-                  <div className="col-span-full text-center py-12">
-                    <p className="text-xl text-gray-600">
-                      لم يتم العثور على متاجر تطابق بحثك.
-                    </p>
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-3 gap-4">
+                  {visibleStores.length > 0 ? (
+                    visibleStores.map((store) => (
+                      <Link href={`/stores/${store.id}`} key={store.id}>
+                        <StoreCard store={store} />
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-12">
+                      <p className="text-xl text-gray-600">
+                        لم يتم العثور على متاجر تطابق بحثك.
+                      </p>
+                    </div>
+                  )}
+                </div>
+                {hasMore && (
+                  <div className="flex justify-center mt-8">
+                    <button
+                      className="px-8 py-3 rounded-full bg-[#14b8a6] text-white font-bold shadow hover:bg-[#0d9488] transition"
+                      onClick={() => setVisibleCount((prev) => prev + 9)}
+                    >
+                      عرض المزيد
+                    </button>
                   </div>
                 )}
-              </div>
+              </>
             )}
           </div>
 
