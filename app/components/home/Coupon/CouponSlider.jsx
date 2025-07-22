@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import CouponCard from "../../coupons/CouponCard";
-import { FiCopy, FiX } from "react-icons/fi";
+import { FiCopy, FiX, FiArrowLeft } from "react-icons/fi";
 import CouponCodeModal from "./CouponCodeModal";
+import Link from "next/link";
 
 const fetchBestCoupons = async () => {
   try {
@@ -48,10 +49,16 @@ const CouponSlider = () => {
 
   return (
     <div className="">
-      <h2 className="text-2xl font-bold mb-6 text-[#14b8a6] text-right">
-        أقوى الأكواد الصيفية
-      </h2>
-      <div className="w-40 h-1 bg-gradient-to-l from-[#14b8a6] mb-5 rounded-full"></div>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-[#14b8a6]">
+          أقوى الأكواد الصيفية
+        </h2>
+        <Link href="/coupons" className="text-lg font-medium text-[#14b8a6] hover:text-teal-700 underline flex items-center gap-2">
+          <span>كل الكوبونات</span>
+          <FiArrowLeft />
+        </Link>
+      </div>
+      <div className="w-40 h-1 bg-gradient-to-l from-[#14b8a6] mt-2 mb-5 rounded-full"></div>
       {loading ? (
         <div className="text-center py-10 text-gray-400">جاري التحميل...</div>
       ) : (

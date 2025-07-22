@@ -1,4 +1,4 @@
-import OfferCard from '../components/offers/OfferCard';
+import OfferGrid from '../components/offers/OfferGrid';
 import SubscribeBox from '../components/home/Coupon/SubscribeBox';
 import AppPromotionBox from '../components/home/Coupon/AppPromotionBox';
 import PromoCard from '../components/home/Coupon/PromoCard';
@@ -23,11 +23,7 @@ export default async function OffersPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main content */}
           <div className="lg:col-span-2">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {offers.map((offer) => (
-                <OfferCard key={offer.id} offer={offer} />
-              ))}
-            </div>
+            <OfferGrid offers={offers} />
           </div>
 
           {/* Sidebar */}

@@ -2,6 +2,9 @@ import CouponSlider from "./CouponSlider";
 import SubscribeBox from "./SubscribeBox";
 import AppPromotionBox from "./AppPromotionBox";
 import PromoCard from "./PromoCard";
+import BestStoresSlider from "../BestStoresSlider";
+import BestOffersSlider from "../BestOffersSlider";
+import Bannar from "../Bannar";
  
 const OffersSection = () => {
   return (
@@ -10,6 +13,9 @@ const OffersSection = () => {
         {/* ✅ سلايدر العروض */}
         <div className="lg:col-span-4">
           <CouponSlider />
+          <BestStoresSlider />
+          <Bannar/>
+          <BestOffersSlider />
          </div>
         {/* ✅ العمود الأيسر */}
         <div className="lg:col-span-2 ">
