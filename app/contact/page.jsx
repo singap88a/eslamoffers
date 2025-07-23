@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaFacebookF,
   FaTwitter,
@@ -12,6 +12,68 @@ import {
 
 export default function ContactPage() {
   const [showWhatsApp, setShowWhatsApp] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    country: "",
+    message: ""
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
+
+  useEffect(() => {
+    let timer;
+    if (submitStatus === 'success') {
+      timer = setTimeout(() => {
+        setSubmitStatus(null);
+      }, 3000); // الرسالة ستختفي بعد 3 ثوانٍ
+    }
+    return () => clearTimeout(timer);
+  }, [submitStatus]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
+    try {
+      const response = await fetch('http://147.93.126.19:8080/api/Feedback/AddMessage', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': '*/*'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Success:', data);
+        setSubmitStatus('success');
+        setFormData({
+          name: "",
+          email: "",
+          country: "",
+          message: ""
+        });
+      } else {
+        throw new Error('Network response was not ok');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div
@@ -32,7 +94,7 @@ export default function ContactPage() {
             <h2 className="text-2xl font-bold text-teal-700 text-center mb-2">
               معلومات التواصل
             </h2>
-                  <div className="w-40 h-1 bg-gradient-to-r from-[#14b8a6]    mx-auto mb-10 rounded-full"></div>
+            <div className="w-40 h-1 bg-gradient-to-r from-[#14b8a6] mx-auto mb-10 rounded-full"></div>
 
             {[
               {
@@ -120,20 +182,37 @@ export default function ContactPage() {
           <h2 className="text-3xl md:text-4xl font-extrabold text-teal-700 mb-2 text-center tracking-tight">
             راسلنا الآن
           </h2>
-                <div className="w-40 h-1 bg-gradient-to-r from-[#14b8a6]    mx-auto mb-2 rounded-full"></div>
+          <div className="w-40 h-1 bg-gradient-to-r from-[#14b8a6] mx-auto mb-2 rounded-full"></div>
 
           <p className="text-gray-500 text-center mb-8 text-lg">
             املأ النموذج وسنرد عليك في أقرب وقت ممكن.
           </p>
-          <form className="space-y-7 max-w-md  ">
+          
+          {submitStatus === 'success' && (
+            <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-xl text-center animate-fade-in">
+              تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.
+            </div>
+          )}
+          
+          {submitStatus === 'error' && (
+            <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-xl text-center">
+              حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.
+            </div>
+          )}
+
+          <form className="space-y-7 max-w-md" onSubmit={handleSubmit}>
             <div>
               <label className="block mb-1 font-semibold text-gray-700 text-right">
                 الاسم
               </label>
               <input
                 type="text"
+                name="name"
                 placeholder="اسمك الكامل"
                 className="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 text-lg shadow-sm"
+                value={formData.name}
+                onChange={handleChange}
+                required
               />
             </div>
             <div>
@@ -142,8 +221,26 @@ export default function ContactPage() {
               </label>
               <input
                 type="email"
+                name="email"
                 placeholder="you@email.com"
                 className="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 text-lg shadow-sm"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-semibold text-gray-700 text-right">
+                الدولة
+              </label>
+              <input
+                type="text"
+                name="country"
+                placeholder="دولتك"
+                className="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 text-lg shadow-sm"
+                value={formData.country}
+                onChange={handleChange}
+                required
               />
             </div>
             <div>
@@ -152,15 +249,20 @@ export default function ContactPage() {
               </label>
               <textarea
                 rows={5}
+                name="message"
                 placeholder="اكتب رسالتك هنا..."
                 className="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 text-lg shadow-sm"
+                value={formData.message}
+                onChange={handleChange}
+                required
               ></textarea>
             </div>
             <button
               type="submit"
-              className="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-lg text-lg transition flex items-center justify-center gap-2"
+              className="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-lg text-lg transition flex items-center justify-center gap-2 disabled:opacity-50"
+              disabled={isSubmitting}
             >
-              إرسال الرسالة
+              {isSubmitting ? 'جاري الإرسال...' : 'إرسال الرسالة'}
             </button>
           </form>
         </div>

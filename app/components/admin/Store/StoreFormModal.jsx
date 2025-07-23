@@ -64,6 +64,13 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
     }
   };
 
+  // تحقق من مسار الصورة وإضافة المسار الكامل إذا لزم الأمر
+  const getImageSrc = (url) => {
+    if (!url) return null;
+    if (url.startsWith('blob:') || url.startsWith('data:')) return url;
+    return `http://147.93.126.19:8080/uploads/${url}`;
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
@@ -115,7 +122,7 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
               onDrop={handleDrop}
             >
               {logoUrl ? (
-                <img src={logoUrl} alt="شعار المتجر" className="w-full h-full object-contain rounded-xl shadow" />
+                <img src={getImageSrc(logoUrl)} alt="شعار المتجر" className="w-full h-full object-contain rounded-xl shadow" />
               ) : (
                 <span className="flex flex-col items-center text-gray-400 text-base text-center select-none">
                   <FiImage className="text-3xl mb-1" />
@@ -145,4 +152,4 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
   );
 };
 
-export default StoreFormModal; 
+export default StoreFormModal;
