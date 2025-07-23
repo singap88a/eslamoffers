@@ -62,14 +62,14 @@ const BestStores = () => {
             <Link
               key={store.id}
               href={`/stores/${store.id}`}
-              className="bg-gray-50 rounded-xl flex items-center justify-center border border-gray-200 hover:shadow-md transition duration-200 ease-in-out hover:border-[#14b8a6] w-24 h-16 overflow-hidden"
+              className="bg-gray-50 rounded-md flex items-center justify-center border border-gray-200 hover:shadow-md transition duration-200 ease-in-out hover:border-[#14b8a6] w-24 h-[3.7rem] overflow-hidden"
             >
               <div className="w-full h-full relative">
                 <Image 
                   src={getSafeLogoUrl(store.logoUrl)} 
                   alt={store.name} 
                   fill
-                  className="object-cover rounded-xl"
+                  className="object-cover  "
                 />
               </div>
             </Link>

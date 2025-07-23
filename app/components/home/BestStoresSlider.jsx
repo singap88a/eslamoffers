@@ -46,7 +46,7 @@ const BestStoresSlider = () => {
       ) : (
         <Swiper
           spaceBetween={20}
-          slidesPerView={2}
+          slidesPerView={1}
           breakpoints={{
             640: { slidesPerView: 1 },
             768: { slidesPerView: 2 },

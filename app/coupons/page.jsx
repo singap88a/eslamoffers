@@ -1,7 +1,7 @@
 import CouponCard from '../components/coupons/CouponCard';
 import SubscribeBox from '../components/home/Coupon/SubscribeBox';
-import AppPromotionBox from '../components/home/Coupon/AppPromotionBox';
-import PromoCard from '../components/home/Coupon/PromoCard';
+ import PromoCard from '../components/home/Coupon/PromoCard';
+import CountdownOfferBox from '../components/home/Coupon/CountdownOfferBox';
 
 async function getCoupons() {
   const res = await fetch('http://147.93.126.19:8080/api/Coupons/GetAllCoupons', { cache: 'no-store' });
@@ -34,7 +34,7 @@ export default async function CouponsPage() {
           <div className="lg:col-span-1">
             <div className="space-y-8">
               <SubscribeBox />
-              <AppPromotionBox />
+              <CountdownOfferBox />
               <PromoCard />
             </div>
           </div>

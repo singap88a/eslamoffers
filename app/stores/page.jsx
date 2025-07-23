@@ -2,9 +2,9 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import SubscribeBox from "../components/home/Coupon/SubscribeBox";
-import AppPromotionBox from "../components/home/Coupon/AppPromotionBox";
-import PromoCard from "../components/home/Coupon/PromoCard";
+ import PromoCard from "../components/home/Coupon/PromoCard";
 import Link from "next/link";
+import CountdownOfferBox from "../components/home/Coupon/CountdownOfferBox";
 
 const StoreCardSkeleton = () => (
   <div className="bg-white shadow-lg rounded-lg overflow-hidden border-2 border-dashed border-gray-200 animate-pulse">
@@ -175,7 +175,7 @@ const StoresPage = () => {
             <div className="sticky top-8">
               <SubscribeBox />
               <div className="pt-16">
-                <AppPromotionBox />
+                <CountdownOfferBox />
               </div>
               <PromoCard />
             </div>

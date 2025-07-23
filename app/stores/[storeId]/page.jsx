@@ -4,9 +4,9 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import CouponCard from "../../components/coupons/CouponCard";
 import SubscribeBox from "../../components/home/Coupon/SubscribeBox";
- import AppPromotionBox from "../../components/home/Coupon/AppPromotionBox";
-
+ 
 import PromoCard from "../../components/home/Coupon/PromoCard";
+import CountdownOfferBox from "../../components/home/Coupon/CountdownOfferBox";
 
 const StoreCouponsPage = () => {
   const [store, setStore] = useState(null);
@@ -117,7 +117,7 @@ const StoreCouponsPage = () => {
             <div className="sticky top-8">
               <SubscribeBox />
               <div className="pt-16">
-                <AppPromotionBox />
+                <CountdownOfferBox />
               </div>
               <PromoCard />
             </div>

@@ -22,7 +22,7 @@ export default function Bannar() {
         loop={true}
         spaceBetween={20}
         pagination={{ clickable: true }}
-        slidesPerView={1}
+        slidesPerView={2}
         breakpoints={{
           640: { slidesPerView: 2 },
           1024: { slidesPerView: 4 },

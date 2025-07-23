@@ -1,10 +1,10 @@
 import CouponSlider from "./CouponSlider";
 import SubscribeBox from "./SubscribeBox";
-import AppPromotionBox from "./AppPromotionBox";
-import PromoCard from "./PromoCard";
+ import PromoCard from "./PromoCard";
 import BestStoresSlider from "../BestStoresSlider";
 import BestOffersSlider from "../BestOffersSlider";
 import Bannar from "../Bannar";
+import CountdownOfferBox from "./CountdownOfferBox";
  
 const OffersSection = () => {
   return (
@@ -21,8 +21,8 @@ const OffersSection = () => {
         <div className="lg:col-span-2 ">
           <SubscribeBox />
           <div className=" py-15  ">
-            <AppPromotionBox />
-            <PromoCard />
+            <CountdownOfferBox/>
+             <PromoCard />
           </div>
         </div>
       </div>

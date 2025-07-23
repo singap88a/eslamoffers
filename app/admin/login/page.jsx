@@ -11,6 +11,7 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
   const router = useRouter();
 
   const handleLogin = async (e) => {
@@ -27,17 +28,25 @@ export default function AdminLogin() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        data = {};
+      }
 
       if (res.ok && data.isAuthenticated && data.token) {
-        // Store the token in cookies instead of sessionStorage
         if (typeof window !== 'undefined') {
-          document.cookie = `token=${data.token}; path=/; max-age=86400;`; // 86400 seconds = 1 day
-          window.location.href = "/admin/dashboard"; // Use hard refresh
+          document.cookie = `token=${data.token}; path=/; max-age=86400;`;
+          setSuccess("تم تسجيل الدخول بنجاح! سيتم تحويلك الآن...");
+          setTimeout(() => {
+            window.location.href = "/admin/dashboard";
+          }, 300);
         }
- 
+      } else if (res.status === 400 || res.status === 401) {
+        setError(data.message || "البريد الإلكتروني أو كلمة المرور غير صحيحة");
       } else {
-        setError(data.message || "فشل تسجيل الدخول أو التوكن غير موجود");
+        setError(data.message || "حدث خطأ غير متوقع. حاول مرة أخرى لاحقًا.");
       }
     } catch (err) {
       setError("حدث خطأ في الاتصال بالسيرفر");
@@ -78,6 +87,11 @@ export default function AdminLogin() {
             {error && (
               <div className="p-3 bg-red-100 border-l-4 border-red-500 text-red-700">
                 <p>{error}</p>
+              </div>
+            )}
+            {success && (
+              <div className="p-3 bg-green-100 border-l-4 border-green-500 text-green-700">
+                <p>{success}</p>
               </div>
             )}
             

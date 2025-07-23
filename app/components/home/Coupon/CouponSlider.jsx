@@ -51,7 +51,7 @@ const CouponSlider = () => {
     <div className="">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-[#14b8a6]">
-          أقوى الأكواد الصيفية
+          أقوى الأكواد  
         </h2>
         <Link href="/coupons" className="text-lg font-medium text-[#14b8a6] hover:text-teal-700 underline flex items-center gap-2">
           <span>كل الكوبونات</span>

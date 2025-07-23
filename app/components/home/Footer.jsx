@@ -138,7 +138,7 @@ export default function Footer() {
         <div className="space-y-4 text-right">
           <div className="flex justify-center md:justify-end">
             <Image
-              src="/logo.png"
+              src="/logo4.png"
               alt="Map"
               width={150}
               height={150}
