@@ -46,10 +46,10 @@ const BestOffersSlider = () => {
       ) : (
         <Swiper
           spaceBetween={20}
-          slidesPerView={1}
+          slidesPerView="auto"
           breakpoints={{
-            640: { slidesPerView: 2 },
-            1024: { slidesPerView: 3 },
+            640: { slidesPerView: "auto" },
+            1024: { slidesPerView: "auto" },
           }}
           loop
           autoplay={{
@@ -58,7 +58,7 @@ const BestOffersSlider = () => {
           }}
         >
           {offers.map((offer) => (
-            <SwiperSlide key={offer.id} className="my-2">
+            <SwiperSlide key={offer.id} className="my-2 !w-[220px] md:!w-[220px] lg:!w-[220px]">
               <OfferCard offer={offer} />
             </SwiperSlide>
           ))}
@@ -68,4 +68,4 @@ const BestOffersSlider = () => {
   );
 };
 
-export default BestOffersSlider; 
+export default BestOffersSlider;

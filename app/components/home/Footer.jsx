@@ -161,22 +161,13 @@ export default function Footer() {
             <div className="flex justify-end items-center gap-2">
               <FaEnvelope className="text-[#14b8a6]" /> support@almowafir.com
             </div>
-            <div className="flex justify-end items-center gap-2">
-              <FaPhone className="text-[#14b8a6]" /> 971+ 582399141
-            </div>
-            <div className="flex justify-end items-center gap-2 relative group">
-              <FaWhatsapp className="text-[#14b8a6] text-xl cursor-pointer" />
-              <span className="absolute top-0 right-7 bg-white border px-2 py-1 rounded text-xs shadow opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                تواصل على واتساب
-              </span>
-              971+ 582399141
-            </div>
+ 
           </div>
         </div>
       </div>
 
       <div className="text-center text-xs text-gray-400 py-3 border-t">
-        جميع الحقوق محفوظة © الموفر 2024
+        جميع الحقوق محفوظة ©  2025
       </div>
     </footer>
   );

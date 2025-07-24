@@ -67,7 +67,7 @@ const CouponCard = ({ coupon, onGetCode }) => {
             }}
             className="w-full bg-gradient-to-r from-teal-500 to-teal-600 text-white font-semibold px-4 py-2 rounded-lg hover:from-teal-600 hover:to-teal-700 transition"
           >
-            الحصول على الكود
+               انسخ الكود
           </button>
         </div>
       </div>
@@ -88,29 +88,70 @@ const CouponCard = ({ coupon, onGetCode }) => {
             >
               <FiX size={24} />
             </button>
-            <h2 className="text-2xl font-bold text-center mb-2 text-gray-800">انسخ الكود الخاص بك</h2>
-            <p className="text-center text-gray-500 mb-6">انقر على الزر لنسخ الكود واستخدامه عند الدفع.</p>
-            <div className="bg-gray-50 border border-dashed border-teal-400 rounded-lg flex items-center justify-between px-6 py-4">
-              <span className="text-2xl font-mono text-teal-600 break-all">{coupon.couponCode}</span>
-              {!isCopied ? (
-                <button
-                  onClick={handleCopy}
-                  className="ml-4 px-4 py-2 rounded-md text-white font-semibold transition bg-teal-500 hover:bg-teal-600 flex items-center"
-                >
-                  <FiCopy size={20} className="mr-2" /> نسخ
-                </button>
-              ) : (
-                <a
-                  href={coupon.linkRealStore}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ml-4 px-4 py-2 rounded-md text-white font-semibold transition bg-green-500 hover:bg-green-600"
-                >
-                  زيارة المتجر
-                </a>
-              )}
+            {/* شعار المتجر */}
+            <div className="flex flex-col items-center mb-2">
+              <Image
+                src={getImageSrc()}
+                alt={coupon.title}
+                width={80}
+                height={40}
+                className="mb-2"
+              />
             </div>
-            {isCopied && <p className="text-green-500 text-center mt-4 font-medium">تم النسخ بنجاح! يمكنك الآن زيارة المتجر.</p>}
+            <h2 className="text-xl font-bold text-center mb-2 text-gray-800">{coupon.title}</h2>
+            <p className="text-center text-gray-500 mb-4">{coupon.description}</p>
+            {/* شارة جديدة أو لا تفوت */}
+            <div className="flex justify-end gap-2 mb-2">
+              <span className="text-xs text-red-500 font-bold flex items-center gap-1">
+                <span>جديد</span> <span className="text-orange-400">✨</span>
+              </span>
+              <span className="text-xs text-orange-500 font-bold flex items-center gap-1">
+                <span>لا تفوت</span> <span>🔥</span>
+              </span>
+            </div>
+            {/* رسالة تم النسخ */}
+            {isCopied && (
+              <div className="bg-orange-100 text-orange-700 rounded-md px-3 py-2 text-center mb-2 font-semibold text-sm">
+                تم نسخ الكود - اذهب الى المتجر
+              </div>
+            )}
+            {/* الكود مع إمكانية النسخ */}
+            <div
+              className="bg-gray-50 border border-dashed border-teal-400 rounded-lg flex items-center justify-center px-6 py-4 mb-4 cursor-pointer select-all relative"
+              onClick={() => {
+                navigator.clipboard.writeText(coupon.couponCode);
+                setIsCopied(true);
+              }}
+            >
+              {isCopied ? (
+                <FiCheck size={28} className="text-green-500 absolute right-4" />
+              ) : (
+                <FiCopy size={28} className="text-teal-500 absolute right-4" />
+              )}
+              <span className="text-3xl font-mono text-teal-700 mx-auto">{coupon.couponCode}</span>
+            </div>
+            {/* زر النسخ أو الذهاب للمتجر */}
+            {!isCopied ? (
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(coupon.couponCode);
+                  setIsCopied(true);
+                  window.open(coupon.linkRealStore, '_blank', 'noopener,noreferrer');
+                }}
+                className="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 rounded-lg text-lg transition"
+              >
+                انسخ الكود وتسوق
+              </button>
+            ) : (
+              <a
+                href={coupon.linkRealStore}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full block bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg text-lg text-center transition"
+              >
+                اذهب الى المتجر
+              </a>
+            )}
           </div>
         </div>
       )}

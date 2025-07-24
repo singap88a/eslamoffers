@@ -15,7 +15,7 @@
     "@mui/material": "^7.2.0",
     "axios": "^1.10.0",
     "chart.js": "^4.5.0",
-    "framer-motion": "^12.23.6",
+    "framer-motion": "^12.23.9",
     "jwt-decode": "^3.1.2",
     "lottie-react": "^2.4.1",
     "next": "15.3.5",
