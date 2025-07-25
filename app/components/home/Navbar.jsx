@@ -155,7 +155,7 @@ const Navbar = () => {
                       onClick={() => window.location.assign(`/stores/${store.id}`)}
                     >
                       <img
-                        src={`http://147.93.126.19:8080/uploads/${store.logoUrl}`}
+                        src={`https://api.eslamoffers.com/uploads/${store.logoUrl}`}
                         alt={store.name}
                         className="w-12 h-12 object-contain rounded-lg transition-transform duration-200 group-hover:scale-110 shadow-sm border border-gray-200"
                       />

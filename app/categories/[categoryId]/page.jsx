@@ -58,7 +58,7 @@ const CategoryPage = () => {
     if (store && store.logoUrl) {
       return store.logoUrl.startsWith("http")
         ? store.logoUrl
-        : `http://147.93.126.19:8080/uploads/${store.logoUrl}`;
+        : `https://api.eslamoffers.com/uploads/${store.logoUrl}`;
     }
     return "/logo.png";
   };

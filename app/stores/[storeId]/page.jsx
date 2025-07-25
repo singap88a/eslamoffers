@@ -77,7 +77,7 @@ const StoreCouponsPage = () => {
     if (store.logoUrl.startsWith("http") || store.logoUrl.startsWith("https")) {
       return store.logoUrl;
     }
-    return `http://147.93.126.19:8080/uploads/${store.logoUrl}`;
+    return `https://api.eslamoffers.com/uploads/${store.logoUrl}`;
   };
 
   return (

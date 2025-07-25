@@ -36,7 +36,7 @@ const CategoryTable = ({ categories, onEdit, onDelete }) => {
                   <div className="flex items-center gap-2">
                     {/* <FiImage className="text-gray-400" /> */}
                     <img
-                      src={category.iconUrl ? `http://147.93.126.19:8080/uploads/${category.iconUrl}` : '/logo.png'}
+                      src={category.iconUrl ? `https://api.eslamoffers.com/uploads/${category.iconUrl}` : '/logo.png'}
                       alt={category.name}
                       width={40}
                       height={40}

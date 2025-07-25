@@ -10,7 +10,7 @@ const OfferCard = ({ offer }) => {
     if (offer.logoUrl.startsWith('http')) {
       return offer.logoUrl;
     }
-    return `http://147.93.126.19:8080/uploads/${offer.logoUrl}`;
+    return `https://api.eslamoffers.com/uploads/${offer.logoUrl}`;
   };
 
   return (

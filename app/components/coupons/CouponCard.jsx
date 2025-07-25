@@ -18,7 +18,7 @@ const CouponCard = ({ coupon, onGetCode }) => {
     if (coupon.imageUrl.startsWith('http') || coupon.imageUrl.startsWith('https')) {
       return coupon.imageUrl;
     }
-    return `http://147.93.126.19:8080/uploads/${coupon.imageUrl}`;
+    return `https://api.eslamoffers.com/uploads/${coupon.imageUrl}`;
   };
 
   const isExpired = !coupon.isActive || new Date(coupon.endDate || coupon.end_date) < new Date();

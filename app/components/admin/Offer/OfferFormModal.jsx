@@ -32,7 +32,7 @@ const OfferFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
       setLogoFile(null);
       
       if (initialData.logoUrl) {
-        const imageUrl = `http://147.93.126.19:8080/uploads/${encodeURIComponent(initialData.logoUrl)}`;
+        const imageUrl = `https://api.eslamoffers.com/uploads/${encodeURIComponent(initialData.logoUrl)}`;
         setLogoUrl(imageUrl); // Set preview URL
         fetchImageAsFile(imageUrl, initialData.logoUrl.split('/').pop()).then(file => {
           if (file) setLogoFile(file);

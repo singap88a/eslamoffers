@@ -16,9 +16,15 @@ const getTimeLeft = () => {
 };
 
 const CountdownOfferBox = () => {
-  const [timeLeft, setTimeLeft] = useState(getTimeLeft());
+  // Initialize with empty values to prevent hydration mismatch
+  const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    // Set initial time and mark as client-side rendered
+    setTimeLeft(getTimeLeft());
+    setIsClient(true);
+    
     const timer = setInterval(() => {
       setTimeLeft(getTimeLeft());
     }, 1000);
@@ -31,15 +37,15 @@ const CountdownOfferBox = () => {
         <div className="text-white text-xl font-bold text-center mb-4">اغتنم العرض قبل</div>
         <div className="flex justify-center gap-3 mb-6">
           <div className="bg-black rounded-xl flex flex-col items-center justify-center w-24 h-24">
-            <span className="text-4xl font-bold text-white">{String(timeLeft.hours).padStart(2, '0')}</span>
+            <span className="text-4xl font-bold text-white">{isClient ? String(timeLeft.hours).padStart(2, '0') : "00"}</span>
             <span className="text-lg text-white mt-1">ساعة</span>
           </div>
           <div className="bg-black rounded-xl flex flex-col items-center justify-center w-24 h-24">
-            <span className="text-4xl font-bold text-white">{String(timeLeft.minutes).padStart(2, '0')}</span>
+            <span className="text-4xl font-bold text-white">{isClient ? String(timeLeft.minutes).padStart(2, '0') : "00"}</span>
             <span className="text-lg text-white mt-1">دقيقة</span>
           </div>
           <div className="bg-black rounded-xl flex flex-col items-center justify-center w-24 h-24">
-            <span className="text-4xl font-bold text-white">{String(timeLeft.seconds).padStart(2, '0')}</span>
+            <span className="text-4xl font-bold text-white">{isClient ? String(timeLeft.seconds).padStart(2, '0') : "00"}</span>
             <span className="text-lg text-white mt-1">ثانية</span>
           </div>
         </div>
@@ -52,4 +58,4 @@ const CountdownOfferBox = () => {
   );
 };
 
-export default CountdownOfferBox; 
+export default CountdownOfferBox;

@@ -30,7 +30,7 @@ const BestStores = () => {
   }, []);
 
   const getSafeLogoUrl = (logoUrl) => {
-    const baseUrl = 'http://147.93.126.19:8080/uploads/';
+    const baseUrl = 'https://api.eslamoffers.com/uploads/';
     
     if (!logoUrl) {
       return '/logo.png'; // Fallback for null, undefined, or empty string

@@ -24,7 +24,7 @@ const OfferTable = ({ offers, onEdit, onDelete, loading }) => {
               <tr key={offer.id} className={`border-b hover:bg-gray-50 transition-all duration-200 ${offer.isBast ? 'bg-yellow-50/60' : ''}`}>
                 <td className="py-2 px-4">
                   <img
-                    src={offer.logoUrl ? `http://147.93.126.19:8080/uploads/${encodeURIComponent(offer.logoUrl)}` : "/default-image.png"}
+                    src={offer.logoUrl ? `https://api.eslamoffers.com/uploads/${encodeURIComponent(offer.logoUrl)}` : "/default-image.png"}
                     alt={offer.title}
                     className="w-14 h-14 object-contain rounded-lg border border-gray-200 bg-white shadow-sm"
                   />

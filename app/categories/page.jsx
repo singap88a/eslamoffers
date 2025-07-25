@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 // Helper to ensure iconUrl is always valid
 const getSafeIconUrl = (iconUrl) => {
-    const baseUrl = 'http://147.93.126.19:8080/uploads/';
+    const baseUrl = 'https://api.eslamoffers.com/uploads/';
     if (!iconUrl) {
         return '/logo.png'; // fallback
     }

@@ -68,7 +68,7 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
   const getImageSrc = (url) => {
     if (!url) return null;
     if (url.startsWith('blob:') || url.startsWith('data:')) return url;
-    return `http://147.93.126.19:8080/uploads/${url}`;
+    return `https://api.eslamoffers.com/uploads/${url}`;
   };
 
   return (

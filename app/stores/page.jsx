@@ -25,7 +25,7 @@ const StoreCard = ({ store }) => {
     if (store.logoUrl.startsWith('http') || store.logoUrl.startsWith('https')) {
       return store.logoUrl;
     }
-    return `http://147.93.126.19:8080/uploads/${store.logoUrl}`;
+    return `https://api.eslamoffers.com/uploads/${store.logoUrl}`;
   };
   return (
     <div className="bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-xl overflow-hidden shadow-sm h-full flex flex-col relative transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl">
