@@ -22,7 +22,7 @@ const CategoryPage = () => {
 
       try {
         const couponsRes = await fetch(
-          "http://147.93.126.19:8080/api/Coupons/GetAllCoupons"
+          "https://api.eslamoffers.com/api/Coupons/GetAllCoupons"
         );
         const allCoupons = await couponsRes.json();
         const filteredCoupons = allCoupons.filter(
@@ -31,14 +31,14 @@ const CategoryPage = () => {
         setCoupons(filteredCoupons);
 
         const storesRes = await fetch(
-          "http://147.93.126.19:8080/api/Store/GetAllStores"
+          "https://api.eslamoffers.com/api/Store/GetAllStores"
         );
         const allStores = await storesRes.json();
         setStores(allStores);
 
         if (filteredCoupons.length > 0) {
           const categoryRes = await fetch(
-            `http://147.93.126.19:8080/api/Category/GetCategoryById/${categoryId}`
+            `https://api.eslamoffers.com/api/Category/GetCategoryById/${categoryId}`
           );
           const categoryData = await categoryRes.json();
           setCategoryName(categoryData.name);

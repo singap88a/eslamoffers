@@ -8,7 +8,7 @@ import { FiArrowLeft } from "react-icons/fi";
 
 const fetchBestOffers = async () => {
   try {
-    const res = await fetch("http://147.93.126.19:8080/api/Offers/GetBestOffers/best");
+    const res = await fetch("https://api.eslamoffers.com/api/Offers/GetBestOffers/best");
     if (!res.ok) throw new Error("Failed to fetch offers");
     const data = await res.json();
     return data.filter(o => o.isBast);

@@ -8,7 +8,7 @@ import { FiArrowLeft } from "react-icons/fi";
 
 const fetchBestStores = async () => {
   try {
-    const res = await fetch("http://147.93.126.19:8080/api/Store/GetBastStores/Bast");
+    const res = await fetch("https://api.eslamoffers.com/api/Store/GetBastStores/Bast");
     if (!res.ok) throw new Error("Failed to fetch stores");
     const data = await res.json();
     return data.filter(s => s.isBast).slice(0, 8); // We show only 8 stores

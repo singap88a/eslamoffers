@@ -14,7 +14,7 @@ const OffersPage = () => {
   const [offerToDelete, setOfferToDelete] = useState(null);
   const [toast, setToast] = useState(null);
 
-  const API_URL = "http://147.93.126.19:8080/api/Offers";
+  const API_URL = "https://api.eslamoffers.com/api/Offers";
 
   // Fetch all offers
   const fetchOffers = async () => {

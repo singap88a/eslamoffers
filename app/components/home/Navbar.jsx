@@ -18,7 +18,7 @@ const Navbar = () => {
 
   // جلب بيانات المتاجر مرة واحدة
   useEffect(() => {
-    fetch("http://147.93.126.19:8080/api/Store/GetAllStores")
+    fetch("https://api.eslamoffers.com/api/Store/GetAllStores")
       .then((res) => res.json())
       .then((data) => setStores(data));
   }, []);

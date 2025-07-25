@@ -27,7 +27,7 @@ export default function AdminFeedbackPage() {
   const fetchFeedbacks = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://147.93.126.19:8080/api/Feedback/GetFeedBack', {
+      const response = await fetch('https://api.eslamoffers.com/api/Feedback/GetFeedBack', {
         method: 'GET',
         headers: {
           'accept': '*/*'
@@ -51,7 +51,7 @@ export default function AdminFeedbackPage() {
   const handleDelete = async (id) => {
     setIsDeleting(true);
     try {
-      const response = await fetch(`http://147.93.126.19:8080/api/Feedback/DeleteMessage/${id}`, {
+      const response = await fetch(`https://api.eslamoffers.com/api/Feedback/DeleteMessage/${id}`, {
         method: 'DELETE',
         headers: {
           'accept': '*/*'

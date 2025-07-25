@@ -25,14 +25,14 @@ const StoreCouponsPage = () => {
       try {
         // Fetch store details
         const storeResponse = await axios.get(
-          "http://147.93.126.19:8080/api/Store/GetAllStores"
+          "https://api.eslamoffers.com/api/Store/GetAllStores"
         );
         const currentStore = storeResponse.data.find((s) => s.id === storeId);
         setStore(currentStore);
 
         // Fetch coupons
         const couponsResponse = await axios.get(
-          "http://147.93.126.19:8080/api/Coupons/GetAllCoupons"
+          "https://api.eslamoffers.com/api/Coupons/GetAllCoupons"
         );
         const storeCoupons = couponsResponse.data.filter(
           (c) => c.storeId === storeId

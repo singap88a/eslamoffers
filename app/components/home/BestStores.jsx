@@ -18,7 +18,7 @@ const BestStores = () => {
   useEffect(() => {
     const fetchStores = async () => {
       try {
-        const response = await fetch('http://147.93.126.19:8080/api/Store/GetBastStores/Bast');
+        const response = await fetch('https://api.eslamoffers.com/api/Store/GetBastStores/Bast');
         const data = await response.json();
         setStores(data);
       } catch (error) {

@@ -45,7 +45,7 @@ export default function ContactPage() {
     setSubmitStatus(null);
 
     try {
-      const response = await fetch('http://147.93.126.19:8080/api/Feedback/AddMessage', {
+      const response = await fetch('https://api.eslamoffers.com/api/Feedback/AddMessage', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

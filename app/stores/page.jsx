@@ -67,7 +67,7 @@ const StoresPage = () => {
     const fetchStores = async () => {
       try {
         const response = await axios.get(
-          "http://147.93.126.19:8080/api/Store/GetAllStores"
+          "https://api.eslamoffers.com/api/Store/GetAllStores"
         );
         setStores(response.data);
       } catch (err) {

@@ -20,7 +20,7 @@ export default function AdminLogin() {
     setError("");
 
     try {
-      const res = await fetch("http://147.93.126.19:8080/api/Authenticate/Login", {
+      const res = await fetch("https://api.eslamoffers.com/api/Authenticate/Login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

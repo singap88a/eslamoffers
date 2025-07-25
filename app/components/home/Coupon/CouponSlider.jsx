@@ -10,7 +10,7 @@ import Link from "next/link";
 const fetchBestCoupons = async () => {
   try {
     const res = await fetch(
-      "http://147.93.126.19:8080/api/Coupons/GetAllCoupons"
+      "https://api.eslamoffers.com/api/Coupons/GetAllCoupons"
     );
     if (!res.ok) throw new Error("Failed to fetch coupons");
     const data = await res.json();

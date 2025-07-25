@@ -7,8 +7,8 @@ import ConfirmDialog from "../../../components/admin/Store/ConfirmDialog";
 import Toast from "../../../components/admin/Store/Toast";
 import { FiPlus } from "react-icons/fi";
 
-const API_BASE = "http://147.93.126.19:8080/api/Coupons";
-const CATEGORY_API_URL = "http://147.93.126.19:8080/api/Category";
+const API_BASE = "https://api.eslamoffers.com/api/Coupons";
+const CATEGORY_API_URL = "https://api.eslamoffers.com/api/Category";
 
 const getCookie = (name) => {
   if (typeof window === 'undefined') return null;

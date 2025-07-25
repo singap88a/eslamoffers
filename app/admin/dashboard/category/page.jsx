@@ -15,11 +15,11 @@ const CategoryPage = () => {
   const [categoryToDelete, setCategoryToDelete] = useState(null);
   const [toast, setToast] = useState({ show: false, message: '', type: '' });
 
-  const API_URL = 'http://147.93.126.19:8080/api/Category';
+  const API_URL = 'https://api.eslamoffers.com/api/Category';
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://147.93.126.19:8080/api/Category/GetAllCategories');
+      const response = await fetch('https://api.eslamoffers.com/api/Category/GetAllCategories');
       const data = await response.json();
       setCategories(data);
     } catch (error) {

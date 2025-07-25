@@ -31,15 +31,15 @@ export default function AdminDashboard() {
         setLoading(true);
         
         // جلب عدد المتاجر
-        const storesRes = await fetch('http://147.93.126.19:8080/api/Store/GetAllStores');
+        const storesRes = await fetch('https://api.eslamoffers.com/api/Store/GetAllStores');
         const storesData = await storesRes.json();
         
         // جلب عدد الكوبونات
-        const couponsRes = await fetch('http://147.93.126.19:8080/api/Coupons/GetAllCoupons');
+        const couponsRes = await fetch('https://api.eslamoffers.com/api/Coupons/GetAllCoupons');
         const couponsData = await couponsRes.json();
         
         // جلب عدد العروض
-        const offersRes = await fetch('http://147.93.126.19:8080/api/Offers/GetAllOffers');
+        const offersRes = await fetch('https://api.eslamoffers.com/api/Offers/GetAllOffers');
         const offersData = await offersRes.json();
         
         setStats({

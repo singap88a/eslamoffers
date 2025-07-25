@@ -4,7 +4,7 @@ import SubscribeBox from '../components/home/Coupon/SubscribeBox';
 import CountdownOfferBox from '../components/home/Coupon/CountdownOfferBox';
 
 async function getOffers() {
-  const res = await fetch('http://147.93.126.19:8080/api/Offers/GetAllOffers', { cache: 'no-store' });
+  const res = await fetch('https://api.eslamoffers.com/api/Offers/GetAllOffers', { cache: 'no-store' });
   if (!res.ok) {
     throw new Error('Failed to fetch offers');
   }
