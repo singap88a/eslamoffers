@@ -21,7 +21,7 @@ const StoreCardSkeleton = () => (
 
 const StoreCard = ({ store }) => {
   const getLogoSrc = () => {
-    if (!store.logoUrl) return '/logo.png';
+    if (!store.logoUrl) return '/logo4.png';
     if (store.logoUrl.startsWith('http') || store.logoUrl.startsWith('https')) {
       return store.logoUrl;
     }
@@ -61,7 +61,7 @@ const StoresPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [visibleCount, setVisibleCount] = useState(9);
+  const [visibleCount, setVisibleCount] = useState(15);
 
   useEffect(() => {
     const fetchStores = async () => {
@@ -129,7 +129,7 @@ const StoresPage = () => {
             </div>
 
             {loading && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-3 gap-8">
+              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-3 gap-8">
                 {[...Array(6)].map((_, i) => (
                   <StoreCardSkeleton key={i} />
                 ))}
@@ -141,7 +141,7 @@ const StoresPage = () => {
 
             {!loading && !error && (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-3 gap-4">
                   {visibleStores.length > 0 ? (
                     visibleStores.map((store) => (
                       <Link href={`/stores/${store.id}`} key={store.id}>
