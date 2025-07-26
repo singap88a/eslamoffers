@@ -111,18 +111,13 @@ const CouponCard = ({ coupon, onGetCode }) => {
         
         {/* عرض آخر استخدام للكود - تصميم جديد */}
 {lastUsedTime && (
-  <div className="bg-green-50/60 border border-green-100 rounded-md px-2 py-0.5 flex items-center  justify-center gap-1 text-[11px] sm:text-xs shadow-sm">
-    <FiClock className="text-green-500 flex-shrink-0 text-[14px]" />
-    <div className="text-green-700 flex gap-1 items-baseline">
-      <span>{lastUsedTime.text}</span>
-      {lastUsedTime.time && (
-        <span className="font-semibold text-green-800 text-[12px]">
-          {lastUsedTime.time}
-        </span>
-      )}
-    </div>
+  <div className="bg-green-50 border border-green-100 rounded-md px-2   flex items-center justify-center gap-1 text-[11px] font-medium w-fit mx-auto">
+    <FiClock className="text-green-500 text-[13px] -mt-[1px]" />
+    <span className="text-gray-700">آخر استخدام للكود:</span>
+    <span className="text-green-600 font-bold">{lastUsedTime.time}</span>
   </div>
 )}
+
 
 
         <div className="flex items-center justify-between gap-2 mt-4">
