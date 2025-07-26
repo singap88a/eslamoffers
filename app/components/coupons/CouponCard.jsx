@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { FiCopy, FiCheck, FiX } from 'react-icons/fi';
+import { FiCopy, FiCheck, FiX, FiClock } from 'react-icons/fi';
 
 const CouponCard = ({ coupon, onGetCode }) => {
   const [showModal, setShowModal] = useState(false);
@@ -11,6 +11,13 @@ const CouponCard = ({ coupon, onGetCode }) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(coupon.couponCode);
     setIsCopied(true);
+    fetch(`https://api.eslamoffers.com/api/Coupons/NumberUsed/${coupon.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxOTcwZGYxMi00ZDZiLTQ0OTYtOGZmNi1jZmVmMDJlMjhlM2MiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjQ5YmFjNWVmLWY4MjktNGRjMy1hZWIyLTFjNmQ1ZTgxYWE3YSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJyZWRhc2FhZDAxMDI2MCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwiZXhwIjoxNzUzNTY5NjQyLCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo3MjYyLyIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjcyNjIvIn0.uNVL0lKRVGO30MifLDc4PQTeA4RzRYWRrnQo_G_elhQ'
+      }
+    }).catch(err => console.error('Error updating last use:', err));
   };
 
   const getImageSrc = () => {
@@ -23,41 +30,42 @@ const CouponCard = ({ coupon, onGetCode }) => {
 
   const isExpired = !coupon.isActive || new Date(coupon.endDate || coupon.end_date) < new Date();
 
-  // دالة لحساب الوقت المنقضي منذ آخر استخدام
   const getLastUsedTime = () => {
     if (!coupon.lastUseAt) return null;
     
     const lastUseDate = new Date(coupon.lastUseAt);
     const now = new Date();
     
-    // التحقق من صحة التاريخ
     if (isNaN(lastUseDate.getTime())) return null;
-    
-    // إذا كان آخر استخدام في المستقبل (خطأ في الساعة) نعرض "الآن"
-    if (lastUseDate > now) return "الآن";
+    if (lastUseDate > now) return { text: "الآن", time: "" };
     
     const diffTime = Math.abs(now - lastUseDate);
     const diffMinutes = Math.floor(diffTime / (1000 * 60));
+    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     
-    // إذا كان الفرق أقل من دقيقة
     if (diffMinutes < 1) {
-      return "الآن";
+      return { text: "تم الاستخدام", time: "الآن" };
     }
     
-    // إذا كان الفرق أقل من ساعة
     if (diffMinutes < 60) {
-      return `منذ ${diffMinutes} ${diffMinutes === 1 ? 'دقيقة' : 'دقائق'}`;
+      return { 
+        text: "تم الاستخدام منذ", 
+        time: `${diffMinutes} دقيقة${diffMinutes > 1 ? ' ' : ''}`
+      };
     }
     
-    // إذا كان الفرق أقل من يوم
-    const diffHours = Math.floor(diffMinutes / 60);
     if (diffHours < 24) {
-      return `منذ ${diffHours} ${diffHours === 1 ? 'ساعة' : 'ساعات'}`;
+      return { 
+        text: "تم الاستخدام منذ", 
+        time: `${diffHours} ساعات${diffHours > 1 ? ' ' : ''}`
+      };
     }
     
-    // إذا كان الفرق أكثر من يوم
-    const diffDays = Math.floor(diffHours / 24);
-    return `منذ ${diffDays} ${diffDays === 1 ? 'يوم' : 'أيام'}`;
+    return { 
+      text: "تم الاستخدام منذ", 
+      time: `${diffDays} يوم${diffDays > 1 ? 'ين' : ''}`
+    };
   };
 
   const lastUsedTime = getLastUsedTime();
@@ -73,6 +81,14 @@ const CouponCard = ({ coupon, onGetCode }) => {
         >
           {isExpired ? 'منتهي' : 'نشط'}
         </span>
+        
+        {/* شارة أفضل كوبون */}
+        {coupon.isBest && (
+          <span className="absolute top-2 right-2 bg-yellow-100 text-yellow-600 px-2 py-1 rounded-full text-xs font-bold">
+            الأفضل
+          </span>
+        )}
+
         <div className="mx-auto text-center mb-6">
           <a
             href={coupon.linkRealStore}
@@ -90,22 +106,24 @@ const CouponCard = ({ coupon, onGetCode }) => {
           </a>
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">{coupon.title}</h3>
-            <p className="text-sm text-gray-500 line-clamp-2">{coupon.description}</p>
           </div>
         </div>
+        
+        {/* عرض آخر استخدام للكود - تصميم جديد */}
+{lastUsedTime && (
+  <div className="bg-green-50/60 border border-green-100 rounded-md px-2 py-0.5 flex items-center  justify-center gap-1 text-[11px] sm:text-xs shadow-sm">
+    <FiClock className="text-green-500 flex-shrink-0 text-[14px]" />
+    <div className="text-green-700 flex gap-1 items-baseline">
+      <span>{lastUsedTime.text}</span>
+      {lastUsedTime.time && (
+        <span className="font-semibold text-green-800 text-[12px]">
+          {lastUsedTime.time}
+        </span>
+      )}
+    </div>
+  </div>
+)}
 
-        {/* عرض آخر استخدام للكود في الكارد الرئيسي */}
-        {lastUsedTime && (
-<div className="flex items-center justify-center gap-1 mb-1 text-[9px] bg-green-50 text-black rounded py-[2px] px-2">
-  <span className="text-green-600">⏱️</span>
-  <span>
-    آخر استخدام للكود:
-    <span className="text-green-600 font-semibold ms-1">{lastUsedTime}</span>
-  </span>
-</div>
-
-
-        )}
 
         <div className="flex items-center justify-between gap-2 mt-4">
           <button
@@ -119,12 +137,12 @@ const CouponCard = ({ coupon, onGetCode }) => {
             }}
             className="w-full bg-gradient-to-r from-teal-500 to-teal-600 text-white font-semibold px-4 py-2 rounded-lg hover:from-teal-600 hover:to-teal-700 transition"
           >
-               انسخ الكود
+            انسخ الكود
           </button>
         </div>
       </div>
 
-      {/* مودال الكود - مطابق لمودال CouponSlider */}
+      {/* مودال الكود */}
       {showModal && (
         <div
           onClick={() => { setShowModal(false); setIsCopied(false); }}
@@ -140,6 +158,7 @@ const CouponCard = ({ coupon, onGetCode }) => {
             >
               <FiX size={24} />
             </button>
+            
             {/* شعار المتجر */}
             <div className="flex flex-col items-center mb-2">
               <Image
@@ -150,44 +169,38 @@ const CouponCard = ({ coupon, onGetCode }) => {
                 className="mb-2"
               />
             </div>
+            
             <h2 className="text-xl font-bold text-center mb-2 text-gray-800">{coupon.title}</h2>
-            <p className="text-center text-gray-500 mb-4">{coupon.description}</p>
-            {/* شارة جديدة أو لا تفوت */}
-            <div className="flex justify-end gap-2 mb-2">
-              <span className="text-xs text-red-500 font-bold flex items-center gap-1">
-                <span>جديد</span> <span className="text-orange-400">✨</span>
-              </span>
-              <span className="text-xs text-orange-500 font-bold flex items-center gap-1">
-                <span>لا تفوت</span> <span>🔥</span>
-              </span>
+            <p className="text-center text-gray-500 mb-4">{coupon.descriptionCoupon || coupon.description}</p>
+            
+            {/* معلومات الخصم */}
+            <div className="flex justify-between items-center mb-4">
+              <div className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm font-bold">
+                خصم {coupon.discount}%
+              </div>
+              <div className="text-sm text-gray-500">
+                صالح حتى: {new Date(coupon.endDate).toLocaleDateString('ar-EG')}
+              </div>
             </div>
-            {/* عرض آخر استخدام للكود */}
-            {lastUsedTime && (
-              <div className="bg-blue-50 text-blue-700 rounded-md px-3 py-2 text-center mb-2 font-semibold text-sm flex items-center justify-center gap-2">
-                <span className="text-blue-500">⏱️</span>
-                <span>آخر استخدام للكود: {lastUsedTime}</span>
+            
+            {/* عرض عدد مرات الاستخدام */}
+            {coupon.number > 0 && (
+              <div className="bg-purple-50 text-purple-700 rounded-md px-3 py-2 text-center mb-2 font-semibold text-sm">
+                تم استخدام هذا الكود {coupon.number} مرة
               </div>
             )}
+            
             {/* رسالة تم النسخ */}
             {isCopied && (
-              <div className="bg-orange-100 text-orange-700 rounded-md px-3 py-2 text-center mb-2 font-semibold text-sm">
-                تم نسخ الكود - اذهب الى المتجر
+              <div className="bg-green-100 text-green-700 rounded-md px-3 py-2 text-center mb-2 font-semibold text-sm">
+                تم نسخ الكود بنجاح!
               </div>
             )}
+            
             {/* الكود مع إمكانية النسخ */}
             <div
               className="bg-gray-50 border border-dashed border-teal-400 rounded-lg flex items-center justify-center px-6 py-4 mb-4 cursor-pointer select-all relative"
-              onClick={() => {
-                navigator.clipboard.writeText(coupon.couponCode);
-                setIsCopied(true);
-                // تحديث آخر استخدام للكود عند النسخ
-                fetch(`https://api.eslamoffers.com/api/Coupons/UpdateLastUse/${coupon.id}`, {
-                  method: 'PUT',
-                  headers: {
-                    'Content-Type': 'application/json'
-                  }
-                }).catch(err => console.error('Error updating last use:', err));
-              }}
+              onClick={handleCopy}
             >
               {isCopied ? (
                 <FiCheck size={28} className="text-green-500 absolute right-4" />
@@ -196,35 +209,16 @@ const CouponCard = ({ coupon, onGetCode }) => {
               )}
               <span className="text-3xl font-mono text-teal-700 mx-auto">{coupon.couponCode}</span>
             </div>
-            {/* زر النسخ أو الذهاب للمتجر */}
-            {!isCopied ? (
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(coupon.couponCode);
-                  setIsCopied(true);
-                  // تحديث آخر استخدام للكود عند النسخ
-                  fetch(`https://api.eslamoffers.com/api/Coupons/UpdateLastUse/${coupon.id}`, {
-                    method: 'PUT',
-                    headers: {
-                      'Content-Type': 'application/json'
-                    }
-                  }).catch(err => console.error('Error updating last use:', err));
-                  window.open(coupon.linkRealStore, '_blank', 'noopener,noreferrer');
-                }}
-                className="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 rounded-lg text-lg transition"
-              >
-                انسخ الكود وتسوق
-              </button>
-            ) : (
-              <a
-                href={coupon.linkRealStore}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full block bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg text-lg text-center transition"
-              >
-                اذهب الى المتجر
-              </a>
-            )}
+            
+            {/* زر الذهاب للمتجر */}
+            <a
+              href={coupon.linkRealStore}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full block bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 rounded-lg text-lg text-center transition"
+            >
+              اذهب إلى المتجر الآن
+            </a>
           </div>
         </div>
       )}
