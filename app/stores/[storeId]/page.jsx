@@ -84,7 +84,7 @@ const StoreCouponsPage = () => {
     <div className="  min-h-screen" dir="rtl">
       <div className=" grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto py-20">
         <div className="lg:col-span-2">
-          <div className="bg-white border-b pb-4 border-gray-300 mb-12 flex items-center">
+          <div className="bg-white    border-b pb-4 border-gray-300   mb-12 flex items-center">
             <img
               src={getLogoSrc()}
               alt={store.name}
@@ -92,48 +92,36 @@ const StoreCouponsPage = () => {
             />
             <div className="mr-6">
               <h1 className="text-4xl font-bold text-gray-800">{store.name}</h1>
+              <p className="text-gray-600 mt-2">
+                جميع الكوبونات والعروض الخاصة بـ {store.name}
+              </p>
             </div>
           </div>
 
           {coupons.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {coupons.map((coupon) => (
                 <CouponCard key={coupon.id} coupon={coupon} />
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 bg-white rounded-lg shadow-md mb-12">
+            <div className="text-center py-20 bg-white rounded-lg shadow-md">
               <p className="text-2xl text-gray-500">
                 لا توجد كوبونات متاحة حاليًا لهذا المتجر.
               </p>
             </div>
           )}
-          
-          {/* وصف الهيدر والوصف التفصيلي تحت الكوبونات */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">
-              {store.headerDescription || `جميع الكوبونات والعروض الخاصة بـ ${store.name}`}
-            </h2>
-            
-            {store.description && (
-              <div className="mt-4">
-                <h3 className="text-xl font-bold text-gray-700 mb-2">وصف المتجر</h3>
-                <p className="text-gray-600">{store.description}</p>
+        </div>
+                  {/* Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-8">
+              <SubscribeBox />
+              <div className="pt-16">
+                <CountdownOfferBox />
               </div>
-            )}
-          </div>
-        </div>
-        
-        {/* Sidebar */}
-        <div className="lg:col-span-1">
-          <div className="sticky top-8">
-            <SubscribeBox />
-            <div className="pt-16">
-              <CountdownOfferBox />
+              <PromoCard />
             </div>
-            <PromoCard />
           </div>
-        </div>
       </div>
     </div>
   );

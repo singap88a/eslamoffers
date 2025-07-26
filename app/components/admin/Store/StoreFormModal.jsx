@@ -5,8 +5,6 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
   const [name, setName] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [isBast, setIsBast] = useState(false);
-  const [headerDescription, setHeaderDescription] = useState("");
-  const [description, setDescription] = useState("");
   const [logoFile, setLogoFile] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef();
@@ -16,15 +14,11 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
       setName(initialData.name || "");
       setLogoUrl(initialData.logoUrl || "");
       setIsBast(initialData.isBast || false);
-      setHeaderDescription(initialData.headerDescription || "");
-      setDescription(initialData.description || "");
       setLogoFile(null);
     } else {
       setName("");
       setLogoUrl("");
       setIsBast(false);
-      setHeaderDescription("");
-      setDescription("");
       setLogoFile(null);
     }
   }, [initialData, isOpen]);
@@ -59,13 +53,8 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // أرسل البيانات مع الحقول الجديدة
-    onSubmit({ 
-      Name: name, 
-      IsBast: isBast,
-      HeaderDescription: headerDescription,
-      Description: description 
-    }, logoFile);
+    // أرسل فقط name و isBast في values، و logoFile كـ imageFile
+    onSubmit({ Name: name, IsBast: isBast }, logoFile);
   };
 
   // إغلاق عند الضغط على الخلفية
@@ -87,7 +76,7 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white rounded-2xl shadow-lg w-full max-w-lg p-8 relative animate-fadeIn border border-gray-200 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-lg w-full max-w-lg p-8 relative animate-fadeIn border border-gray-200">
         <button
           className="absolute left-4 top-4 text-gray-400 hover:text-red-500 text-3xl focus:outline-none cursor-pointer"
           onClick={onClose}
@@ -111,28 +100,6 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
               required
             />
           </div>
-          
-          {/* وصف الهيدر */}
-          <div>
-            <label className="block mb-2 font-semibold text-gray-700">وصف الهيدر</label>
-            <input
-              type="text"
-              className="w-full border border-gray-200 bg-white rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#14b8a6] shadow-sm text-lg transition text-gray-800"
-              value={headerDescription}
-              onChange={e => setHeaderDescription(e.target.value)}
-            />
-          </div>
-          
-          {/* الوصف */}
-          <div>
-            <label className="block mb-2 font-semibold text-gray-700">الوصف</label>
-            <textarea
-              className="w-full border border-gray-200 bg-white rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#14b8a6] shadow-sm text-lg transition text-gray-800 min-h-[100px]"
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-            />
-          </div>
-          
           {/* التمييز */}
           <div className="flex items-center gap-2">
             <input

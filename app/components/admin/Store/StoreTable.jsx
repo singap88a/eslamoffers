@@ -15,7 +15,6 @@ const StoreTable = ({ stores, onEdit, onDelete, onNavigateToCoupons, loading }) 
             <tr className="bg-gray-50">
               <th className="py-3 px-4 text-gray-700">الشعار</th>
               <th className="py-3 px-4 text-gray-700">اسم المتجر</th>
-              <th className="py-3 px-4 text-gray-700">وصف الهيدر</th>
               <th className="py-3 px-4 text-gray-700">مميز؟</th>
               <th className="py-3 px-4 text-gray-700">تاريخ الإنشاء</th>
               <th className="py-3 px-4 text-gray-700">الحالة</th>
@@ -33,7 +32,6 @@ const StoreTable = ({ stores, onEdit, onDelete, onNavigateToCoupons, loading }) 
                   />
                 </td>
                 <td className="py-2 px-4 font-bold text-lg text-gray-800">{store.name}</td>
-                <td className="py-2 px-4 text-gray-600 max-w-[200px] truncate">{store.headerDescription || "-"}</td>
                 <td className="py-2 px-4">
                   {store.isBast ? (
                     <span className="inline-block bg-yellow-400 text-white px-3 py-1 rounded-full text-xs font-bold shadow">⭐ أفضل متجر</span>
@@ -88,4 +86,4 @@ const StoreTable = ({ stores, onEdit, onDelete, onNavigateToCoupons, loading }) 
   );
 };
 
-export default StoreTable;
+export default StoreTable; 

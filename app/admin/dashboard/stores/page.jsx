@@ -90,8 +90,6 @@ const StoresPage = () => {
       const formData = new FormData();
       formData.append("Name", values.Name);
       formData.append("IsBast", values.IsBast ? "true" : "false"); // أرسلها كنص
-      formData.append("HeaderDescription", values.HeaderDescription || "");
-      formData.append("Description", values.Description || "");
       if (imageFile) {
         formData.append("ImageUrl", imageFile);
       }
@@ -233,4 +231,4 @@ const StoresPage = () => {
   );
 };
 
-export default StoresPage;
+export default StoresPage; 
