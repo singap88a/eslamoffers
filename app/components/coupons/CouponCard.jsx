@@ -23,6 +23,45 @@ const CouponCard = ({ coupon, onGetCode }) => {
 
   const isExpired = !coupon.isActive || new Date(coupon.endDate || coupon.end_date) < new Date();
 
+  // دالة لحساب الوقت المنقضي منذ آخر استخدام
+  const getLastUsedTime = () => {
+    if (!coupon.lastUseAt) return null;
+    
+    const lastUseDate = new Date(coupon.lastUseAt);
+    const now = new Date();
+    
+    // التحقق من صحة التاريخ
+    if (isNaN(lastUseDate.getTime())) return null;
+    
+    // إذا كان آخر استخدام في المستقبل (خطأ في الساعة) نعرض "الآن"
+    if (lastUseDate > now) return "الآن";
+    
+    const diffTime = Math.abs(now - lastUseDate);
+    const diffMinutes = Math.floor(diffTime / (1000 * 60));
+    
+    // إذا كان الفرق أقل من دقيقة
+    if (diffMinutes < 1) {
+      return "الآن";
+    }
+    
+    // إذا كان الفرق أقل من ساعة
+    if (diffMinutes < 60) {
+      return `منذ ${diffMinutes} ${diffMinutes === 1 ? 'دقيقة' : 'دقائق'}`;
+    }
+    
+    // إذا كان الفرق أقل من يوم
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) {
+      return `منذ ${diffHours} ${diffHours === 1 ? 'ساعة' : 'ساعات'}`;
+    }
+    
+    // إذا كان الفرق أكثر من يوم
+    const diffDays = Math.floor(diffHours / 24);
+    return `منذ ${diffDays} ${diffDays === 1 ? 'يوم' : 'أيام'}`;
+  };
+
+  const lastUsedTime = getLastUsedTime();
+
   return (
     <>
       <div className="relative bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-2xl transform hover:-translate-y-2 duration-300 ease-in-out transition-all p-6 w-full max-w-sm flex flex-col justify-between">
@@ -54,6 +93,19 @@ const CouponCard = ({ coupon, onGetCode }) => {
             <p className="text-sm text-gray-500 line-clamp-2">{coupon.description}</p>
           </div>
         </div>
+
+        {/* عرض آخر استخدام للكود في الكارد الرئيسي */}
+        {lastUsedTime && (
+<div className="flex items-center justify-center gap-1 mb-1 text-[9px] bg-green-50 text-black rounded py-[2px] px-2">
+  <span className="text-green-600">⏱️</span>
+  <span>
+    آخر استخدام للكود:
+    <span className="text-green-600 font-semibold ms-1">{lastUsedTime}</span>
+  </span>
+</div>
+
+
+        )}
 
         <div className="flex items-center justify-between gap-2 mt-4">
           <button
@@ -109,6 +161,13 @@ const CouponCard = ({ coupon, onGetCode }) => {
                 <span>لا تفوت</span> <span>🔥</span>
               </span>
             </div>
+            {/* عرض آخر استخدام للكود */}
+            {lastUsedTime && (
+              <div className="bg-blue-50 text-blue-700 rounded-md px-3 py-2 text-center mb-2 font-semibold text-sm flex items-center justify-center gap-2">
+                <span className="text-blue-500">⏱️</span>
+                <span>آخر استخدام للكود: {lastUsedTime}</span>
+              </div>
+            )}
             {/* رسالة تم النسخ */}
             {isCopied && (
               <div className="bg-orange-100 text-orange-700 rounded-md px-3 py-2 text-center mb-2 font-semibold text-sm">
@@ -121,6 +180,13 @@ const CouponCard = ({ coupon, onGetCode }) => {
               onClick={() => {
                 navigator.clipboard.writeText(coupon.couponCode);
                 setIsCopied(true);
+                // تحديث آخر استخدام للكود عند النسخ
+                fetch(`https://api.eslamoffers.com/api/Coupons/UpdateLastUse/${coupon.id}`, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  }
+                }).catch(err => console.error('Error updating last use:', err));
               }}
             >
               {isCopied ? (
@@ -136,6 +202,13 @@ const CouponCard = ({ coupon, onGetCode }) => {
                 onClick={() => {
                   navigator.clipboard.writeText(coupon.couponCode);
                   setIsCopied(true);
+                  // تحديث آخر استخدام للكود عند النسخ
+                  fetch(`https://api.eslamoffers.com/api/Coupons/UpdateLastUse/${coupon.id}`, {
+                    method: 'PUT',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    }
+                  }).catch(err => console.error('Error updating last use:', err));
                   window.open(coupon.linkRealStore, '_blank', 'noopener,noreferrer');
                 }}
                 className="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 rounded-lg text-lg transition"

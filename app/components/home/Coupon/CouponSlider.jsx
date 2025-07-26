@@ -46,6 +46,14 @@ const CouponSlider = () => {
     if (modalCoupon) {
       navigator.clipboard.writeText(modalCoupon.couponCode);
       setIsCopied(true);
+      
+      // تحديث آخر استخدام للكود عند النسخ
+      fetch(`https://api.eslamoffers.com/api/Coupons/UpdateLastUse/${modalCoupon.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).catch(err => console.error('Error updating last use:', err));
     }
   };
 
@@ -63,7 +71,12 @@ const CouponSlider = () => {
       </div>
       <div className="w-40 h-1 bg-gradient-to-l from-[#14b8a6] mt-2 mb-5 rounded-full"></div>
       {loading ? (
-        <div className="text-center py-10 text-gray-400">جاري التحميل...</div>
+        <div className="flex justify-center items-center py-10">
+          <div className="animate-pulse flex flex-col items-center">
+            <div className="h-12 w-12 rounded-full border-4 border-t-teal-500 border-r-transparent border-b-teal-300 border-l-transparent animate-spin"></div>
+            <p className="mt-4 text-teal-600 font-medium">جاري تحميل أفضل الكوبونات...</p>
+          </div>
+        </div>
       ) : (
         <Swiper
           spaceBetween={16}
@@ -92,6 +105,10 @@ const CouponSlider = () => {
         isCopied={isCopied}
         onCopy={handleCopy}
         onClose={closeModal}
+        imageSrc={modalCoupon ? (modalCoupon.imageUrl?.startsWith('http') ? modalCoupon.imageUrl : `https://api.eslamoffers.com/uploads/${modalCoupon.imageUrl}`) : null}
+        couponTitle={modalCoupon?.title || ""}
+        couponDescription={modalCoupon?.description || ""}
+        lastUseAt={modalCoupon?.lastUseAt || null}
       />
     </div>
   );

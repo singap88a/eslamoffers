@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 const StoreCard = ({ store }) => {
   const getImageSrc = () => {
-    if (!store.logoUrl) return '/logo.png';
+    if (!store.logoUrl) return '/logo4.png';
     if (store.logoUrl.startsWith('http') || store.logoUrl.startsWith('https')) {
       return store.logoUrl;
     }

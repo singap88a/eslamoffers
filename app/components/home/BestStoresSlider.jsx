@@ -11,7 +11,7 @@ const fetchBestStores = async () => {
     const res = await fetch("https://api.eslamoffers.com/api/Store/GetBastStores/Bast");
     if (!res.ok) throw new Error("Failed to fetch stores");
     const data = await res.json();
-    return data.filter(s => s.isBast).slice(0, 8); // We show only 8 stores
+    return data.filter(s => s.isBast).slice(0, 8); // نعرض فقط 8 متاجر
   } catch (e) {
     console.error(e);
     return [];
@@ -32,17 +32,24 @@ const BestStoresSlider = () => {
   return (
     <div className="mt-12">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-[#14b8a6]">
-          أفضل المتاجر
-        </h2>
-        <Link href="/stores" className="text-lg font-medium text-[#14b8a6] hover:text-teal-700 underline flex items-center gap-2">
+        <h2 className="text-2xl font-bold text-[#14b8a6]">أفضل المتاجر</h2>
+        <Link
+          href="/stores"
+          className="text-lg font-medium text-[#14b8a6] hover:text-teal-700 underline flex items-center gap-2"
+        >
           <span>كل المتاجر</span>
           <FiArrowLeft />
         </Link>
       </div>
       <div className="w-40 h-1 bg-gradient-to-l from-[#14b8a6] mt-2 mb-5 rounded-full"></div>
+
       {loading ? (
-        <div className="text-center py-10 text-gray-400">جاري التحميل...</div>
+        <div className="flex justify-center items-center py-10">
+          <div className="animate-pulse flex flex-col items-center">
+            <div className="h-12 w-12 rounded-full border-4 border-t-teal-500 border-r-transparent border-b-teal-300 border-l-transparent animate-spin"></div>
+            <p className="mt-4 text-teal-600 font-medium">جاري تحميل المتاجر...</p>
+          </div>
+        </div>
       ) : (
         <Swiper
           spaceBetween={20}

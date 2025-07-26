@@ -13,7 +13,47 @@ const CouponCodeModal = ({
   imageSrc,           // جديد: صورة المتجر
   couponTitle,        // جديد: اسم الكوبون
   couponDescription,  // جديد: وصف الكوبون (اختياري)
+  lastUseAt,          // جديد: آخر استخدام للكود
 }) => {
+  // دالة لحساب الوقت المنقضي منذ آخر استخدام
+  const getLastUsedTime = () => {
+    if (!lastUseAt) return null;
+    
+    const lastUseDate = new Date(lastUseAt);
+    const now = new Date();
+    
+    // التحقق من صحة التاريخ
+    if (isNaN(lastUseDate.getTime())) return null;
+    
+    // إذا كان آخر استخدام في المستقبل (خطأ في الساعة) نعرض "الآن"
+    if (lastUseDate > now) return "الآن";
+    
+    const diffTime = Math.abs(now - lastUseDate);
+    const diffMinutes = Math.floor(diffTime / (1000 * 60));
+    
+    // إذا كان الفرق أقل من دقيقة
+    if (diffMinutes < 1) {
+      return "الآن";
+    }
+    
+    // إذا كان الفرق أقل من ساعة
+    if (diffMinutes < 60) {
+      return `منذ ${diffMinutes} ${diffMinutes === 1 ? 'دقيقة' : 'دقائق'}`;
+    }
+    
+    // إذا كان الفرق أقل من يوم
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) {
+      return `منذ ${diffHours} ${diffHours === 1 ? 'ساعة' : 'ساعات'}`;
+    }
+    
+    // إذا كان الفرق أكثر من يوم
+    const diffDays = Math.floor(diffHours / 24);
+    return `منذ ${diffDays} ${diffDays === 1 ? 'يوم' : 'أيام'}`;
+  };
+
+  const lastUsedTime = getLastUsedTime();
+  
   if (!show) return null;
   return (
     <div
@@ -52,6 +92,14 @@ const CouponCodeModal = ({
         )}
 
         <p className="text-center text-gray-500 mb-6">انقر على الكود لنسخه أو استخدم الزر بالأسفل.</p>
+        
+        {/* عرض آخر استخدام للكود */}
+        {lastUsedTime && (
+          <div className="bg-blue-50 text-blue-700 rounded-md px-3 py-2 text-center mb-4 font-semibold text-sm flex items-center justify-center gap-2">
+            <span className="text-blue-500">⏱️</span>
+            <span>آخر استخدام للكود: {lastUsedTime}</span>
+          </div>
+        )}
         
         {/* الكود مع إمكانية النسخ */}
         <div

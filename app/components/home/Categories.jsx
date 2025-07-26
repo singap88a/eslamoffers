@@ -8,6 +8,7 @@ import Link from 'next/link';
 
 export default function Categories() {
   const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -17,36 +18,26 @@ export default function Categories() {
         setCategories(data);
       } catch (error) {
         console.error('Failed to fetch categories:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchCategories();
   }, []);
 
-  // Helper to ensure iconUrl is always valid
   const getSafeIconUrl = (iconUrl) => {
     const baseUrl = 'https://api.eslamoffers.com/uploads/';
-    if (!iconUrl) {
-      return '/logo.png'; // fallback
-    }
+    if (!iconUrl) return '/logo.png';
     try {
-      // If already a valid http(s) url
       const url = new URL(iconUrl);
-      if (url.protocol === 'http:' || url.protocol === 'https:') {
-        return iconUrl;
-      }
-    } catch (_) {
-      // Not a full URL, try to construct
-    }
-    // If it's a path, construct the full URL
+      if (url.protocol === 'http:' || url.protocol === 'https:') return iconUrl;
+    } catch (_) {}
     const fullUrl = iconUrl.startsWith('/') ? `${baseUrl}${iconUrl}` : `${baseUrl}/${iconUrl}`;
     try {
       const url = new URL(fullUrl);
-      if (url.protocol === 'http:' || url.protocol === 'https:') {
-        return fullUrl;
-      }
+      if (url.protocol === 'http:' || url.protocol === 'https:') return fullUrl;
     } catch (_) {}
-    // fallback
     return '/logo.png';
   };
 
@@ -58,6 +49,7 @@ export default function Categories() {
           عرض الكل
         </Link>
       </div>
+
       <Swiper
         modules={[Autoplay]}
         spaceBetween={20}
@@ -71,16 +63,31 @@ export default function Categories() {
         }}
         className="!px-4"
       >
-        {categories.map((cat) => (
-          <SwiperSlide key={cat.id}>
-            <Link href={`/categories/${cat.id}`} className="flex flex-col items-center gap-2 py-2">
-              <div className="rounded-full bg-gradient-to-tr from-teal-200 via-white to-teal-100 shadow-xl flex items-center justify-center w-24 h-24 mb-2 hover:scale-110 hover:shadow-2xl transition-all border-2 border-teal-200 hover:border-teal-400">
-                <Image src={getSafeIconUrl(cat.iconUrl)} alt={cat.name} width={60} height={60} className="rounded-full" />
-              </div>
-              <span className="text-sm font-semibold text-gray-700">{cat.name}</span>
-            </Link>
-          </SwiperSlide>
-        ))}
+        {isLoading
+          ? Array.from({ length: 7 }).map((_, idx) => (
+              <SwiperSlide key={idx}>
+                <div className="flex flex-col items-center gap-2 py-2">
+                  <div className="w-24 h-24 rounded-full bg-gray-200 animate-pulse shadow-md" />
+                  <div className="w-16 h-4 bg-gray-200 rounded animate-pulse" />
+                </div>
+              </SwiperSlide>
+            ))
+          : categories.map((cat) => (
+              <SwiperSlide key={cat.id}>
+                <Link href={`/categories/${cat.id}`} className="flex flex-col items-center gap-2 py-2">
+                  <div className="rounded-full bg-gradient-to-tr from-teal-200 via-white to-teal-100 shadow-xl flex items-center justify-center w-24 h-24 mb-2 hover:scale-110 hover:shadow-2xl transition-all border-2 border-teal-200 hover:border-teal-400">
+                    <Image
+                      src={getSafeIconUrl(cat.iconUrl)}
+                      alt={cat.name}
+                      width={60}
+                      height={60}
+                      className="rounded-full"
+                    />
+                  </div>
+                  <span className="text-sm font-semibold text-gray-700">{cat.name}</span>
+                </Link>
+              </SwiperSlide>
+            ))}
       </Swiper>
     </div>
   );

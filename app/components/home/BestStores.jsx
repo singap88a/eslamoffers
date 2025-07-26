@@ -14,6 +14,7 @@ const isValidHttpUrl = (string) => {
 
 const BestStores = () => {
   const [stores, setStores] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); // ✅ حالة اللودنج
 
   useEffect(() => {
     const fetchStores = async () => {
@@ -23,6 +24,8 @@ const BestStores = () => {
         setStores(data);
       } catch (error) {
         console.error('Error fetching stores:', error);
+      } finally {
+        setIsLoading(false); // ✅ إيقاف اللودنج بعد التحميل أو الخطأ
       }
     };
 
@@ -31,50 +34,44 @@ const BestStores = () => {
 
   const getSafeLogoUrl = (logoUrl) => {
     const baseUrl = 'https://api.eslamoffers.com/uploads/';
-    
-    if (!logoUrl) {
-      return '/logo.png'; // Fallback for null, undefined, or empty string
-    }
-
-    if (isValidHttpUrl(logoUrl)) {
-      return logoUrl;
-    }
-
+    if (!logoUrl) return '/logo.png';
+    if (isValidHttpUrl(logoUrl)) return logoUrl;
     const fullUrl = logoUrl.startsWith('/') ? `${baseUrl}${logoUrl}` : `${baseUrl}/${logoUrl}`;
-
-    if (isValidHttpUrl(fullUrl)) {
-      return fullUrl;
-    }
-
-    return '/logo.png';
+    return isValidHttpUrl(fullUrl) ? fullUrl : '/logo.png';
   };
 
   return (
-    <div className=" md:px-4">
-      <div className="bg-white  p-4 rounded-2xl shadow-lg w-full max-w-md lg:max-w-full mx-auto border border-gray-100">
+    <div className="md:px-4">
+      <div className="bg-white p-4 rounded-2xl shadow-lg w-full max-w-md lg:max-w-full mx-auto border border-gray-100">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-right text-[#14b8a6]">أفضل المتاجر</h2>
           <Link href="/stores" className="text-sm text-gray-500 hover:text-[#14b8a6] transition">كل المتاجر</Link>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
-          {stores.slice(0, 9).map((store) => (
-            <Link
-              key={store.id}
-              href={`/stores/${store.id}`}
-              className="bg-gray-50 rounded-md flex items-center justify-center border border-gray-200 hover:shadow-md transition duration-200 ease-in-out hover:border-[#14b8a6] w-24 h-[3.7rem] overflow-hidden"
-            >
-              <div className="w-full h-full relative">
-                <Image 
-                  src={getSafeLogoUrl(store.logoUrl)} 
-                  alt={store.name} 
-                  fill
-                  className="object-cover  "
-                />
-              </div>
-            </Link>
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center py-10">
+            <div className="w-8 h-8 border-4 border-t-transparent border-[#14b8a6] rounded-full animate-spin"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-3">
+            {stores.slice(0, 9).map((store) => (
+              <Link
+                key={store.id}
+                href={`/stores/${store.id}`}
+                className="bg-gray-50 rounded-md flex items-center justify-center border border-gray-200 hover:shadow-md transition duration-200 ease-in-out hover:border-[#14b8a6] w-24 h-[3.7rem] overflow-hidden"
+              >
+                <div className="w-full h-full relative">
+                  <Image 
+                    src={getSafeLogoUrl(store.logoUrl)} 
+                    alt={store.name} 
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
