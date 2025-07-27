@@ -1,61 +1,205 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { FaStar } from 'react-icons/fa';
+import Image from "next/image";
+import { useState } from "react";
+import { FiCopy, FiCheck, FiX } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 const OfferCard = ({ offer }) => {
+  const [showCouponModal, setShowCouponModal] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
-  const getImageSrc = () => {
-    if (!offer.logoUrl) return '/logo.png'; // default image
-    if (offer.logoUrl.startsWith('http')) {
-      return offer.logoUrl;
+  const getImageSrc = (url) => {
+    if (!url) return "/default-store.png";
+    if (url.startsWith("http")) return url;
+    return `https://api.eslamoffers.com/uploads/${url}`;
+  };
+
+  const copyCoupon = () => {
+    if (offer.couponId) {
+      navigator.clipboard.writeText(offer.couponId);
+      setIsCopied(true);
+      toast.success("تم نسخ الكوبون بنجاح!");
     }
-    return `https://api.eslamoffers.com/uploads/${offer.logoUrl}`;
+  };
+
+  const calculateDiscountPrice = () => {
+    if (offer.originalPrice && offer.discount) {
+      const discountAmount = (offer.originalPrice * offer.discount) / 100;
+      return (offer.originalPrice - discountAmount).toFixed(2);
+    }
+    return offer.price;
+  };
+
+  const calculateOriginalFromDiscounted = () => {
+    if (offer.price && offer.discount) {
+      const original = offer.price / (1 - offer.discount / 100);
+      return original.toFixed(2);
+    }
+    return null;
   };
 
   return (
-    <div className="relative bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-2xl transform hover:-translate-y-2 duration-300 ease-in-out transition-all p-6 w-full max-w-sm flex flex-col justify-between">
-      {/* Best deal badge */}
-      {offer.isBast && (
-        <span
-          className="absolute top-2 left-2 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-600 flex items-center gap-1"
-        >
-          <FaStar />
-          <span>الأفضل</span>
-        </span>
-      )}
-      <div className="mx-auto text-center mb-6">
-        <a
-          href={offer.linkPage}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-24 h-16 relative flex justify-center items-center"
-        >
-          <Image
-            src={getImageSrc()}
-            alt={offer.title}
-            layout="fill"
-            objectFit="contain"
-            className="rounded-md"
-          />
-        </a>
-        <div className="flex-1 mt-2">
-          <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">{offer.title}</h3>
+    <>
+      <div className="relative bg-white rounded-lg border-2 border-dashed border-gray-200 p-4 shadow hover:shadow-md hover:border-teal-300 transition-all duration-300 w-full max-w-md mx-auto text-right group">
+        {offer.discount && (
+          <div className="absolute z-40 top-0 right-0 bg-gradient-to-l from-orange-400 to-orange-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg shadow-md rounded-tr-lg">
+            {offer.discount}% خصم
+          </div>
+        )}
+
+        <div className="flex justify-between items-start mb-3 w-full gap-10">
+          <div className="w-24 h-20 relative">
+            <Image
+              src={getImageSrc(offer.logoUrl)}
+              alt={offer.title}
+              fill
+              className="object-contain"
+            />
+          </div>
+          <div className="w-full">
+            <div className="flex-1 pr-2">
+              <a
+                href={offer.linkPage}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-teal-600 transition-colors"
+              >
+                <h2 className="text-sm font-bold text-gray-800 leading-5 mb-1">
+                  {offer.title}
+                </h2>
+              </a>
+
+              <div className="flex items-center gap-2 mt-1">
+                {offer.price && offer.discount && (
+                  <div className="text-xs text-gray-400 line-through">
+                    {calculateOriginalFromDiscounted()} {offer.currencyCodes || "USD"}
+                  </div>
+                )}
+                {offer.price && (
+                  <div className="text-sm font-bold text-teal-600">
+                    {offer.price} {offer.currencyCodes || "USD"}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center border-t border-gray-200 pt-3 mt-2">
+              <a
+                href={offer.linkPage}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-20 h-12 relative rounded-md overflow-hidden border border-gray-200"
+              >
+                <Image
+                  src={getImageSrc(offer.imageStoreUrl)}
+                  alt="store"
+                  fill
+                  className="object-cover"
+                />
+              </a>
+              {offer.couponId && (
+                <button
+                  onClick={() => setShowCouponModal(true)}
+                  className="bg-gradient-to-r from-teal-600 to-teal-500 text-white text-sm font-bold px-4 py-1 rounded-md transition-all shadow-sm hover:shadow-lg hover:from-teal-700 hover:to-teal-600"
+                >
+                  كوبون
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-2 mt-4">
-        <a
-          href={offer.linkPage}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full text-center bg-gradient-to-r from-teal-500 to-teal-600 text-white font-semibold px-4 py-2 rounded-lg hover:from-teal-600 hover:to-teal-700 transition"
+      {showCouponModal && (
+        <div
+          onClick={() => {
+            setShowCouponModal(false);
+            setIsCopied(false);
+          }}
+          className="fixed inset-0 bg-[#00000079] bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm"
         >
-          احصل علي العرض
-        </a>
-      </div>
-    </div>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-xl p-8 shadow-2xl max-w-md w-full relative animate-fadeIn"
+          >
+            <button
+              onClick={() => {
+                setShowCouponModal(false);
+                setIsCopied(false);
+              }}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+              <FiX size={24} />
+            </button>
+
+            <div className="flex flex-col items-center mb-2">
+              <div className="w-24 h-16 relative">
+                <Image
+                  src={getImageSrc(offer.logoUrl)}
+                  alt={offer.title}
+                  fill
+                  className="object-contain rounded-md"
+                />
+              </div>
+            </div>
+
+            <h2 className="text-xl font-bold text-center mb-2 text-gray-800">
+              {offer.title}
+            </h2>
+
+            <div className="flex justify-between items-center mb-4">
+              <div className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm font-bold">
+                خصم {offer.discount}%
+              </div>
+              <div className="flex items-center gap-2">
+                {offer.price && offer.discount && (
+                  <span className="text-xs text-gray-400 line-through">
+                    {calculateOriginalFromDiscounted()} {offer.currencyCodes || "USD"}
+                  </span>
+                )}
+                <span className="text-sm font-bold text-teal-600">
+                  {offer.price} {offer.currencyCodes || "USD"}
+                </span>
+              </div>
+            </div>
+
+            {isCopied && (
+              <div className="bg-green-100 text-green-700 rounded-md px-3 py-2 text-center mb-2 font-semibold text-sm">
+                تم نسخ الكود بنجاح!
+              </div>
+            )}
+
+            <div
+              className="bg-gray-50 border border-dashed border-teal-400 rounded-lg flex items-center justify-center px-6 py-4 mb-4 cursor-pointer select-all relative"
+              onClick={copyCoupon}
+            >
+              {isCopied ? (
+                <FiCheck
+                  size={28}
+                  className="text-green-500 absolute right-4"
+                />
+              ) : (
+                <FiCopy size={28} className="text-teal-500 absolute right-4" />
+              )}
+              <span className="text-3xl font-mono text-teal-700 mx-auto">
+                {offer.couponId}
+              </span>
+            </div>
+
+            <a
+              href={offer.linkPage}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full block bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 rounded-lg text-lg text-center transition"
+            >
+              اذهب إلى العرض الآن
+            </a>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
-export default OfferCard; 
+export default OfferCard;

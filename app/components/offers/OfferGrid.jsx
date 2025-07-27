@@ -1,4 +1,4 @@
- 'use client';
+'use client';
 
 import { useState } from 'react';
 import OfferCard from './OfferCard';
@@ -7,30 +7,29 @@ const OfferGrid = ({ offers }) => {
   const [visibleCount, setVisibleCount] = useState(12);
 
   const showMoreOffers = () => {
-    setVisibleCount(prevCount => prevCount + 12);
+    setVisibleCount(prev => prev + 12);
   };
 
-  const visibleOffers = offers.slice(0, visibleCount);
-
   return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {visibleOffers.map((offer) => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 gap-6">
+        {offers.slice(0, visibleCount).map(offer => (
           <OfferCard key={offer.id} offer={offer} />
         ))}
       </div>
+
       {visibleCount < offers.length && (
-        <div className="text-center mt-8">
+        <div className="text-center mt-6">
           <button
             onClick={showMoreOffers}
-            className="bg-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-teal-600 transition-colors"
+            className="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700 transition font-medium"
           >
-            عرض المزيد
+            عرض المزيد من العروض
           </button>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
-export default OfferGrid; 
+export default OfferGrid;

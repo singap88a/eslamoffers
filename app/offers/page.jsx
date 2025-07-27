@@ -1,13 +1,21 @@
-import OfferGrid from '../components/offers/OfferGrid';
-import SubscribeBox from '../components/home/Coupon/SubscribeBox';
- import PromoCard from '../components/home/Coupon/PromoCard';
-import CountdownOfferBox from '../components/home/Coupon/CountdownOfferBox';
+import OfferGrid from "../components/offers/OfferGrid";
+import SubscribeBox from "../components/home/Coupon/SubscribeBox";
+import PromoCard from "../components/home/Coupon/PromoCard";
+import CountdownOfferBox from "../components/home/Coupon/CountdownOfferBox";
 
 async function getOffers() {
-  const res = await fetch('https://api.eslamoffers.com/api/Offers/GetAllOffers', { cache: 'no-store' });
+  const res = await fetch(
+    "https://api.eslamoffers.com/api/Offers/GetAllOffers",
+    {
+      cache: "no-store",
+      next: { revalidate: 60 }, // ISR - إعادة التحقق كل دقيقة
+    }
+  );
+
   if (!res.ok) {
-    throw new Error('Failed to fetch offers');
+    throw new Error("فشل في جلب العروض");
   }
+
   return res.json();
 }
 
@@ -15,24 +23,31 @@ export default async function OffersPage() {
   const offers = await getOffers();
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 py-10">
-        <h1 className="text-4xl font-bold text-start text-gray-800 mb-3">كل العروض</h1>
-        <div className="w-40 h-1 bg-gradient-to-l text-start from-[#14b8a6] mb-5 rounded-full"></div>
+    <div className="min-h-screen  ">
+      <div className="max-w-7xl mx-auto     py-12">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+            أحدث العروض والخصومات
+          </h1>
+          <p className="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">
+            اكتشف أفضل العروض من متاجر مختلفة
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main content */}
-          <div className="lg:col-span-2">
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-4">
             <OfferGrid offers={offers} />
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="space-y-8">
-              <SubscribeBox />
-              <CountdownOfferBox/>
-               <PromoCard />
+          <div className="lg:col-span-2 space-y-6">
+            <SubscribeBox />
+            <div className="pt-12">
+              <CountdownOfferBox />
             </div>
+            <PromoCard />
           </div>
         </div>
       </div>

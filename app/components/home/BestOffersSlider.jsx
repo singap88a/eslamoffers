@@ -75,20 +75,17 @@ const BestOffersSlider = ({ category = "default" }) => {
           <p className="mt-2">جاري تحميل عروض {category === "default" ? "..." : category}</p>
         </div>
       ) : (
-        <Swiper
-          spaceBetween={20}
+    <Swiper
+          spaceBetween={16}
           slidesPerView="auto"
-          loop
-          autoplay={{
-            delay: 3500,
-            disableOnInteraction: false,
+          breakpoints={{
+            640: { slidesPerView: "auto" },
+            1024: { slidesPerView: "auto" },
           }}
+          loop
         >
           {offers.map((offer) => (
-            <SwiperSlide
-              key={offer.id}
-              className="my-2 !w-[220px] md:!w-[220px] lg:!w-[220px]"
-            >
+            <SwiperSlide key={offer.id} className="my-2 !w-[350px] md:!w-[385px] lg:!w-[385px]">
               <OfferCard offer={offer} />
             </SwiperSlide>
           ))}
@@ -99,3 +96,4 @@ const BestOffersSlider = ({ category = "default" }) => {
 };
 
 export default BestOffersSlider;
+

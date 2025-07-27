@@ -16,17 +16,33 @@ const OffersPage = () => {
 
   const API_URL = "https://api.eslamoffers.com/api/Offers";
 
+  // أضف هذه الدالة للحصول على الـ token
+  const getAuthToken = () => {
+    return localStorage.getItem("token") || ""; // أو أي مكان آخر تحفظ فيه الـ token
+  };
   // Fetch all offers
   const fetchOffers = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/GetAllOffers?t=${new Date().getTime()}`);
-      if (!response.ok) throw new Error("Network response was not ok");
+      const response = await fetch(`${API_URL}/GetAllOffers`, {
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`,
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى");
+        }
+        throw new Error("فشل في جلب العروض");
+      }
+
       const data = await response.json();
       setOffers(data);
     } catch (error) {
-      console.error("Error fetching offers:", error);
-      setToast({ message: "فشل في جلب العروض.", type: "error" });
+      console.error("Error:", error);
+      setToast({ message: error.message, type: "error" });
     } finally {
       setLoading(false);
     }
@@ -37,48 +53,61 @@ const OffersPage = () => {
   }, []);
 
   // Handle Add/Edit
-  const handleFormSubmit = async (values, imageFile) => {
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("Title", values.Title);
-    formData.append("LinkPage", values.LinkPage);
-    formData.append("IsBast", values.IsBast);
+const handleFormSubmit = async (values, productImageFile, storeImageFile) => {
+  setLoading(true);
+  const formData = new FormData();
+  
+  // أضف كل الحقول هنا
+  formData.append("Title", values.Title);
+  formData.append("LinkPage", values.LinkPage);
+  formData.append("IsBast", values.IsBast);
+  formData.append("Price", values.Price || 0);
+  formData.append("Discount", values.Discount || 0);
+  formData.append("CurrencyCodes", values.CurrencyCodes || "USD");
+  formData.append("couponId", values.couponId || "");
+  
+  if (productImageFile) formData.append("LogoUrl", productImageFile);
+  if (storeImageFile) formData.append("ImageStoreUrl", storeImageFile);
 
-    if (!imageFile) {
-      setToast({ message: "يرجى تقديم شعار للعرض.", type: "error" });
-      setLoading(false);
-      return;
-    }
-    formData.append("LogoUrl", imageFile);
-
-    try {
-      const url = selectedOffer
-        ? `${API_URL}/UpdateOffer/${selectedOffer.id}`
-        : `${API_URL}/AddOffer`;
-      const method = selectedOffer ? "PUT" : "POST";
-
-      const response = await fetch(url, { method, body: formData });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Server Error:", errorText);
-        throw new Error(`Failed to save offer. Server responded with ${response.status}: ${errorText}`);
-      }
+  try {
+    const url = selectedOffer
+      ? `${API_URL}/UpdateOffer/${selectedOffer.id}`
+      : `${API_URL}/AddOffer`;
       
-      await fetchOffers(); // Refresh data
-      setIsModalOpen(false);
-      setSelectedOffer(null);
-      setToast({
-        message: selectedOffer ? "تم تحديث العرض بنجاح!" : "تمت إضافة العرض بنجاح!",
-        type: "success",
-      });
-    } catch (error) {
-      console.error("Error saving offer:", error);
-      setToast({ message: error.message || "حدث خطأ أثناء حفظ العرض.", type: "error" });
-    } finally {
-      setLoading(false);
+    const method = selectedOffer ? "PUT" : "POST";
+
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Authorization': `Bearer ${getAuthToken()}`
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      if (response.status === 401) {
+        throw new Error("غير مصرح به - يرجى تسجيل الدخول مرة أخرى");
+      }
+      throw new Error(errorText || "فشل في حفظ العرض");
     }
-  };
+
+    await fetchOffers();
+    setIsModalOpen(false);
+    setToast({
+      message: selectedOffer ? "تم تحديث العرض بنجاح!" : "تمت إضافة العرض بنجاح!",
+      type: "success"
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    setToast({ 
+      message: error.message || "حدث خطأ أثناء حفظ العرض", 
+      type: "error" 
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Handle Edit
   const handleEdit = (offer) => {
@@ -92,26 +121,39 @@ const OffersPage = () => {
     setIsConfirmOpen(true);
   };
 
-  const confirmDelete = async () => {
-    if (!offerToDelete) return;
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `${API_URL}/DeleteOffer/${offerToDelete.id}`,
-        { method: "DELETE" }
-      );
-      if (!response.ok) throw new Error("Failed to delete offer");
-      await fetchOffers(); // Refresh
-      setIsConfirmOpen(false);
-      setOfferToDelete(null);
-      setToast({ message: "تم حذف العرض بنجاح!", type: "success" });
-    } catch (error) {
-      console.error("Error deleting offer:", error);
-      setToast({ message: "حدث خطأ أثناء حذف العرض.", type: "error" });
-    } finally {
-      setLoading(false);
+const confirmDelete = async () => {
+  if (!offerToDelete) return;
+  setLoading(true);
+  
+  try {
+    const response = await fetch(
+      `${API_URL}/DeleteOffer/${offerToDelete.id}`,
+      {
+        method: "DELETE",
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      }
+    );
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error("غير مصرح به - يرجى تسجيل الدخول مرة أخرى");
+      }
+      throw new Error("فشل في حذف العرض");
     }
-  };
+    
+    await fetchOffers();
+    setIsConfirmOpen(false);
+    setOfferToDelete(null);
+    setToast({ message: "تم حذف العرض بنجاح!", type: "success" });
+  } catch (error) {
+    console.error("Error:", error);
+    setToast({ message: error.message, type: "error" });
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex-1 p-8">
@@ -156,4 +198,4 @@ const OffersPage = () => {
   );
 };
 
-export default OffersPage; 
+export default OffersPage;

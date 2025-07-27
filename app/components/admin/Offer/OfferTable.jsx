@@ -1,65 +1,162 @@
 import React from "react";
-import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiExternalLink, FiStar, FiDollarSign, FiPercent } from "react-icons/fi";
 
 const OfferTable = ({ offers, onEdit, onDelete, loading }) => {
+  const getImageUrl = (url) => {
+    if (!url) return "/default-image.png";
+    if (url.startsWith('http')) return url;
+    return `https://api.eslamoffers.com/uploads/${encodeURIComponent(url)}`;
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 overflow-x-auto border border-gray-200">
       {loading ? (
-        <p className="text-center text-gray-500 text-lg font-semibold">جاري التحميل...</p>
+        <div className="flex justify-center items-center h-64">
+          <p className="text-center text-gray-500 text-lg font-semibold">جاري تحميل العروض...</p>
+        </div>
       ) : offers.length === 0 ? (
-        <p className="text-center text-gray-400 text-lg font-semibold">لا توجد عروض بعد.</p>
+        <div className="flex justify-center items-center h-64">
+          <p className="text-center text-gray-400 text-lg font-semibold">لا توجد عروض متاحة حالياً</p>
+        </div>
       ) : (
-        <table className="min-w-full text-right">
-          <thead>
-            <tr className="bg-gray-50">
-              <th className="py-3 px-4 text-gray-700">الشعار</th>
-              <th className="py-3 px-4 text-gray-700">عنوان العرض</th>
-              <th className="py-3 px-4 text-gray-700">مميز؟</th>
-              <th className="py-3 px-4 text-gray-700">رابط الصفحة</th>
-              <th className="py-3 px-4 text-gray-700">إجراءات</th>
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                المنتج
+              </th>
+              <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                السعر
+              </th>
+              <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                الخصم
+              </th>
+              <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                المتجر
+              </th>
+              <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                الحالة
+              </th>
+              <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                الإجراءات
+              </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-white divide-y divide-gray-200">
             {offers.map((offer) => (
-              <tr key={offer.id} className={`border-b hover:bg-gray-50 transition-all duration-200 ${offer.isBast ? 'bg-yellow-50/60' : ''}`}>
-                <td className="py-2 px-4">
-                  <img
-                    src={offer.logoUrl ? `https://api.eslamoffers.com/uploads/${encodeURIComponent(offer.logoUrl)}` : "/default-image.png"}
-                    alt={offer.title}
-                    className="w-14 h-14 object-contain rounded-lg border border-gray-200 bg-white shadow-sm"
-                  />
-                </td>
-                <td className="py-2 px-4 font-bold text-lg text-gray-800">{offer.title}</td>
-                <td className="py-2 px-4">
-                  {offer.isBast ? (
-                    <span className="inline-block bg-yellow-400 text-white px-3 py-1 rounded-full text-xs font-bold shadow">⭐ عرض مميز</span>
-                  ) : (
-                    <span className="inline-block bg-gray-200 text-gray-600 px-3 py-1 rounded-full text-xs">عادي</span>
-                  )}
-                </td>
-                <td className="py-2 px-4 text-gray-600">
-                    <a href={offer.linkPage} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                        زيارة الرابط
-                    </a>
+              <tr 
+                key={offer.id} 
+                className={`hover:bg-gray-50 transition-colors ${offer.isBast ? 'bg-yellow-50' : ''}`}
+              >
+                {/* Product Column */}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 h-16 w-16 relative">
+                      <img
+                        className="h-full w-full object-contain rounded-lg border border-gray-200"
+                        src={getImageUrl(offer.logoUrl)}
+                        alt={offer.title}
+                      />
+                    </div>
+                    <div className="mr-4">
+                      <div className="text-sm font-medium text-gray-900">{offer.title}</div>
+                      <div className="text-sm text-gray-500">
+                        <a 
+                          href={offer.linkPage} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center text-blue-500 hover:underline"
+                        >
+                          <FiExternalLink className="ml-1" /> زيارة العرض
+                        </a>
+                      </div>
+                    </div>
+                  </div>
                 </td>
 
-                <td className="py-2 px-4 flex gap-2">
-                  <button
-                    className="flex items-center gap-1 bg-[#14b8a6]/90 text-white px-4 py-2 rounded-lg hover:bg-[#14b8a6] transition font-bold shadow text-base cursor-pointer border border-[#14b8a6]/30"
-                    onClick={() => onEdit(offer)}
-                    title="تعديل"
-                  >
-                    <FiEdit2 className="text-lg" />
-                    تعديل
-                  </button>
-                  <button
-                    className="flex items-center gap-1 bg-red-100 text-red-700 px-4 py-2 rounded-lg hover:bg-red-200 transition font-bold shadow text-base cursor-pointer border border-red-200"
-                    onClick={() => onDelete(offer)}
-                    title="حذف"
-                  >
-                    <FiTrash2 className="text-lg" />
-                    حذف
-                  </button>
+                {/* Price Column */}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {offer.price > 0 ? (
+                    <div className="flex items-center">
+                      <FiDollarSign className="text-gray-400 ml-1" />
+                      <span className="text-sm font-medium text-gray-900">
+                        {offer.price.toLocaleString()} {offer.currencyCodes || 'USD'}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-sm text-gray-500">غير محدد</span>
+                  )}
+                </td>
+
+                {/* Discount Column */}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {offer.discount > 0 ? (
+                    <div className="flex items-center">
+                      <FiPercent className="text-gray-400 ml-1" />
+                      <span className="text-sm font-medium text-green-600">
+                        {offer.discount}%
+                      </span>
+                      {offer.price > 0 && (
+                        <span className="text-xs text-gray-500 mr-2">
+                          ({Math.round(offer.price * (1 - offer.discount/100))} {offer.currencyCodes || 'USD'})
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-sm text-gray-500">لا يوجد</span>
+                  )}
+                </td>
+
+                {/* Store Column */}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 h-10 w-10 relative">
+                      <img
+                        className="h-full w-full object-cover rounded-full border border-gray-200"
+                        src={getImageUrl(offer.imageStoreUrl)}
+                        alt="متجر"
+                      />
+                    </div>
+                    {offer.couponId && (
+                      <span className="mr-2 px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
+                        كوبون
+                      </span>
+                    )}
+                  </div>
+                </td>
+
+                {/* Status Column */}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex flex-col space-y-1">
+                    {offer.isBast && (
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 flex items-center">
+                        <FiStar className="ml-1" /> مميز
+                      </span>
+                    )}
+                    {offer.createdAt && (
+                      <span className="text-xs text-gray-500">
+                        {new Date(offer.createdAt).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+                </td>
+
+                {/* Actions Column */}
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => onEdit(offer)}
+                      className="text-indigo-600 hover:text-indigo-900 flex items-center"
+                    >
+                      <FiEdit2 className="ml-1" /> تعديل
+                    </button>
+                    <button
+                      onClick={() => onDelete(offer)}
+                      className="text-red-600 hover:text-red-900 flex items-center"
+                    >
+                      <FiTrash2 className="ml-1" /> حذف
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -70,4 +167,4 @@ const OfferTable = ({ offers, onEdit, onDelete, loading }) => {
   );
 };
 
-export default OfferTable; 
+export default OfferTable;
