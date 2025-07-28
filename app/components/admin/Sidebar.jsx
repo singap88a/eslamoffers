@@ -23,7 +23,7 @@ const Sidebar = () => {
   const navItems = [
     { href: "/admin/dashboard", label: "لوحة التحكم", icon: <FiPieChart /> },
     { href: "/admin/dashboard/stores", label: "المتاجر", icon: <FiShoppingBag /> },
-    { href: "/admin/dashboard/coupons", label: "الكوبونات", icon: <FiTag /> },
+    { href: "/admin/dashboard/allcoupons", label: "الكوبونات", icon: <FiTag /> },
     { href: "/admin/dashboard/offers", label: "العروض", icon: <FiList /> },
     // category
     { href: "/admin/dashboard/category", label: "الفئات", icon: <FiList /> },

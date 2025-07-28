@@ -48,7 +48,7 @@ export default function CouponsPage() {
               <CategorySkeletonLoader category={category} />
             ) : (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mr-2 md:mr-0">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6   md:mr-0">
                   {visibleCoupons.map((coupon) => (
                     <CouponCard key={coupon.id} coupon={coupon} />
                   ))}

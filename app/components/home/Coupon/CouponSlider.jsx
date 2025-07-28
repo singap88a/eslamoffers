@@ -109,6 +109,7 @@ const CouponSlider = () => {
         couponTitle={modalCoupon?.title || ""}
         couponDescription={modalCoupon?.description || ""}
         lastUseAt={modalCoupon?.lastUseAt || null}
+         className="mx-4"
       />
     </div>
   );

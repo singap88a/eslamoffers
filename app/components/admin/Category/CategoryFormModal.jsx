@@ -92,7 +92,7 @@ const CategoryFormModal = ({ isOpen, onClose, onSave, category }) => {
             />
             {iconUrl ? (
               <img
-                src={iconUrl.startsWith('blob:') || iconUrl.startsWith('data:') ? iconUrl : `http://147.93.126.19:8080/uploads/${iconUrl}`}
+                src={iconUrl.startsWith('blob:') || iconUrl.startsWith('data:') ? iconUrl : `https://api.eslamoffers.com/uploads/${iconUrl}`}
                 alt="Category Icon"
                 className="mx-auto mb-2 rounded-full border w-20 h-20 object-cover"
               />

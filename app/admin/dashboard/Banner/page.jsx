@@ -1,13 +1,7 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import {
-  Container, Typography, TextField, Button, Paper, Snackbar, Alert,
-  Dialog, DialogTitle, DialogContent, DialogActions, FormControl,
-  InputLabel, Select, MenuItem, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, IconButton, Box
-} from '@mui/material';
-import { Delete, Edit, Add } from '@mui/icons-material';
+import { Delete, Edit, Add, Close, CloudUpload } from '@mui/icons-material';
 
 const API_BASE_URL = 'https://api.eslamoffers.com/api';
 
@@ -27,10 +21,11 @@ export default function BannerManagement() {
   // State for file upload
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
   
   // State for edit/delete operations
   const [editBannerId, setEditBannerId] = useState(null);
-  const [openDialog, setOpenDialog] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [deleteBannerId, setDeleteBannerId] = useState(null);
   
@@ -40,9 +35,9 @@ export default function BannerManagement() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   
   // State for linking to store
-  const [linkType, setLinkType] = useState('external'); // 'external' or 'store'
+  const [linkType, setLinkType] = useState('external');
   const [selectedStore, setSelectedStore] = useState('');
-  
+
   // Initialize token from localStorage
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -53,13 +48,23 @@ export default function BannerManagement() {
     }
   }, []);
   
+  // Auto-hide snackbar after 3 seconds
+  useEffect(() => {
+    if (openSnackbar) {
+      const timer = setTimeout(() => {
+        setOpenSnackbar(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [openSnackbar]);
+
   const fetchBanners = async () => {
     try {
       setLoading(true);
       const response = await axios.get(`${API_BASE_URL}/Banner/GetAllBanners`);
       setBanners(response.data);
     } catch (error) {
-      showMessage('فشل في جلب البانرات', 'error');
+      showMessage('Failed to fetch banners', 'error');
     } finally {
       setLoading(false);
     }
@@ -70,25 +75,51 @@ export default function BannerManagement() {
       const response = await axios.get(`${API_BASE_URL}/Store/GetAllStores`);
       setStores(response.data);
     } catch (error) {
-      showMessage('فشل في جلب المتاجر', 'error');
+      showMessage('Failed to fetch stores', 'error');
     }
   };
   
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onload = () => {
-        setPreviewUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+  
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+  
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+  
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.match('image.*')) {
+      handleFile(file);
     }
+  };
+  
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      handleFile(file);
+    }
+  };
+  
+  const handleFile = (file) => {
+    setSelectedFile(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPreviewUrl(reader.result);
+    };
+    reader.readAsDataURL(file);
   };
   
   const handleLinkTypeChange = (event) => {
     setLinkType(event.target.value);
-    // Reset link value when changing type
     setBannerData({
       ...bannerData,
       link: ''
@@ -99,7 +130,6 @@ export default function BannerManagement() {
   const handleStoreChange = (event) => {
     const storeId = event.target.value;
     setSelectedStore(storeId);
-    // Set the link to the store URL
     setBannerData({
       ...bannerData,
       link: `/stores/${storeId}`
@@ -116,11 +146,12 @@ export default function BannerManagement() {
       formData.append('Priority', bannerData.priority);
       
       await axios.post(`${API_BASE_URL}/Banner/AddBanner`, formData);
-      showMessage('تم إضافة البانر بنجاح', 'success');
+      showMessage('Banner added successfully', 'success');
       resetForm();
       fetchBanners();
+      setOpenModal(false);
     } catch (error) {
-      showMessage('فشل في إضافة البانر', 'error');
+      showMessage('Failed to add banner', 'error');
     }
   };
   
@@ -134,23 +165,23 @@ export default function BannerManagement() {
       formData.append('Priority', bannerData.priority);
       
       await axios.put(`${API_BASE_URL}/Banner/UpdateBanner/${editBannerId}`, formData);
-      showMessage('تم تحديث البانر بنجاح', 'success');
-      setOpenDialog(false);
+      showMessage('Banner updated successfully', 'success');
       resetForm();
       fetchBanners();
+      setOpenModal(false);
     } catch (error) {
-      showMessage('فشل في تحديث البانر', 'error');
+      showMessage('Failed to update banner', 'error');
     }
   };
   
   const handleDeleteBanner = async () => {
     try {
       await axios.delete(`${API_BASE_URL}/Banner/DeleteBanner/${deleteBannerId}`);
-      showMessage('تم حذف البانر بنجاح', 'success');
+      showMessage('Banner deleted successfully', 'success');
       setOpenDeleteDialog(false);
       fetchBanners();
     } catch (error) {
-      showMessage('فشل في حذف البانر', 'error');
+      showMessage('Failed to delete banner', 'error');
     }
   };
   
@@ -161,7 +192,6 @@ export default function BannerManagement() {
       priority: banner.priority
     });
     
-    // Determine if link is to a store or external
     if (banner.link && banner.link.startsWith('/stores/')) {
       setLinkType('store');
       const storeId = banner.link.replace('/stores/', '');
@@ -172,7 +202,7 @@ export default function BannerManagement() {
     }
     
     setPreviewUrl(banner.imageUrl ? `https://api.eslamoffers.com/uploads/${banner.imageUrl}` : '');
-    setOpenDialog(true);
+    setOpenModal(true);
   };
   
   const resetForm = () => {
@@ -193,188 +223,298 @@ export default function BannerManagement() {
     setSeverity(sev);
     setOpenSnackbar(true);
   };
-  
-  const handleSnackbarClose = () => {
-    setOpenSnackbar(false);
-  };
-  
+
   return (
-    <Container maxWidth="lg" dir="rtl">
-      <Typography variant="h4" gutterBottom sx={{ mb: 4, textAlign: 'center' }}>
-        إدارة البانرات
-      </Typography>
+    <div className="container mx-auto px-4 py-8" dir="rtl">
+      <h1 className="text-3xl font-bold text-center mb-8 text-teal-600">إدارة البانرات</h1>
+      
+      {/* Add Banner Button */}
+      <div className="flex justify-end mb-6">
+        <button
+          onClick={() => {
+            resetForm();
+            setOpenModal(true);
+          }}
+          className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center cursor-pointer transition-colors duration-200"
+        >
+          <Add className="ml-1" />
+          إضافة بانر جديد
+        </button>
+      </div>
       
       {/* Feedback Snackbar */}
-      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity={severity} sx={{ width: '100%' }}>
-          {message}
-        </Alert>
-      </Snackbar>
+      {openSnackbar && (
+        <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-lg shadow-lg z-50 ${
+          severity === 'error' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+        }`}>
+          <div className="flex justify-between items-center">
+            <span>{message}</span>
+            <button onClick={() => setOpenSnackbar(false)} className="ml-4 cursor-pointer">
+              <Close className="text-lg" />
+            </button>
+          </div>
+        </div>
+      )}
       
-      {/* Add Banner Form */}
-      <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
-        <Typography variant="h6" gutterBottom>
-          {editBannerId ? 'تعديل البانر' : 'إضافة بانر جديد'}
-        </Typography>
-        
-        <Box sx={{ mb: 2 }}>
-          <input
-            accept="image/*"
-            style={{ display: 'none' }}
-            id="banner-image-upload"
-            type="file"
-            onChange={handleFileChange}
-          />
-          <label htmlFor="banner-image-upload">
-            <Button variant="contained" component="span">
-              اختر صورة البانر
-            </Button>
-          </label>
-          {previewUrl && (
-            <Box sx={{ mt: 2, textAlign: 'center' }}>
-              <img src={previewUrl} alt="معاينة البانر" style={{ maxWidth: '100%', maxHeight: '200px' }} />
-            </Box>
-          )}
-        </Box>
-        
-        <FormControl fullWidth margin="normal">
-          <InputLabel>نوع الرابط</InputLabel>
-          <Select
-            value={linkType}
-            label="نوع الرابط"
-            onChange={handleLinkTypeChange}
-          >
-            <MenuItem value="external">رابط خارجي</MenuItem>
-            <MenuItem value="store">متجر</MenuItem>
-          </Select>
-        </FormControl>
-        
-        {linkType === 'external' ? (
-          <TextField
-            label="الرابط"
-            fullWidth
-            margin="normal"
-            value={bannerData.link}
-            onChange={(e) => setBannerData({...bannerData, link: e.target.value})}
-          />
-        ) : (
-          <FormControl fullWidth margin="normal">
-            <InputLabel>اختر المتجر</InputLabel>
-            <Select
-              value={selectedStore}
-              label="اختر المتجر"
-              onChange={handleStoreChange}
-            >
-              {stores.map((store) => (
-                <MenuItem key={store.id} value={store.id}>
-                  {store.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        )}
-        
-        <TextField
-          label="الأولوية"
-          type="number"
-          fullWidth
-          margin="normal"
-          value={bannerData.priority}
-          onChange={(e) => setBannerData({...bannerData, priority: parseInt(e.target.value) || 0})}
-        />
-        
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={editBannerId ? handleUpdateBanner : handleAddBanner}
-          sx={{ mt: 2 }}
-        >
-          {editBannerId ? 'تحديث البانر' : 'إضافة البانر'}
-        </Button>
-        
-        {editBannerId && (
-          <Button
-            variant="outlined"
-            onClick={resetForm}
-            sx={{ mt: 2, mr: 2 }}
-          >
-            إلغاء
-          </Button>
-        )}
-      </Paper>
+      {/* Add/Edit Banner Modal */}
+      {openModal && (
+        <div className="fixed inset-0 bg-[#00000098] bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b p-4 sticky top-0 bg-white z-10">
+              <h2 className="text-xl font-semibold text-teal-600">
+                {editBannerId ? 'تعديل البانر' : 'إضافة بانر جديد'}
+              </h2>
+              <button 
+                onClick={() => {
+                  resetForm();
+                  setOpenModal(false);
+                }} 
+                className="text-gray-500 hover:text-gray-700 cursor-pointer"
+              >
+                <Close />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              {/* Professional Drag & Drop Image Upload */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">صورة البانر</label>
+                <div 
+                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors duration-200 ${
+                    isDragging ? 'border-teal-500 bg-teal-50' : 'border-gray-300 hover:border-teal-400'
+                  }`}
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                >
+                  {previewUrl ? (
+                    <div className="relative">
+                      <img 
+                        src={previewUrl} 
+                        alt="Preview" 
+                        className="mx-auto h-40 w-auto rounded-lg object-contain border border-gray-200"
+                      />
+                      <button
+                        onClick={() => {
+                          setPreviewUrl('');
+                          setSelectedFile(null);
+                        }}
+                        className="absolute top-0 left-0 bg-red-500 text-white rounded-full p-1 -translate-x-1/2 -translate-y-1/2 shadow-md hover:bg-red-600 cursor-pointer"
+                      >
+                        <Close className="text-sm" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center">
+                      <CloudUpload className="text-4xl text-gray-400 mb-3" />
+                      <p className="text-gray-500 mb-2">اسحب وأسقط الصورة هنا أو</p>
+                      <label className="cursor-pointer bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg inline-flex items-center transition-colors duration-200">
+                        اختر صورة
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleFileChange}
+                        />
+                      </label>
+                      <p className="text-xs text-gray-400 mt-2">JPG, PNG, GIF (الحد الأقصى: 5MB)</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">نوع الرابط</label>
+                <select
+                  value={linkType}
+                  onChange={handleLinkTypeChange}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 cursor-pointer"
+                >
+                  <option value="external">رابط خارجي</option>
+                  <option value="store">متجر</option>
+                </select>
+              </div>
+              
+              {linkType === 'external' ? (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">الرابط</label>
+                  <input
+                    type="text"
+                    value={bannerData.link}
+                    onChange={(e) => setBannerData({...bannerData, link: e.target.value})}
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
+                    placeholder="أدخل الرابط"
+                  />
+                </div>
+              ) : (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">اختر المتجر</label>
+                  <select
+                    value={selectedStore}
+                    onChange={handleStoreChange}
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 cursor-pointer"
+                  >
+                    <option value="">اختر متجر</option>
+                    {stores.map((store) => (
+                      <option key={store.id} value={store.id}>
+                        {store.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">الأولوية</label>
+                <input
+                  type="number"
+                  value={bannerData.priority}
+                  onChange={(e) => setBannerData({...bannerData, priority: parseInt(e.target.value) || 0})}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
+                  placeholder="أدخل الأولوية"
+                />
+              </div>
+              
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => {
+                    resetForm();
+                    setOpenModal(false);
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors duration-200"
+                >
+                  إلغاء
+                </button>
+                <button
+                  onClick={editBannerId ? handleUpdateBanner : handleAddBanner}
+                  className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg cursor-pointer transition-colors duration-200"
+                >
+                  {editBannerId ? 'تحديث البانر' : 'حفظ البانر'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Banners List */}
-      <Paper elevation={3} sx={{ p: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          قائمة البانرات
-        </Typography>
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="p-4 border-b">
+          <h2 className="text-xl font-semibold text-teal-600">قائمة البانرات</h2>
+        </div>
         
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-            <Typography>جاري التحميل...</Typography>
-          </Box>
+          <div className="p-8 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500 mx-auto"></div>
+            <p className="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+          </div>
+        ) : banners.length === 0 ? (
+          <div className="p-8 text-center text-gray-500">
+            لا توجد بانرات متاحة
+          </div>
         ) : (
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>الصورة</TableCell>
-                  <TableCell>الرابط</TableCell>
-                  <TableCell>الأولوية</TableCell>
-                  <TableCell>تاريخ الإنشاء</TableCell>
-                  <TableCell>الإجراءات</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الصورة</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الرابط</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الأولوية</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ الإنشاء</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
                 {banners.map((banner) => (
-                  <TableRow key={banner.id}>
-                    <TableCell>
+                  <tr key={banner.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       {banner.imageUrl ? (
-                        <img 
-                          src={`https://api.eslamoffers.com/uploads/${banner.imageUrl}`} 
-                          alt="صورة البانر" 
-                          style={{ width: '100px', height: 'auto' }} 
-                        />
+                        <div className="relative group">
+                          <img 
+                            src={`https://api.eslamoffers.com/uploads/${banner.imageUrl}`} 
+                            alt="Banner" 
+                            className="h-16 w-auto rounded-lg object-cover border border-gray-200"
+                          />
+                         </div>
                       ) : (
-                        <Typography variant="body2" color="text.secondary">لا توجد صورة</Typography>
+                        <span className="text-gray-400">لا توجد صورة</span>
                       )}
-                    </TableCell>
-                    <TableCell>{banner.link}</TableCell>
-                    <TableCell>{banner.priority}</TableCell>
-                    <TableCell>{new Date(banner.createdAt).toLocaleDateString('ar-EG')}</TableCell>
-                    <TableCell>
-                      <IconButton color="primary" onClick={() => openEditDialog(banner)}>
-                        <Edit />
-                      </IconButton>
-                      <IconButton 
-                        color="error" 
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {banner.link}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {banner.priority}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(banner.createdAt).toLocaleDateString('ar-EG')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button
+                        onClick={() => openEditDialog(banner)}
+                        className="text-teal-600 hover:text-teal-900 mr-3 p-1 rounded-full hover:bg-teal-50 cursor-pointer transition-colors duration-200"
+                        title="تعديل"
+                      >
+                        <Edit className="text-xl" />
+                      </button>
+                      <button
                         onClick={() => {
                           setDeleteBannerId(banner.id);
                           setOpenDeleteDialog(true);
                         }}
+                        className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50 cursor-pointer transition-colors duration-200"
+                        title="حذف"
                       >
-                        <Delete />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
+                        <Delete className="text-xl" />
+                      </button>
+                    </td>
+                  </tr>
                 ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+              </tbody>
+            </table>
+          </div>
         )}
-      </Paper>
+      </div>
       
-      {/* Delete Banner Dialog */}
-      <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
-        <DialogTitle>تأكيد الحذف</DialogTitle>
-        <DialogContent>
-          <Typography>هل أنت متأكد من حذف هذا البانر؟</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDeleteDialog(false)}>إلغاء</Button>
-          <Button onClick={handleDeleteBanner} color="error">حذف</Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+      {/* Delete Confirmation Dialog */}
+      {openDeleteDialog && (
+        <div className="fixed inset-0 bg-[#00000098] bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium text-gray-900">تأكيد الحذف</h3>
+              <button 
+                onClick={() => setOpenDeleteDialog(false)} 
+                className="text-gray-500 hover:text-gray-700 cursor-pointer"
+              >
+                <Close />
+              </button>
+            </div>
+            <div className="mb-6">
+              <div className="flex justify-center mb-4">
+                <div className="bg-red-100 p-3 rounded-full">
+                  <Delete className="text-red-600 text-3xl" />
+                </div>
+              </div>
+              <p className="text-gray-600 text-center">هل أنت متأكد من حذف هذا البانر؟ لا يمكن التراجع عن هذا الإجراء.</p>
+            </div>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setOpenDeleteDialog(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors duration-200"
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={handleDeleteBanner}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg cursor-pointer transition-colors duration-200"
+              >
+                حذف
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

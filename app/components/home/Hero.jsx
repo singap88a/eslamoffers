@@ -40,7 +40,7 @@ const Hero = () => {
   const renderBannerContent = (banner) => {
     const imageUrl = getBannerImageUrl(banner.imageUrl);
     const content = (
-      <div className="w-full h-72  object-cover">
+      <div className="w-full md:h-72 h-50  object-cover">
         <Image
           src={imageUrl}
           alt={`عرض ${banner.id}`}

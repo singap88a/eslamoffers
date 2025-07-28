@@ -158,7 +158,7 @@ const CouponCard = ({ coupon, onGetCode }) => {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-xl p-8 shadow-2xl max-w-md w-full relative animate-fadeIn"
+            className="bg-white rounded-xl p-8 shadow-2xl max-w-md w-full relative animate-fadeIn mx-4"
           >
             <button
               onClick={() => {

@@ -1,27 +1,43 @@
 "use client";
-import React, { useState, useEffect, useRef, useTransition } from 'react';
+import React, { useState, useEffect, useRef, useTransition } from "react";
 import {
-  FiX, FiTag, FiType, FiImage, FiPercent, FiCode,
-  FiLink, FiCalendar, FiCheckSquare, FiStar
-} from 'react-icons/fi';
+  FiX,
+  FiTag,
+  FiType,
+  FiImage,
+  FiPercent,
+  FiCode,
+  FiLink,
+  FiCalendar,
+  FiCheckSquare,
+  FiStar,
+} from "react-icons/fi";
 
-const CouponFormModal = ({ isOpen, onClose, onSubmit, initialData, loading, storeId, categories }) => {
+const CouponFormModal = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  initialData,
+  loading,
+  storeId,
+  categories,
+}) => {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    imageUrl: '',
+    title: "",
+    description: "",
+    imageUrl: "",
     discount: 0,
-    couponCode: '',
-    stratDate: '',
-    endDate: '',
+    couponCode: "",
+    stratDate: "",
+    endDate: "",
     isActive: true,
     isBest: false,
-    linkRealStore: '',
-    storeId: storeId || '',
-    categoryId: '',
+    linkRealStore: "",
+    storeId: storeId || "",
+    categoryId: "",
   });
   const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState('');
+  const [imagePreview, setImagePreview] = useState("");
   const fileInputRef = useRef(null);
   const [isPending, startTransition] = useTransition();
 
@@ -30,39 +46,43 @@ const CouponFormModal = ({ isOpen, onClose, onSubmit, initialData, loading, stor
       if (initialData) {
         return {
           ...initialData,
-          stratDate: initialData.stratDate ? new Date(initialData.stratDate).toISOString().slice(0, 16) : '',
-          endDate: initialData.endDate ? new Date(initialData.endDate).toISOString().slice(0, 16) : '',
-          storeId: initialData.storeId || storeId || '',
-          categoryId: initialData.categoryId || '',
+          stratDate: initialData.stratDate
+            ? new Date(initialData.stratDate).toISOString().slice(0, 16)
+            : "",
+          endDate: initialData.endDate
+            ? new Date(initialData.endDate).toISOString().slice(0, 16)
+            : "",
+          storeId: initialData.storeId || storeId || "",
+          categoryId: initialData.categoryId || "",
         };
       }
       return {
-        title: '',
-        description: '',
-        imageUrl: '',
+        title: "",
+        description: "",
+        imageUrl: "",
         discount: 0,
-        couponCode: '',
-        stratDate: '',
-        endDate: '',
+        couponCode: "",
+        stratDate: "",
+        endDate: "",
         isActive: true,
         isBest: false,
-        linkRealStore: '',
-        storeId: storeId || '',
-        categoryId: '',
+        linkRealStore: "",
+        storeId: storeId || "",
+        categoryId: "",
       };
     };
     setFormData(getInitialFormData());
     setImageFile(null);
-    setImagePreview(initialData?.imageUrl || '');
+    setImagePreview(initialData?.imageUrl || "");
   }, [initialData, storeId, isOpen]);
 
   if (!isOpen) return null;
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -70,7 +90,7 @@ const CouponFormModal = ({ isOpen, onClose, onSubmit, initialData, loading, stor
     e.preventDefault();
     e.stopPropagation();
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file && file.type.startsWith("image/")) {
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
@@ -78,7 +98,7 @@ const CouponFormModal = ({ isOpen, onClose, onSubmit, initialData, loading, stor
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file && file.type.startsWith("image/")) {
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
@@ -86,8 +106,8 @@ const CouponFormModal = ({ isOpen, onClose, onSubmit, initialData, loading, stor
 
   const handleRemoveImage = () => {
     setImageFile(null);
-    setImagePreview('');
-    if (!initialData) setFormData(prev => ({ ...prev, imageUrl: '' }));
+    setImagePreview("");
+    if (!initialData) setFormData((prev) => ({ ...prev, imageUrl: "" }));
   };
 
   const handleDragOver = (e) => {
@@ -122,16 +142,37 @@ const CouponFormModal = ({ isOpen, onClose, onSubmit, initialData, loading, stor
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-6 pb-4 border-b">
-          <h2 className="text-2xl font-bold text-gray-800">{initialData ? 'تعديل بيانات الكوبون' : 'إضافة كوبون جديد'}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full cursor-pointer">
+          <h2 className="text-2xl font-bold text-gray-800">
+            {initialData ? "تعديل بيانات الكوبون" : "إضافة كوبون جديد"}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full cursor-pointer"
+          >
             <FiX size={24} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <InputField icon={<FiTag />} name="title" value={formData.title} onChange={handleChange} placeholder="عنوان الكوبون" required />
-            <InputField icon={<FiCode />} name="couponCode" value={formData.couponCode} onChange={handleChange} placeholder="كود الكوبون" required />
+            <input
+              icon={<FiTag />}
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              placeholder="عنوان الكوبون"
+              required
+              className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pr-10 p-2.5 transition"
+            />
+            <input
+              icon={<FiCode />}
+              name="couponCode"
+              value={formData.couponCode}
+              onChange={handleChange}
+              placeholder="كود الكوبون"
+              required
+              className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pr-10 p-2.5 transition"
+            />
           </div>
 
           <div className="relative">
@@ -150,41 +191,67 @@ const CouponFormModal = ({ isOpen, onClose, onSubmit, initialData, loading, stor
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
-              <label className="block mb-1 text-sm font-medium text-gray-600">صورة الكوبون</label>
+              <label className="block mb-1 text-sm font-medium text-gray-600">
+                صورة الكوبون
+              </label>
               <div
                 className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition ${
-                  imagePreview ? 'border-[#14b8a6]' : 'border-gray-300 hover:border-[#14b8a6]'
+                  imagePreview
+                    ? "border-[#14b8a6]"
+                    : "border-gray-300 hover:border-[#14b8a6]"
                 }`}
                 onDrop={handleImageDrop}
                 onDragOver={handleDragOver}
-                onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                onClick={() =>
+                  fileInputRef.current && fileInputRef.current.click()
+                }
               >
                 {imagePreview ? (
                   <div className="flex flex-col items-center gap-2">
-                    <img src={imagePreview} alt="Preview" className="w-32 h-32 object-contain rounded mb-2" />
-                    <button type="button" onClick={handleRemoveImage} className="text-red-500 text-xs underline cursor-pointer">إزالة الصورة</button>
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-32 h-32 object-contain rounded mb-2"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="text-red-500 text-xs underline cursor-pointer"
+                    >
+                      إزالة الصورة
+                    </button>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center gap-2 text-gray-400">
                     <FiImage size={32} />
-                    <span className="text-xs">اسحب الصورة هنا أو اضغط لاختيار صورة</span>
+                    <span className="text-xs">
+                      اسحب الصورة هنا أو اضغط لاختيار صورة
+                    </span>
                   </div>
                 )}
                 <input
                   type="file"
                   accept="image/*"
                   ref={fileInputRef}
-                  style={{ display: 'none' }}
+                  style={{ display: "none" }}
                   onChange={handleImageChange}
                 />
               </div>
             </div>
-            <InputField icon={<FiLink />} name="linkRealStore" value={formData.linkRealStore} onChange={handleChange} placeholder="رابط المتجر" />
+            <InputField
+              icon={<FiLink />}
+              name="linkRealStore"
+              value={formData.linkRealStore}
+              onChange={handleChange}
+              placeholder="رابط المتجر"
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
             <div>
-              <label className="block mb-2 text-sm font-medium text-gray-600">فئة الكوبون</label>
+              <label className="block mb-2 text-sm font-medium text-gray-600">
+                فئة الكوبون
+              </label>
               <select
                 name="categoryId"
                 value={formData.categoryId}
@@ -192,26 +259,59 @@ const CouponFormModal = ({ isOpen, onClose, onSubmit, initialData, loading, stor
                 className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block p-2.5"
                 required
               >
-                <option value="" disabled>-- اختر الفئة --</option>
+                <option value="" disabled>
+                  -- اختر الفئة --
+                </option>
                 {categories?.map((category) => (
-                  <option key={category.id} value={category.id}>{category.name}</option>
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block mb-2 text-sm font-medium text-gray-600">نسبة الخصم</label>
-              <InputField icon={<FiPercent />} type="number" name="discount" value={formData.discount} onChange={handleChange} placeholder="0" required />
+              <label className="block mb-2 text-sm font-medium text-gray-600">
+                نسبة الخصم
+              </label>
+              <input
+                icon={<FiPercent />}
+                type="number"
+                name="discount"
+                              className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pr-10 p-2.5 transition"
+
+                value={formData.discount}
+                onChange={handleChange}
+                placeholder="0"
+                required
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block mb-2 text-sm font-medium text-gray-600">تاريخ البدء</label>
-              <InputField icon={<FiCalendar />} name="stratDate" type="datetime-local" value={formData.stratDate} onChange={handleChange} />
+              <label className="block mb-2 text-sm font-medium text-gray-600">
+                تاريخ البدء
+              </label>
+              <InputField
+                icon={<FiCalendar />}
+                name="stratDate"
+                type="datetime-local"
+                value={formData.stratDate}
+                onChange={handleChange}
+              />
             </div>
             <div>
-              <label className="block mb-2 text-sm font-medium text-gray-600">تاريخ الانتهاء</label>
-              <InputField icon={<FiCalendar />} name="endDate" type="datetime-local" value={formData.endDate} onChange={handleChange} required />
+              <label className="block mb-2 text-sm font-medium text-gray-600">
+                تاريخ الانتهاء
+              </label>
+              <InputField
+                icon={<FiCalendar />}
+                name="endDate"
+                type="datetime-local"
+                value={formData.endDate}
+                onChange={handleChange}
+                required
+              />
             </div>
           </div>
 
@@ -219,12 +319,24 @@ const CouponFormModal = ({ isOpen, onClose, onSubmit, initialData, loading, stor
 
           <div className="flex items-center gap-6 pt-4 border-t mt-6">
             <label className="flex items-center gap-2 cursor-pointer text-gray-700">
-              <input type="checkbox" name="isActive" checked={formData.isActive} onChange={handleChange} className="w-5 h-5 text-[#14b8a6] bg-gray-100 border-gray-300 rounded focus:ring-[#14b8a6] focus:ring-2" />
+              <input
+                type="checkbox"
+                name="isActive"
+                checked={formData.isActive}
+                onChange={handleChange}
+                className="w-5 h-5 text-[#14b8a6] bg-gray-100 border-gray-300 rounded focus:ring-[#14b8a6] focus:ring-2"
+              />
               <FiCheckSquare className="text-green-500" />
               <span>نشط للجميع</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer text-gray-700">
-              <input type="checkbox" name="isBest" checked={formData.isBest} onChange={handleChange} className="w-5 h-5 text-[#14b8a6] bg-gray-100 border-gray-300 rounded focus:ring-[#14b8a6] focus:ring-2" />
+              <input
+                type="checkbox"
+                name="isBest"
+                checked={formData.isBest}
+                onChange={handleChange}
+                className="w-5 h-5 text-[#14b8a6] bg-gray-100 border-gray-300 rounded focus:ring-[#14b8a6] focus:ring-2"
+              />
               <FiStar className="text-yellow-500" />
               <span>أفضل كوبون</span>
             </label>
@@ -245,14 +357,32 @@ const CouponFormModal = ({ isOpen, onClose, onSubmit, initialData, loading, stor
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   جاري الحفظ...
                 </>
+              ) : initialData ? (
+                "حفظ التعديلات"
               ) : (
-                initialData ? 'حفظ التعديلات' : 'إضافة الكوبون'
+                "إضافة الكوبون"
               )}
             </button>
           </div>

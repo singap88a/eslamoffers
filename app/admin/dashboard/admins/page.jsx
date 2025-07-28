@@ -1,19 +1,12 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { 
-  Container, Typography, TextField, Button, Select, MenuItem, 
-  FormControl, InputLabel, List, ListItem, ListItemText, Paper, 
-  Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions,
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  IconButton
-} from '@mui/material';
-import { Delete, Edit } from '@mui/icons-material';
+import { Delete, Edit, Close, PersonAdd, Login, Logout } from '@mui/icons-material';
 
 const API_BASE_URL = 'https://api.eslamoffers.com/api';
 
 const AuthAdminPanel = () => {
-  // State for authentication
+  // Authentication state
   const [authData, setAuthData] = useState({
     name: '',
     email: '',
@@ -31,15 +24,13 @@ const AuthAdminPanel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   
-  // State for role management
+  // Role management state
   const [roles, setRoles] = useState([]);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
   
-  // State for user management
-  const [editUserData, setEditUserData] = useState(null);
-  const [openEditDialog, setOpenEditDialog] = useState(false);
+  // User management state
   const [deleteUserId, setDeleteUserId] = useState(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   
@@ -48,7 +39,7 @@ const AuthAdminPanel = () => {
   const [severity, setSeverity] = useState('info');
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
-  // Initialize token from localStorage on client side
+  // Initialize token from localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const storedToken = localStorage.getItem('token') || '';
@@ -72,9 +63,15 @@ const AuthAdminPanel = () => {
     }
   }, [currentUser]);
 
-  const handleSnackbarClose = () => {
-    setOpenSnackbar(false);
-  };
+  // Auto-hide snackbar after 3 seconds
+  useEffect(() => {
+    if (openSnackbar) {
+      const timer = setTimeout(() => {
+        setOpenSnackbar(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [openSnackbar]);
 
   const showMessage = (msg, sev) => {
     setMessage(msg);
@@ -93,6 +90,12 @@ const AuthAdminPanel = () => {
       });
       
       showMessage('User registered successfully!', 'success');
+      setAuthData({
+        name: '',
+        email: '',
+        password: '',
+        role: 'User'
+      });
       fetchAllUsers();
     } catch (error) {
       showMessage(error.response?.data?.message || 'Registration failed', 'error');
@@ -112,6 +115,7 @@ const AuthAdminPanel = () => {
       }
       setIsAuthenticated(true);
       showMessage('Login successful!', 'success');
+      setLoginData({ email: '', password: '' });
     } catch (error) {
       showMessage(error.response?.data?.message || 'Login failed', 'error');
     }
@@ -159,7 +163,6 @@ const AuthAdminPanel = () => {
 
   const addRoleToUser = async () => {
     try {
-      // First find the user by email
       const user = users.find(u => u.email === selectedUser);
       if (!user) {
         throw new Error('User not found');
@@ -175,7 +178,9 @@ const AuthAdminPanel = () => {
       });
       
       showMessage(`Role ${selectedRole} added to user ${selectedUser}`, 'success');
-      fetchAllUsers(); // Refresh users list
+      setSelectedUser('');
+      setSelectedRole('');
+      fetchAllUsers();
     } catch (error) {
       showMessage(error.response?.data || error.message || 'Failed to add role', 'error');
     }
@@ -185,42 +190,13 @@ const AuthAdminPanel = () => {
     try {
       await axios.delete(`${API_BASE_URL}/Roles/DeleteRoleFromUser/${roleName}/${userId}`);
       showMessage(`Role ${roleName} removed from user`, 'success');
-      fetchAllUsers(); // Refresh users list
+      fetchAllUsers();
     } catch (error) {
       showMessage(error.response?.data || error.message || 'Failed to remove role', 'error');
     }
   };
 
   // User management functions
-  const handleEditUser = (user) => {
-    setEditUserData({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      address: user.address || '',
-      phoneNumber: user.phoneNamber || ''
-    });
-    setOpenEditDialog(true);
-  };
-
-  const handleUpdateUser = async () => {
-    try {
-      await axios.put(`${API_BASE_URL}/Account/EditUser`, {
-        id: editUserData.id,
-        name: editUserData.name,
-        email: editUserData.email,
-        address: editUserData.address,
-        phoneNamber: editUserData.phoneNumber
-      });
-      
-      showMessage('User updated successfully', 'success');
-      setOpenEditDialog(false);
-      fetchAllUsers();
-    } catch (error) {
-      showMessage(error.response?.data || 'Failed to update user', 'error');
-    }
-  };
-
   const handleDeleteUser = async () => {
     try {
       await axios.delete(`${API_BASE_URL}/Account/DeleteUser/${deleteUserId}`);
@@ -233,289 +209,281 @@ const AuthAdminPanel = () => {
   };
 
   return (
-    <Container maxWidth="lg">
-      <Typography variant="h3" gutterBottom>
-        Admin Panel
-      </Typography>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold text-center mb-8 text-teal-600">Admin Panel</h1>
       
       {/* Feedback Snackbar */}
-      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity={severity} sx={{ width: '100%' }}>
-          {message}
-        </Alert>
-      </Snackbar>
+      {openSnackbar && (
+        <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-lg shadow-lg z-50 ${
+          severity === 'error' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+        }`}>
+          <div className="flex justify-between items-center">
+            <span>{message}</span>
+            <button onClick={() => setOpenSnackbar(false)} className="ml-4 cursor-pointer">
+              <Close className="text-lg" />
+            </button>
+          </div>
+        </div>
+      )}
       
       {!isAuthenticated ? (
-        <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-          <Typography variant="h5" gutterBottom>
-            Login
-          </Typography>
-          <TextField
-            label="Email"
-            type="email"
-            fullWidth
-            margin="normal"
-            value={loginData.email}
-            onChange={(e) => setLoginData({...loginData, email: e.target.value})}
-          />
-          <TextField
-            label="Password"
-            type="password"
-            fullWidth
-            margin="normal"
-            value={loginData.password}
-            onChange={(e) => setLoginData({...loginData, password: e.target.value})}
-          />
-          <Button 
-            variant="contained" 
-            color="primary" 
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6 max-w-md mx-auto">
+          <h2 className="text-xl font-semibold mb-4 text-teal-600">Login</h2>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input
+              type="email"
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
+              value={loginData.email}
+              onChange={(e) => setLoginData({...loginData, email: e.target.value})}
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <input
+              type="password"
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
+              value={loginData.password}
+              onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+            />
+          </div>
+          <button 
+            className="w-full bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center justify-center cursor-pointer transition-colors duration-200"
             onClick={handleLogin}
-            sx={{ mt: 2 }}
           >
+            <Login className="mr-2" />
             Login
-          </Button>
-        </Paper>
+          </button>
+        </div>
       ) : (
         <>
-          <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h5" gutterBottom>
-              Welcome, {currentUser?.name} ({currentUser?.roles?.join(', ')})
-            </Typography>
-            <Button variant="outlined" color="error" onClick={handleLogout}>
-              Logout
-            </Button>
-          </Paper>
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-semibold text-teal-600">
+                  Welcome, <span className="font-bold">{currentUser?.name}</span>
+                </h2>
+                <p className="text-gray-600">
+                  Roles: <span className="font-medium">{currentUser?.roles?.join(', ')}</span>
+                </p>
+              </div>
+              <button 
+                className="flex items-center text-red-600 hover:text-red-800 px-3 py-1 border border-red-600 hover:border-red-800 rounded-lg cursor-pointer transition-colors duration-200"
+                onClick={handleLogout}
+              >
+                <Logout className="mr-1" />
+                Logout
+              </button>
+            </div>
+          </div>
           
           {/* Register New User (Admin only) */}
           {isAdmin && (
-            <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-              <Typography variant="h5" gutterBottom>
-                Register New User
-              </Typography>
-              <TextField
-                label="Name"
-                fullWidth
-                margin="normal"
-                value={authData.name}
-                onChange={(e) => setAuthData({...authData, name: e.target.value})}
-              />
-              <TextField
-                label="Email"
-                type="email"
-                fullWidth
-                margin="normal"
-                value={authData.email}
-                onChange={(e) => setAuthData({...authData, email: e.target.value})}
-              />
-              {/* <TextField
-                label="Password"
-                type="password"
-                fullWidth
-                margin="normal"
-                value={authData.password}
-                onChange={(e) => setAuthData({...authData, password: e.target.value})}
-              /> */}
-              <FormControl fullWidth margin="normal">
-                <InputLabel>Role</InputLabel>
-                <Select
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+              <h2 className="text-xl font-semibold mb-4 text-teal-600">Register New User</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <input
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
+                    value={authData.name}
+                    onChange={(e) => setAuthData({...authData, name: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
+                    value={authData.email}
+                    onChange={(e) => setAuthData({...authData, email: e.target.value})}
+                  />
+                </div>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                <select
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 cursor-pointer"
                   value={authData.role}
-                  label="Role"
                   onChange={(e) => setAuthData({...authData, role: e.target.value})}
                 >
                   {roles.map((role) => (
-                    <MenuItem key={role.id} value={role.name}>
+                    <option key={role.id} value={role.name}>
                       {role.name}
-                    </MenuItem>
+                    </option>
                   ))}
-                </Select>
-              </FormControl>
-              <Button 
-                variant="contained" 
-                color="primary" 
+                </select>
+              </div>
+              <button
+                className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center cursor-pointer transition-colors duration-200"
                 onClick={handleRegister}
-                sx={{ mt: 2 }}
               >
-                Register
-              </Button>
-            </Paper>
+                <PersonAdd className="mr-2" />
+                Register User
+              </button>
+            </div>
           )}
           
           {/* Users List (Admin only) */}
           {isAdmin && (
-            <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-              <Typography variant="h5" gutterBottom>
-                Users Management
-              </Typography>
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+              <h2 className="text-xl font-semibold mb-4 text-teal-600">Users Management</h2>
               
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Email</TableCell>
-                      <TableCell>Roles</TableCell>
-                      <TableCell>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Roles</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
                     {users.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>{user.name}</TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>{user.roles?.join(', ')}</TableCell>
-                        <TableCell>
-                          {/* <IconButton color="primary" onClick={() => handleEditUser(user)}>
-                            <Edit />
-                          </IconButton> */}
-                          <IconButton 
-                            color="error" 
+                      <tr key={user.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">{user.name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex flex-wrap gap-1">
+                            {user.roles?.map((role) => (
+                              <span key={role} className="bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded">
+                                {role}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button
                             onClick={() => {
                               setDeleteUserId(user.id);
                               setOpenDeleteDialog(true);
                             }}
+                            className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50 cursor-pointer transition-colors duration-200"
+                            title="Delete"
                           >
-                            <Delete />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
+                            <Delete className="text-xl" />
+                          </button>
+                        </td>
+                      </tr>
                     ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           )}
           
           {/* Manage User Roles */}
           {isAdmin && (
-            <Paper elevation={3} sx={{ p: 3 }}>
-              <Typography variant="h5" gutterBottom>
-                Manage User Roles
-              </Typography>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-semibold mb-4 text-teal-600">Manage User Roles</h2>
               
-              <FormControl fullWidth margin="normal">
-                <InputLabel>Select User</InputLabel>
-                <Select
-                  value={selectedUser}
-                  label="Select User"
-                  onChange={(e) => setSelectedUser(e.target.value)}
-                >
-                  {users.map((user) => (
-                    <MenuItem key={user.id} value={user.email}>
-                      {user.name} ({user.email})
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Select User</label>
+                  <select
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 cursor-pointer"
+                    value={selectedUser}
+                    onChange={(e) => setSelectedUser(e.target.value)}
+                  >
+                    <option value="">Select a user</option>
+                    {users.map((user) => (
+                      <option key={user.id} value={user.email}>
+                        {user.name} ({user.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Select Role</label>
+                  <select
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 cursor-pointer"
+                    value={selectedRole}
+                    onChange={(e) => setSelectedRole(e.target.value)}
+                  >
+                    <option value="">Select a role</option>
+                    {roles.map((role) => (
+                      <option key={role.id} value={role.name}>
+                        {role.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
               
-              <FormControl fullWidth margin="normal">
-                <InputLabel>Select Role</InputLabel>
-                <Select
-                  value={selectedRole}
-                  label="Select Role"
-                  onChange={(e) => setSelectedRole(e.target.value)}
-                >
-                  {roles.map((role) => (
-                    <MenuItem key={role.id} value={role.name}>
-                      {role.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              
-              <Button 
-                variant="contained" 
-                color="primary" 
+              <button
+                className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg mb-6 cursor-pointer transition-colors duration-200 disabled:opacity-50"
                 onClick={addRoleToUser}
-                sx={{ mt: 2, mb: 3 }}
                 disabled={!selectedUser || !selectedRole}
               >
                 Add Role to User
-              </Button>
+              </button>
               
-              <Typography variant="h6" gutterBottom>
-                Current User Roles
-              </Typography>
               {selectedUser && (
-                <List>
-                  {users.find(u => u.email === selectedUser)?.roles?.map((role) => (
-                    <ListItem key={role} 
-                      secondaryAction={
-                        <Button 
-                          color="error"
+                <div>
+                  <h3 className="text-lg font-medium mb-2 text-teal-600">Current User Roles</h3>
+                  <div className="space-y-2">
+                    {users.find(u => u.email === selectedUser)?.roles?.map((role) => (
+                      <div key={role} className="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+                        <span className="font-medium">{role}</span>
+                        <button
                           onClick={() => removeRoleFromUser(
                             users.find(u => u.email === selectedUser).id, 
                             role
                           )}
+                          className="text-red-600 hover:text-red-800 px-3 py-1 rounded-lg border border-red-600 hover:border-red-800 cursor-pointer transition-colors duration-200"
                         >
                           Remove
-                        </Button>
-                      }
-                    >
-                      <ListItemText primary={role} />
-                    </ListItem>
-                  ))}
-                </List>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
-            </Paper>
+            </div>
           )}
         </>
       )}
       
-      {/* Edit User Dialog */}
-      {/* <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
-        <DialogTitle>Edit User</DialogTitle>
-        <DialogContent>
-          {editUserData && (
-            <>
-              <TextField
-                margin="dense"
-                label="Name"
-                fullWidth
-                value={editUserData.name}
-                onChange={(e) => setEditUserData({...editUserData, name: e.target.value})}
-              />
-              <TextField
-                margin="dense"
-                label="Email"
-                fullWidth
-                value={editUserData.email}
-                onChange={(e) => setEditUserData({...editUserData, email: e.target.value})}
-              />
-              <TextField
-                margin="dense"
-                label="Phone Number"
-                fullWidth
-                value={editUserData.phoneNumber}
-                onChange={(e) => setEditUserData({...editUserData, phoneNumber: e.target.value})}
-              />
-              <TextField
-                margin="dense"
-                label="Address"
-                fullWidth
-                value={editUserData.address}
-                onChange={(e) => setEditUserData({...editUserData, address: e.target.value})}
-              />
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
-          <Button onClick={handleUpdateUser} color="primary">Save</Button>
-        </DialogActions>
-      </Dialog> */}
-      
       {/* Delete User Dialog */}
-      <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
-          <Typography>Are you sure you want to delete this user?</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
-          <Button onClick={handleDeleteUser} color="error">Delete</Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+      {openDeleteDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium text-gray-900">Confirm Delete</h3>
+              <button 
+                onClick={() => setOpenDeleteDialog(false)} 
+                className="text-gray-500 hover:text-gray-700 cursor-pointer"
+              >
+                <Close />
+              </button>
+            </div>
+            <div className="mb-6">
+              <div className="flex justify-center mb-4">
+                <div className="bg-red-100 p-3 rounded-full">
+                  <Delete className="text-red-600 text-3xl" />
+                </div>
+              </div>
+              <p className="text-gray-600 text-center">Are you sure you want to delete this user? This action cannot be undone.</p>
+            </div>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setOpenDeleteDialog(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteUser}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg cursor-pointer transition-colors duration-200"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
