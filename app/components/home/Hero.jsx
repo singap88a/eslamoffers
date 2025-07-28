@@ -46,7 +46,7 @@ const Hero = () => {
           alt={`عرض ${banner.id}`}
           width={1000}
           height={200}
-          className="w-full h-auto object-cover"
+          className="w-full h-full  "
         />
       </div>
     );

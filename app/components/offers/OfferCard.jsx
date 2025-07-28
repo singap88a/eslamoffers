@@ -1,13 +1,32 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
-import { FiCopy, FiCheck, FiX } from "react-icons/fi";
+import Image from "next/image";
+import { FiCopy, FiCheck, FiX, FiClock } from "react-icons/fi";
 import { toast } from "react-toastify";
 
-const OfferCard = ({ offer }) => {
-  const [showCouponModal, setShowCouponModal] = useState(false);
+const OfferCard = ({ offer, onGetCode }) => {
+  const [showModal, setShowModal] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopy = () => {
+    if (offer.couponId) {
+      navigator.clipboard.writeText(offer.couponId);
+      setIsCopied(true);
+      toast.success("تم نسخ الكود بنجاح!");
+      
+      // تحديث عدد مرات الاستخدام إذا كان هناك API
+      if (offer.id) {
+        fetch(`https://api.eslamoffers.com/api/Offers/NumberUsed/${offer.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer YOUR_TOKEN_HERE"
+          }
+        }).catch(err => console.error("Error updating last use:", err));
+      }
+    }
+  };
 
   const getImageSrc = (url) => {
     if (!url) return "/default-store.png";
@@ -15,29 +34,16 @@ const OfferCard = ({ offer }) => {
     return `https://api.eslamoffers.com/uploads/${url}`;
   };
 
-  const copyCoupon = () => {
-    if (offer.couponId) {
-      navigator.clipboard.writeText(offer.couponId);
-      setIsCopied(true);
-      toast.success("تم نسخ الكوبون بنجاح!");
-    }
-  };
+  const isExpired = offer.endDate && new Date(offer.endDate) < new Date();
 
-  const calculateDiscountPrice = () => {
-    if (offer.originalPrice && offer.discount) {
-      const discountAmount = (offer.originalPrice * offer.discount) / 100;
-      return (offer.originalPrice - discountAmount).toFixed(2);
-    }
-    return offer.price;
-  };
-
-  const calculateOriginalFromDiscounted = () => {
+  const calculateOriginalPrice = () => {
     if (offer.price && offer.discount) {
-      const original = offer.price / (1 - offer.discount / 100);
-      return original.toFixed(2);
+      return (offer.price / (1 - offer.discount / 100)).toFixed(2);
     }
     return null;
   };
+
+  const originalPrice = calculateOriginalPrice();
 
   return (
     <>
@@ -48,42 +54,38 @@ const OfferCard = ({ offer }) => {
           </div>
         )}
 
-        <div className="flex justify-between items-start mb-3 w-full gap-10">
-          <div className="w-24 h-20 relative">
+        <div className="flex justify-between items-start mb-3 w-full gap-4">
+          {/* صورة المنتج */}
+          <div className="w-24 h-20 relative border border-gray-200 rounded-md overflow-hidden">
             <Image
-              src={getImageSrc(offer.logoUrl)}
+              src={getImageSrc(offer.imageUrl)}
               alt={offer.title}
               fill
-              className="object-contain"
+              className="object-cover"
             />
           </div>
-          <div className="w-full">
-            <div className="flex-1 pr-2">
-              <a
-                href={offer.linkPage}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-teal-600 transition-colors"
-              >
-                <h2 className="text-sm font-bold text-gray-800 leading-5 mb-1">
-                  {offer.title}
-                </h2>
-              </a>
 
-              <div className="flex items-center gap-2 mt-1">
-                {offer.price && offer.discount && (
-                  <div className="text-xs text-gray-400 line-through">
-                    {calculateOriginalFromDiscounted()} {offer.currencyCodes || "USD"}
-                  </div>
-                )}
-                {offer.price && (
-                  <div className="text-sm font-bold text-teal-600">
-                    {offer.price} {offer.currencyCodes || "USD"}
-                  </div>
-                )}
-              </div>
+          <div className="w-full">
+            {/* عنوان العرض */}
+            <h2 className="text-sm font-bold text-gray-800 leading-5 mb-1">
+              {offer.title}
+            </h2>
+
+            {/* السعر والخصم */}
+            <div className="flex items-center gap-2 mt-1">
+              {originalPrice && (
+                <div className="text-xs text-gray-400 line-through">
+                  {originalPrice} {offer.currencyCodes || "USD"}
+                </div>
+              )}
+              {offer.price && (
+                <div className="text-sm font-bold text-teal-600">
+                  {offer.price} {offer.currencyCodes || "USD"}
+                </div>
+              )}
             </div>
 
+            {/* صورة المتجر وزر الكوبون */}
             <div className="flex justify-between items-center border-t border-gray-200 pt-3 mt-2">
               <a
                 href={offer.linkPage}
@@ -92,15 +94,23 @@ const OfferCard = ({ offer }) => {
                 className="w-20 h-12 relative rounded-md overflow-hidden border border-gray-200"
               >
                 <Image
-                  src={getImageSrc(offer.imageStoreUrl)}
+                  src={getImageSrc(offer.logoUrl)}
                   alt="store"
                   fill
-                  className="object-cover"
+                  className="object-contain"
                 />
               </a>
+              
               {offer.couponId && (
                 <button
-                  onClick={() => setShowCouponModal(true)}
+                  onClick={() => {
+                    if (onGetCode) {
+                      onGetCode(offer);
+                    } else {
+                      setShowModal(true);
+                      setIsCopied(false);
+                    }
+                  }}
                   className="bg-gradient-to-r from-teal-600 to-teal-500 text-white text-sm font-bold px-4 py-1 rounded-md transition-all shadow-sm hover:shadow-lg hover:from-teal-700 hover:to-teal-600"
                 >
                   كوبون
@@ -111,10 +121,11 @@ const OfferCard = ({ offer }) => {
         </div>
       </div>
 
-      {showCouponModal && (
+      {/* مودال الكوبون */}
+      {showModal && (
         <div
           onClick={() => {
-            setShowCouponModal(false);
+            setShowModal(false);
             setIsCopied(false);
           }}
           className="fixed inset-0 bg-[#00000079] bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm"
@@ -125,7 +136,7 @@ const OfferCard = ({ offer }) => {
           >
             <button
               onClick={() => {
-                setShowCouponModal(false);
+                setShowModal(false);
                 setIsCopied(false);
               }}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
@@ -133,6 +144,7 @@ const OfferCard = ({ offer }) => {
               <FiX size={24} />
             </button>
 
+            {/* شعار المتجر */}
             <div className="flex flex-col items-center mb-2">
               <div className="w-24 h-16 relative">
                 <Image
@@ -148,14 +160,17 @@ const OfferCard = ({ offer }) => {
               {offer.title}
             </h2>
 
+            {/* معلومات الخصم والسعر */}
             <div className="flex justify-between items-center mb-4">
-              <div className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm font-bold">
-                خصم {offer.discount}%
-              </div>
+              {offer.discount && (
+                <div className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm font-bold">
+                  خصم {offer.discount}%
+                </div>
+              )}
               <div className="flex items-center gap-2">
-                {offer.price && offer.discount && (
+                {originalPrice && (
                   <span className="text-xs text-gray-400 line-through">
-                    {calculateOriginalFromDiscounted()} {offer.currencyCodes || "USD"}
+                    {originalPrice} {offer.currencyCodes || "USD"}
                   </span>
                 )}
                 <span className="text-sm font-bold text-teal-600">
@@ -172,7 +187,7 @@ const OfferCard = ({ offer }) => {
 
             <div
               className="bg-gray-50 border border-dashed border-teal-400 rounded-lg flex items-center justify-center px-6 py-4 mb-4 cursor-pointer select-all relative"
-              onClick={copyCoupon}
+              onClick={handleCopy}
             >
               {isCopied ? (
                 <FiCheck
