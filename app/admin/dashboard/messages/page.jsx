@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from "next/navigation";
 
 export default function AdminFeedbackPage() {
   const [feedbacks, setFeedbacks] = useState([]);
@@ -19,42 +20,72 @@ export default function AdminFeedbackPage() {
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [authToken, setAuthToken] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
-    fetchFeedbacks();
+    // استرجاع التوكن من localStorage عند تحميل الصفحة
+    const token = localStorage.getItem('adminToken') || getCookie('token');
+    if (!token) {
+      toast.error('يجب تسجيل الدخول أولاً');
+      router.push('/admin/login');
+      return;
+    }
+    setAuthToken(token);
+    fetchFeedbacks(token);
   }, []);
 
-  const fetchFeedbacks = async () => {
+  // دالة لقراءة الكوكيز
+  const getCookie = (name) => {
+    if (typeof window === 'undefined') return null;
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+  };
+
+  const fetchFeedbacks = async (token) => {
     try {
       setLoading(true);
       const response = await fetch('https://api.eslamoffers.com/api/Feedback/GetFeedBack', {
         method: 'GET',
         headers: {
-          'accept': '*/*'
+          'accept': '*/*',
+          'Authorization': `Bearer ${token}`
         }
       });
 
       if (response.ok) {
         const data = await response.json();
         setFeedbacks(data);
+      } else if (response.status === 401) {
+        // إذا كان التوكن غير صالح
+        handleLogout();
+        throw new Error('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى');
       } else {
         throw new Error('Failed to fetch feedbacks');
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('حدث خطأ أثناء جلب الرسائل');
+      toast.error(error.message || 'حدث خطأ أثناء جلب الرسائل');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
+    if (!authToken) {
+      toast.error('يجب تسجيل الدخول أولاً');
+      return;
+    }
+
     setIsDeleting(true);
     try {
       const response = await fetch(`https://api.eslamoffers.com/api/Feedback/DeleteMessage/${id}`, {
         method: 'DELETE',
         headers: {
-          'accept': '*/*'
+          'accept': '*/*',
+          'Authorization': `Bearer ${authToken}`
         }
       });
 
@@ -64,18 +95,29 @@ export default function AdminFeedbackPage() {
           setSelectedFeedback(null);
         }
         toast.success('تم حذف الرسالة بنجاح');
+      } else if (response.status === 401) {
+        handleLogout();
+        throw new Error('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى');
       } else {
         throw new Error('Failed to delete feedback');
       }
     } catch (error) {
       console.error('Error deleting feedback:', error);
-      toast.error('حدث خطأ أثناء حذف الرسالة');
+      toast.error(error.message || 'حدث خطأ أثناء حذف الرسالة');
     } finally {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
     }
   };
 
+  const handleLogout = () => {
+    // حذف التوكن من localStorage والكوكيز
+    localStorage.removeItem('adminToken');
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    router.push('/admin/login');
+  };
+
+  // ... باقي الكود بدون تغيير ...
   const filteredFeedbacks = feedbacks.filter(feedback =>
     feedback.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     feedback.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -86,6 +128,14 @@ export default function AdminFeedbackPage() {
     const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     return new Date(dateString).toLocaleDateString('ar-EG', options);
   };
+
+  if (!authToken) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div dir="rtl" className="min-h-screen bg-gray-50 p-6">

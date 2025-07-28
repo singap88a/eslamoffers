@@ -11,8 +11,10 @@ import {
   FiUsers,
   FiChevronLeft,
   FiChevronRight,
-  FiPieChart
+  FiPieChart,
+  FiLogOut
 } from "react-icons/fi";
+import { CiBandage } from "react-icons/ci";
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -23,11 +25,18 @@ const Sidebar = () => {
     { href: "/admin/dashboard/stores", label: "المتاجر", icon: <FiShoppingBag /> },
     { href: "/admin/dashboard/coupons", label: "الكوبونات", icon: <FiTag /> },
     { href: "/admin/dashboard/offers", label: "العروض", icon: <FiList /> },
+    // category
+    { href: "/admin/dashboard/category", label: "الفئات", icon: <FiList /> },
     { href: "/admin/dashboard/messages", label: "رسائل العملاء", icon: <FiMail /> },
-    { href: "/admin/dashboard/admins", label: "المشرفين", icon: <FiUsers /> }
-        // { href: "/admin/dashboard/settings", label: "الإعدادات", icon: <FiSettings /> },
-
+    { href: "/admin/dashboard/admins", label: "المشرفين", icon: <FiUsers /> },
+    { href: "/admin/dashboard/Banner", label: "البانرات", icon: <CiBandage /> },
   ];
+
+  const handleLogout = () => {
+    // حذف الكوكي وإعادة التوجيه لصفحة تسجيل الدخول
+    document.cookie = "token=; path=/; max-age=0;";
+    window.location.href = "/admin/login";
+  };
 
   return (
     <aside className={`
@@ -82,9 +91,28 @@ const Sidebar = () => {
         ))}
       </nav>
 
-      {/* Footer */}
-      <div className="p-3 border-t border-gray-100 text-xs text-center text-gray-400">
-        {!isCollapsed ? "الإصدار 2.2.0" : "v2.2.0"}
+      {/* Footer with Logout Button */}
+      <div className="p-3 border-t border-gray-100">
+        <button
+          onClick={handleLogout}
+          className={`
+            w-full flex items-center 
+            ${isCollapsed ? "justify-center" : "justify-start px-3"}
+            p-2 rounded-md
+            text-gray-600 hover:bg-gray-50 hover:text-red-500
+            transition-all duration-200
+          `}
+        >
+          <span className={`${!isCollapsed && "ml-2"} text-red-400`}>
+            <FiLogOut />
+          </span>
+          {!isCollapsed && <span className="mr-2 cursor-pointer
+">تسجيل الخروج</span>}
+        </button>
+        
+        <div className="text-xs text-center text-gray-400 mt-2">
+          {!isCollapsed ? "الإصدار 2.2.0" : "v2.2.0"}
+        </div>
       </div>
     </aside>
   );

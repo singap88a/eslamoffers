@@ -164,7 +164,8 @@ const confirmDelete = async () => {
             setSelectedOffer(null);
             setIsModalOpen(true);
           }}
-          className="bg-[#14b8a6] text-white px-6 py-2 rounded-lg hover:bg-[#14b8a6]/90 transition font-bold shadow-lg"
+          className="bg-[#14b8a6] cursor-pointer
+ text-white px-6 py-2 rounded-lg hover:bg-[#14b8a6]/90 transition font-bold shadow-lg"
         >
           إضافة عرض جديد
         </button>

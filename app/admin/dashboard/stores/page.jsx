@@ -175,7 +175,8 @@ const StoresPage = () => {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">إدارة المتاجر</h1>
           <button
-            className="flex items-center gap-2 bg-[#14b8a6] text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-[#11a394] transition-all duration-300 font-semibold"
+            className="flex items-center cursor-pointer
+ gap-2 bg-[#14b8a6] text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-[#11a394] transition-all duration-300 font-semibold"
             onClick={() => {
               setEditStore(null);
               setModalOpen(true);
