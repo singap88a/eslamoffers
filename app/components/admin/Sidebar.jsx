@@ -24,8 +24,9 @@ const Sidebar = () => {
     { href: "/admin/dashboard/coupons", label: "الكوبونات", icon: <FiTag /> },
     { href: "/admin/dashboard/offers", label: "العروض", icon: <FiList /> },
     { href: "/admin/dashboard/messages", label: "رسائل العملاء", icon: <FiMail /> },
-    { href: "/admin/dashboard/settings", label: "الإعدادات", icon: <FiSettings /> },
     { href: "/admin/dashboard/admins", label: "المشرفين", icon: <FiUsers /> }
+        // { href: "/admin/dashboard/settings", label: "الإعدادات", icon: <FiSettings /> },
+
   ];
 
   return (
