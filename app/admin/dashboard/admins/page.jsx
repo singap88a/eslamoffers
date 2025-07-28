@@ -307,14 +307,14 @@ const AuthAdminPanel = () => {
                 value={authData.email}
                 onChange={(e) => setAuthData({...authData, email: e.target.value})}
               />
-              <TextField
+              {/* <TextField
                 label="Password"
                 type="password"
                 fullWidth
                 margin="normal"
                 value={authData.password}
                 onChange={(e) => setAuthData({...authData, password: e.target.value})}
-              />
+              /> */}
               <FormControl fullWidth margin="normal">
                 <InputLabel>Role</InputLabel>
                 <Select
@@ -364,9 +364,9 @@ const AuthAdminPanel = () => {
                         <TableCell>{user.email}</TableCell>
                         <TableCell>{user.roles?.join(', ')}</TableCell>
                         <TableCell>
-                          <IconButton color="primary" onClick={() => handleEditUser(user)}>
+                          {/* <IconButton color="primary" onClick={() => handleEditUser(user)}>
                             <Edit />
-                          </IconButton>
+                          </IconButton> */}
                           <IconButton 
                             color="error" 
                             onClick={() => {
@@ -462,7 +462,7 @@ const AuthAdminPanel = () => {
       )}
       
       {/* Edit User Dialog */}
-      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
+      {/* <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
         <DialogTitle>Edit User</DialogTitle>
         <DialogContent>
           {editUserData && (
@@ -502,7 +502,7 @@ const AuthAdminPanel = () => {
           <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
           <Button onClick={handleUpdateUser} color="primary">Save</Button>
         </DialogActions>
-      </Dialog>
+      </Dialog> */}
       
       {/* Delete User Dialog */}
       <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
