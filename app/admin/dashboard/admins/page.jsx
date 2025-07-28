@@ -26,7 +26,7 @@ const AuthAdminPanel = () => {
     password: ''
   });
   
-  const [token, setToken] = useState(localStorage.getItem('token') || '');
+  const [token, setToken] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -47,6 +47,14 @@ const AuthAdminPanel = () => {
   const [message, setMessage] = useState('');
   const [severity, setSeverity] = useState('info');
   const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  // Initialize token from localStorage on client side
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedToken = localStorage.getItem('token') || '';
+      setToken(storedToken);
+    }
+  }, []);
 
   // Configure axios defaults
   useEffect(() => {
@@ -99,7 +107,9 @@ const AuthAdminPanel = () => {
       });
       
       setToken(response.data.token);
-      localStorage.setItem('token', response.data.token);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', response.data.token);
+      }
       setIsAuthenticated(true);
       showMessage('Login successful!', 'success');
     } catch (error) {
@@ -109,7 +119,9 @@ const AuthAdminPanel = () => {
 
   const handleLogout = () => {
     setToken('');
-    localStorage.removeItem('token');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+    }
     setIsAuthenticated(false);
     setCurrentUser(null);
     setIsAdmin(false);
@@ -295,14 +307,14 @@ const AuthAdminPanel = () => {
                 value={authData.email}
                 onChange={(e) => setAuthData({...authData, email: e.target.value})}
               />
-              {/* <TextField
+              <TextField
                 label="Password"
                 type="password"
                 fullWidth
                 margin="normal"
                 value={authData.password}
                 onChange={(e) => setAuthData({...authData, password: e.target.value})}
-              /> */}
+              />
               <FormControl fullWidth margin="normal">
                 <InputLabel>Role</InputLabel>
                 <Select
@@ -338,13 +350,11 @@ const AuthAdminPanel = () => {
               <TableContainer>
                 <Table>
                   <TableHead>
-                    <TableRow >
-                      <TableCell >Name</TableCell>
+                    <TableRow>
+                      <TableCell>Name</TableCell>
                       <TableCell>Email</TableCell>
                       <TableCell>Roles</TableCell>
-                      {/* <TableCell>Phone</TableCell> */}
-                      {/* <TableCell>Address</TableCell> */}
-                      <TableCell>Delete</TableCell>
+                      <TableCell>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -353,11 +363,9 @@ const AuthAdminPanel = () => {
                         <TableCell>{user.name}</TableCell>
                         <TableCell>{user.email}</TableCell>
                         <TableCell>{user.roles?.join(', ')}</TableCell>
-                        {/* <TableCell>{user.phoneNamber || '-'}</TableCell>
-                        <TableCell>{user.address || '-'}</TableCell> */}
                         <TableCell>
                           <IconButton color="primary" onClick={() => handleEditUser(user)}>
-                            {/* <Edit /> */}
+                            <Edit />
                           </IconButton>
                           <IconButton 
                             color="error" 
@@ -377,82 +385,84 @@ const AuthAdminPanel = () => {
             </Paper>
           )}
           
-          {/* Manage User Rolesنن */}
-          <Paper elevation={3} sx={{ p: 3 }}>
-            <Typography variant="h5" gutterBottom>
-              Manage User Roles
-            </Typography>
-            
-            <FormControl fullWidth margin="normal">
-              <InputLabel>Select User</InputLabel>
-              <Select
-                value={selectedUser}
-                label="Select User"
-                onChange={(e) => setSelectedUser(e.target.value)}
+          {/* Manage User Roles */}
+          {isAdmin && (
+            <Paper elevation={3} sx={{ p: 3 }}>
+              <Typography variant="h5" gutterBottom>
+                Manage User Roles
+              </Typography>
+              
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Select User</InputLabel>
+                <Select
+                  value={selectedUser}
+                  label="Select User"
+                  onChange={(e) => setSelectedUser(e.target.value)}
+                >
+                  {users.map((user) => (
+                    <MenuItem key={user.id} value={user.email}>
+                      {user.name} ({user.email})
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Select Role</InputLabel>
+                <Select
+                  value={selectedRole}
+                  label="Select Role"
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                >
+                  {roles.map((role) => (
+                    <MenuItem key={role.id} value={role.name}>
+                      {role.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              
+              <Button 
+                variant="contained" 
+                color="primary" 
+                onClick={addRoleToUser}
+                sx={{ mt: 2, mb: 3 }}
+                disabled={!selectedUser || !selectedRole}
               >
-                {users.map((user) => (
-                  <MenuItem key={user.id} value={user.email}>
-                    {user.name} ({user.email})
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            
-            <FormControl fullWidth margin="normal">
-              <InputLabel>Select Role</InputLabel>
-              <Select
-                value={selectedRole}
-                label="Select Role"
-                onChange={(e) => setSelectedRole(e.target.value)}
-              >
-                {roles.map((role) => (
-                  <MenuItem key={role.id} value={role.name}>
-                    {role.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            
-            <Button 
-              variant="contained" 
-              color="primary" 
-              onClick={addRoleToUser}
-              sx={{ mt: 2, mb: 3 }}
-              disabled={!selectedUser || !selectedRole}
-            >
-              Add Role to User
-            </Button>
-            
-            <Typography variant="h6" gutterBottom>
-              Current User Roles
-            </Typography>
-            {selectedUser && (
-              <List>
-                {users.find(u => u.email === selectedUser)?.roles?.map((role) => (
-                  <ListItem key={role} 
-                    secondaryAction={
-                      <Button 
-                        color="error"
-                        onClick={() => removeRoleFromUser(
-                          users.find(u => u.email === selectedUser).id, 
-                          role
-                        )}
-                      >
-                        Remove
-                      </Button>
-                    }
-                  >
-                    <ListItemText primary={role} />
-                  </ListItem>
-                ))}
-              </List>
-            )}
-          </Paper>
+                Add Role to User
+              </Button>
+              
+              <Typography variant="h6" gutterBottom>
+                Current User Roles
+              </Typography>
+              {selectedUser && (
+                <List>
+                  {users.find(u => u.email === selectedUser)?.roles?.map((role) => (
+                    <ListItem key={role} 
+                      secondaryAction={
+                        <Button 
+                          color="error"
+                          onClick={() => removeRoleFromUser(
+                            users.find(u => u.email === selectedUser).id, 
+                            role
+                          )}
+                        >
+                          Remove
+                        </Button>
+                      }
+                    >
+                      <ListItemText primary={role} />
+                    </ListItem>
+                  ))}
+                </List>
+              )}
+            </Paper>
+          )}
         </>
       )}
       
       {/* Edit User Dialog */}
-      {/* <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
+      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
         <DialogTitle>Edit User</DialogTitle>
         <DialogContent>
           {editUserData && (
@@ -492,7 +502,7 @@ const AuthAdminPanel = () => {
           <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
           <Button onClick={handleUpdateUser} color="primary">Save</Button>
         </DialogActions>
-      </Dialog> */}
+      </Dialog>
       
       {/* Delete User Dialog */}
       <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
