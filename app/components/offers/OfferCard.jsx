@@ -58,7 +58,7 @@ const OfferCard = ({ offer, onGetCode }) => {
           {/* صورة المنتج */}
           <div className="w-24 h-20 relative border border-gray-200 rounded-md overflow-hidden">
             <Image
-              src={getImageSrc(offer.imageUrl)}
+                  src={getImageSrc(offer.logoUrl)}
               alt={offer.title}
               fill
               className="object-cover"
@@ -68,7 +68,16 @@ const OfferCard = ({ offer, onGetCode }) => {
           <div className="w-full">
             {/* عنوان العرض */}
             <h2 className="text-sm font-bold text-gray-800 leading-5 mb-1">
-              {offer.title}
+                            <a
+                href={offer.linkPage}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline"
+               >
+                
+               {offer.title}
+
+              </a>
             </h2>
 
             {/* السعر والخصم */}
@@ -94,7 +103,8 @@ const OfferCard = ({ offer, onGetCode }) => {
                 className="w-20 h-12 relative rounded-md overflow-hidden border border-gray-200"
               >
                 <Image
-                  src={getImageSrc(offer.logoUrl)}
+                  src={getImageSrc(offer.imageStoreUrl)}
+
                   alt="store"
                   fill
                   className="object-contain"

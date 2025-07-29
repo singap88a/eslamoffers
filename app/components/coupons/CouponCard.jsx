@@ -102,7 +102,7 @@ const CouponCard = ({ coupon, onGetCode }) => {
             href={coupon.linkRealStore}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-24 h-16 relative flex justify-center items-center"
+            className="w-24 h-16 relative flex justify-center items-center mx-auto"
           >
             <Image
               src={getImageSrc()}
