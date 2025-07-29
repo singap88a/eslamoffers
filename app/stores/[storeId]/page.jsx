@@ -3,10 +3,10 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "next/navigation";
 import CouponCard from "../../components/coupons/CouponCard";
-import SubscribeBox from "../../components/home/Coupon/SubscribeBox";
- 
+  
 import PromoCard from "../../components/home/Coupon/PromoCard";
 import CountdownOfferBox from "../../components/home/Coupon/CountdownOfferBox";
+import BestStores from "../../components/home/BestStores";
 
 const StoreCouponsPage = () => {
   const [store, setStore] = useState(null);
@@ -127,7 +127,7 @@ const StoreCouponsPage = () => {
         {/* Sidebar */}
         <div className="lg:col-span-1">
           <div className="sticky top-8">
-            <SubscribeBox />
+            <BestStores />
             <div className="pt-16">
               <CountdownOfferBox />
             </div>

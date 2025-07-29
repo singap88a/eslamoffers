@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Image from "next/image";
 import { FiCopy, FiCheck, FiX, FiClock } from "react-icons/fi";
+import Link from "next/link";
 
-const CouponCard = ({ coupon, onGetCode }) => {
+const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
   const [showModal, setShowModal] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
@@ -15,8 +16,7 @@ const CouponCard = ({ coupon, onGetCode }) => {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization:
-          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxOTcwZGYxMi00ZDZiLTQ0OTYtOGZmNi1jZmVmMDJlMjhlM2MiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjQ5YmFjNWVmLWY4MjktNGRjMy1hZWIyLTFjNmQ1ZTgxYWE3YSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJyZWRhc2FhZDAxMDI2MCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwiZXhwIjoxNzUzNTY5NjQyLCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo3MjYyLyIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjcyNjIvIn0.uNVL0lKRVGO30MifLDc4PQTeA4RzRYWRrnQo_G_elhQ",
+        Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxOTcwZGYxMi00ZDZiLTQ0OTYtOGZmNi1jZmVmMDJlMjhlM2MiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjQ5YmFjNWVmLWY4MjktNGRjMy1hZWIyLTFjNmQ1ZTgxYWE3YSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJyZWRhc2FhZDAxMDI2MCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwiZXhwIjoxNzUzNTY5NjQyLCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo3MjYyLyIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjcyNjIvIn0.uNVL0lKRVGO30MifLDc4PQTeA4RzRYWRrnQo_G_elhQ",
       },
     }).catch((err) => console.error("Error updating last use:", err));
   };
@@ -74,11 +74,17 @@ const CouponCard = ({ coupon, onGetCode }) => {
     };
   };
 
+  // إنشاء رابط المتجر الداخلي
+  const getStoreInternalLink = () => {
+    if (!coupon.storeId) return "#";
+    return `/stores/${coupon.storeId}`;
+  };
+
   const lastUsedTime = getLastUsedTime();
 
   return (
     <>
-      <div className="relative bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-2xl transform hover:-translate-y-2 duration-300 ease-in-out transition-all p-6 w-full max-w-sm flex flex-col justify-between">
+      <div className="relative bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-2xl transform hover:-translate-y-2 duration-300 ease-in-out transition-all p-6 h-[300px] flex flex-col justify-between">
         {/* شارة الحالة */}
         <span
           className={`absolute top-2 left-2 px-3 py-1 rounded-full text-xs font-bold ${
@@ -98,10 +104,8 @@ const CouponCard = ({ coupon, onGetCode }) => {
         )}
 
         <div className="mx-auto text-center mb-6">
-          <a
-            href={coupon.linkRealStore}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={getStoreInternalLink()}
             className="w-24 h-16 relative flex justify-center items-center mx-auto"
           >
             <Image
@@ -111,17 +115,20 @@ const CouponCard = ({ coupon, onGetCode }) => {
               objectFit="contain"
               className="rounded-md"
             />
-          </a>
+          </Link>
           <div className="flex-1">
-            <h3 className="text-l font-semibold text-gray-900 mb-1  ">
+            <h3 className="text-l font-semibold text-gray-900 mb-1 line-clamp-2">
               {coupon.title}
             </h3>
+            <p className="text-center text-gray-500 text-[13px]">
+              {coupon.descriptionCoupon || coupon.description}
+            </p>
           </div>
         </div>
 
-        {/* عرض آخر استخدام للكود - تصميم جديد */}
-        {lastUsedTime && (
-          <div className="bg-green-50 border border-green-100 rounded-md px-2   flex items-center justify-center gap-1 text-[11px] font-medium w-fit mx-auto">
+        {/* عرض آخر استخدام للكود - يظهر فقط إذا كان showLastUsed = true */}
+        {showLastUsed && lastUsedTime && (
+          <div className="bg-green-50 border border-green-100 rounded-md px-2 flex items-center justify-center gap-1 text-[11px] font-medium w-fit mx-auto">
             <FiClock className="text-green-500 text-[13px] -mt-[1px]" />
             <span className="text-gray-700">آخر استخدام للكود:</span>
             <span className="text-green-600 font-bold">

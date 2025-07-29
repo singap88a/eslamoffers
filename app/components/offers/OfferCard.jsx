@@ -9,6 +9,19 @@ const OfferCard = ({ offer, onGetCode }) => {
   const [showModal, setShowModal] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
+  const handleCardClick = () => {
+    if (offer.couponId) {
+      if (onGetCode) {
+        onGetCode(offer);
+      } else {
+        setShowModal(true);
+        setIsCopied(false);
+      }
+    } else if (offer.linkPage) {
+      window.open(offer.linkPage, "_blank");
+    }
+  };
+
   const handleCopy = () => {
     if (offer.couponId) {
       navigator.clipboard.writeText(offer.couponId);
@@ -47,7 +60,10 @@ const OfferCard = ({ offer, onGetCode }) => {
 
   return (
     <>
-      <div className="relative bg-white rounded-lg border-2 border-dashed border-gray-200 p-4 shadow hover:shadow-md hover:border-teal-300 transition-all duration-300 w-full max-w-md mx-auto text-right group">
+      <div 
+        className="relative bg-white rounded-lg border-2 border-dashed border-gray-200 p-4 shadow hover:shadow-md hover:border-teal-300 transition-all duration-300 w-full max-w-md mx-auto text-right group cursor-pointer"
+        onClick={handleCardClick}
+      >
         {offer.discount && (
           <div className="absolute z-40 top-0 right-0 bg-gradient-to-l from-orange-400 to-orange-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg shadow-md rounded-tr-lg">
             {offer.discount}% خصم
@@ -58,7 +74,7 @@ const OfferCard = ({ offer, onGetCode }) => {
           {/* صورة المنتج */}
           <div className="w-24 h-20 relative border border-gray-200 rounded-md overflow-hidden">
             <Image
-                  src={getImageSrc(offer.logoUrl)}
+              src={getImageSrc(offer.logoUrl)}
               alt={offer.title}
               fill
               className="object-cover"
@@ -68,16 +84,7 @@ const OfferCard = ({ offer, onGetCode }) => {
           <div className="w-full">
             {/* عنوان العرض */}
             <h2 className="text-sm font-bold text-gray-800 leading-5 mb-1">
-                            <a
-                href={offer.linkPage}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:underline"
-               >
-                
-               {offer.title}
-
-              </a>
+              {offer.title}
             </h2>
 
             {/* السعر والخصم */}
@@ -96,35 +103,19 @@ const OfferCard = ({ offer, onGetCode }) => {
 
             {/* صورة المتجر وزر الكوبون */}
             <div className="flex justify-between items-center border-t border-gray-200 pt-3 mt-2">
-              <a
-                href={offer.linkPage}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-20 h-12 relative rounded-md overflow-hidden border border-gray-200"
-              >
+              <div className="w-20 h-12 relative rounded-md overflow-hidden border border-gray-200">
                 <Image
                   src={getImageSrc(offer.imageStoreUrl)}
-
                   alt="store"
                   fill
                   className="object-contain"
                 />
-              </a>
+              </div>
               
               {offer.couponId && (
-                <button
-                  onClick={() => {
-                    if (onGetCode) {
-                      onGetCode(offer);
-                    } else {
-                      setShowModal(true);
-                      setIsCopied(false);
-                    }
-                  }}
-                  className="bg-gradient-to-r from-teal-600 to-teal-500 text-white text-sm font-bold px-4 py-1 rounded-md transition-all shadow-sm hover:shadow-lg hover:from-teal-700 hover:to-teal-600"
-                >
+                <div className="bg-gradient-to-r from-teal-600 to-teal-500 text-white text-sm font-bold px-4 py-1 rounded-md">
                   كوبون
-                </button>
+                </div>
               )}
             </div>
           </div>

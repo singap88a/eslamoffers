@@ -31,7 +31,7 @@ const SubscribeBox = () => {
       </div>
       {/* المحتوى */}
       <div className="relative p-8 flex flex-col items-center text-right rtl">
-        <h3 className="text-xl font-bold text-black mb-2">إشترك في قائمة الموفر البريدية</h3>
+        <h3 className="text-xl font-bold text-black mb-2">إشترك في قائمة البريدية</h3>
         <p className="text-base text-[#3d3b3ba6] mb-6">احصل على عروض وكوبونات حصرية مباشرة على بريدك الالكتروني</p>
         {/* حقل الإدخال */}
         <form className="w-full flex items-center justify-between bg-white rounded-full shadow-md px-4 py-2 gap-2 max-w-xl">

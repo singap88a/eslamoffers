@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from "react";
 import CouponCard from "../components/coupons/CouponCard";
-import SubscribeBox from "../components/home/Coupon/SubscribeBox";
 import PromoCard from "../components/home/Coupon/PromoCard";
 import CountdownOfferBox from "../components/home/Coupon/CountdownOfferBox";
 import CategorySkeletonLoader from "../components/coupons/CategorySkeletonLoader";
+import BestStores from "../components/home/BestStores";
 
 export default function CouponsPage() {
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("default");
-  const [showAll, setShowAll] = useState(false); // ✅ لإدارة عرض المزيد أو أقل
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     const fetchCoupons = async () => {
@@ -32,7 +32,6 @@ export default function CouponsPage() {
     fetchCoupons();
   }, []);
 
-  // ✅ تحديد العدد المعروض بناءً على حالة showAll
   const visibleCoupons = showAll ? coupons : coupons.slice(0, 15);
 
   return (
@@ -48,13 +47,16 @@ export default function CouponsPage() {
               <CategorySkeletonLoader category={category} />
             ) : (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6   md:mr-0">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:mr-0">
                   {visibleCoupons.map((coupon) => (
-                    <CouponCard key={coupon.id} coupon={coupon} />
+                    <CouponCard 
+                      key={coupon.id} 
+                      coupon={coupon} 
+                      showLastUsed={false} // إضافة هذه الخاصية لإخفاء آخر استخدام
+                    />
                   ))}
                 </div>
 
-                {/* ✅ زر عرض المزيد أو أقل */}
                 {coupons.length > 15 && (
                   <div className="mt-8 flex justify-center">
                     <button
@@ -71,8 +73,8 @@ export default function CouponsPage() {
 
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-8">
-            <SubscribeBox />
-            <div className=" pt-10">
+            <BestStores />
+            <div className="pt-10">
               <CountdownOfferBox />
             </div>
             <PromoCard />

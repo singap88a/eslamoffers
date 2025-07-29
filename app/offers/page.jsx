@@ -1,7 +1,7 @@
 import OfferGrid from "../components/offers/OfferGrid";
-import SubscribeBox from "../components/home/Coupon/SubscribeBox";
-import PromoCard from "../components/home/Coupon/PromoCard";
+ import PromoCard from "../components/home/Coupon/PromoCard";
 import CountdownOfferBox from "../components/home/Coupon/CountdownOfferBox";
+import BestStores from "../components/home/BestStores";
 
 async function getOffers() {
   const res = await fetch(
@@ -43,7 +43,7 @@ export default async function OffersPage() {
 
           {/* Sidebar */}
           <div className="lg:col-span-2 space-y-6">
-            <SubscribeBox />
+            <BestStores />
             <div className="pt-12">
               <CountdownOfferBox />
             </div>

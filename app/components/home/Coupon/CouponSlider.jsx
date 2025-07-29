@@ -14,7 +14,6 @@ const fetchBestCoupons = async () => {
     );
     if (!res.ok) throw new Error("Failed to fetch coupons");
     const data = await res.json();
-    // أفضل الكوبونات: نشطة فقط، وأول 6
     return data.filter((c) => c.isActive).slice(0, 6);
   } catch (e) {
     return [];
@@ -47,7 +46,6 @@ const CouponSlider = () => {
       navigator.clipboard.writeText(modalCoupon.couponCode);
       setIsCopied(true);
       
-      // تحديث آخر استخدام للكود عند النسخ
       fetch(`https://api.eslamoffers.com/api/Coupons/UpdateLastUse/${modalCoupon.id}`, {
         method: 'PUT',
         headers: {
@@ -92,12 +90,13 @@ const CouponSlider = () => {
               key={coupon.id}
               className="my-2 !w-[220px] md:!w-[220px] lg:!w-[220px]"
             >
-              <CouponCard coupon={coupon} onGetCode={openModal} />
+              <div className="h-full">
+                <CouponCard coupon={coupon} onGetCode={openModal} showLastUsed={false} />
+              </div>
             </SwiperSlide>
           ))}
         </Swiper>
       )}
-      {/* مودال مركزي */}
       <CouponCodeModal
         show={!!modalCoupon}
         couponCode={modalCoupon?.couponCode || ""}
@@ -109,7 +108,7 @@ const CouponSlider = () => {
         couponTitle={modalCoupon?.title || ""}
         couponDescription={modalCoupon?.description || ""}
         lastUseAt={modalCoupon?.lastUseAt || null}
-         className="mx-4"
+        className="mx-4"
       />
     </div>
   );

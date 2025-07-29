@@ -31,18 +31,18 @@ const sections = [
       "كود خصم دكتور نيوترشن",
     ],
   },
-  {
-    title: "عروض المناسبات",
-    items: [
-      "جميع المتاجر",
-      "الاعياد والعطلات",
-      "عروض الجمعة البيضاء",
-      "عروض اليوم الوطني السعودي",
-      "عيد الحب",
-      "أفضل مواقع حجز الفنادق",
-      "اضافة كود مكتشف الأكواد",
-    ],
-  },
+  // {
+  //   title: "عروض المناسبات",
+  //   items: [
+  //     "جميع المتاجر",
+  //     "الاعياد والعطلات",
+  //     "عروض الجمعة البيضاء",
+  //     "عروض اليوم الوطني السعودي",
+  //     "عيد الحب",
+  //     "أفضل مواقع حجز الفنادق",
+  //     "اضافة كود مكتشف الأكواد",
+  //   ],
+  // },
   {
     title: "معلومات الموفر",
     items: [
@@ -64,7 +64,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-white border-t mt-10 text-gray-800 text-sm">
+    <footer className="bg-white border-t border-[#0000003b] mt-10 text-gray-800 text-sm">
       <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Social & App */}
         <div className="space-y-4">
