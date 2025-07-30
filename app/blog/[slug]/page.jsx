@@ -1,7 +1,18 @@
 "use client";
 import Head from "next/head";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
+
+function LoadingSpinner() {
+  return (
+    <div className="flex flex-col justify-center items-center min-h-screen space-y-4">
+      <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-teal-600"></div>
+      <p className="text-gray-600 animate-pulse">جاري تحميل المحتوى...</p>
+    </div>
+  );
+}
 
 function formatDate(dateStr) {
   const date = new Date(dateStr);
@@ -13,34 +24,73 @@ function formatDate(dateStr) {
   });
 }
 
-export default async function SinglePost({ params }) {
-  // جلب التدوينة
-  const res = await fetch(
-    `https://eslamoffers.com/wp-json/wp/v2/posts?slug=${params.slug}&_embed`,
-    { next: { revalidate: 60 } }
-  );
-  const data = await res.json();
-  const post = data[0];
-  if (!post) {
-    return <div className="text-center py-20 text-2xl">لم يتم العثور على التدوينة</div>;
+export default function SinglePost({ params }) {
+  const [post, setPost] = useState(null);
+  const [latestPosts, setLatestPosts] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchData = async () => {
+      try {
+        // جلب التدوينة
+        const res = await fetch(
+          `https://eslamoffers.com/wp-json/wp/v2/posts?slug=${params.slug}&_embed`
+        );
+        const data = await res.json();
+        setPost(data[0]);
+
+        // جلب أحدث المقالات
+        const latestRes = await fetch(
+          `https://eslamoffers.com/wp-json/wp/v2/posts?per_page=5&_embed`
+        );
+        const latestData = await latestRes.json();
+        setLatestPosts(latestData);
+
+        // جلب التصنيفات
+        const catRes = await fetch(
+          `https://eslamoffers.com/wp-json/wp/v2/categories?per_page=10`
+        );
+        const catData = await catRes.json();
+        setAllCategories(catData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [params.slug]);
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+  if (!post && !loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="text-3xl font-bold text-red-600 mb-4">عذراً</div>
+        <div className="text-xl text-gray-600 mb-8">لم يتم العثور على التدوينة</div>
+        <Link href="/blog" className="bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition duration-300">
+          العودة إلى المدونة
+        </Link>
+      </div>
+    );
   }
   const author = post._embedded?.author?.[0];
   const categories = post._embedded?.["wp:term"]?.[0] || [];
   const tags = post._embedded?.["wp:term"]?.[1] || [];
 
-  // جلب أحدث المقالات
-  const latestRes = await fetch(
-    `https://eslamoffers.com/wp-json/wp/v2/posts?per_page=5&_embed`,
-    { next: { revalidate: 60 } }
-  );
-  const latestPosts = await latestRes.json();
-
-  // جلب التصنيفات
-  const catRes = await fetch(
-    `https://eslamoffers.com/wp-json/wp/v2/categories?per_page=10`,
-    { next: { revalidate: 3600 } }
-  );
-  const allCategories = await catRes.json();
+  // تم نقل عمليات جلب البيانات إلى useEffect
 
   // مكون زر نسخ الكود
   function CopyButton({ code }) {
@@ -91,7 +141,7 @@ export default async function SinglePost({ params }) {
   }
 
   return (
-    <div className="max-w-7xl mx-auto py-10 px-4 grid grid-cols-1 lg:grid-cols-6 gap-8" dir="rtl">
+    <div className="max-w-7xl mx-auto py-10 px-4 grid grid-cols-1 lg:grid-cols-6 gap-8 animate-fadeIn" dir="rtl">
       {/* المحتوى الرئيسي */}
       <div className="lg:col-span-4">
         <Head>
@@ -138,7 +188,7 @@ export default async function SinglePost({ params }) {
           <img
             src={post._embedded["wp:featuredmedia"][0].source_url}
             alt={post.title.rendered}
-            className="w-full max-h-96 object-cover rounded-xl mb-8"
+            className="w-full max-h-96 object-cover rounded-xl mb-8 hover:scale-105 transition duration-300"
             width={800}
             height={450}
             loading="lazy"
@@ -158,7 +208,7 @@ export default async function SinglePost({ params }) {
         </div>
       </div>
       {/* السايدبار */}
-      <aside className="lg:col-span-2 space-y-8     ">
+      <aside className="lg:col-span-2 space-y-8 sticky top-0 pt-4 transition-all duration-300">
 {/* أحدث المقالات */}
 <div className="bg-white/80 backdrop-blur-md rounded-xl   p-6 border border-gray-300 hover:shadow-2xl transition-all duration-300">
   <div className="flex items-center mb-5">
