@@ -67,8 +67,7 @@ const Navbar = () => {
     { name: "الكوبونات", href: "/coupons" },
     { name: "العروض", href: "/offers" },
     { name: "المدونة", href: "/blog" },
-    { name: "الأسئلة الشائعة", href: "/faq" },
-  ];
+   ];
 
   return (
     <nav

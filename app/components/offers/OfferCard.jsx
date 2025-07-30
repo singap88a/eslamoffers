@@ -61,7 +61,7 @@ const OfferCard = ({ offer, onGetCode }) => {
   return (
     <>
       <div 
-        className="relative bg-white rounded-lg border-2 border-dashed border-gray-200 p-4 shadow hover:shadow-md hover:border-teal-300 transition-all duration-300 w-full max-w-md mx-auto text-right group cursor-pointer"
+        className="relative bg-white rounded-lg border-2 border-dashed border-gray-200 p-4 shadow hover:shadow-md hover:border-teal-300 transition-all duration-300 w-full max-w-md h-[180px] mx-auto text-right group cursor-pointer"
         onClick={handleCardClick}
       >
         {offer.discount && (

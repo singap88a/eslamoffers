@@ -18,6 +18,7 @@ const nextConfig = {
         hostname: 'cdn.almowafir.com',
         pathname: '/**',
       },
+      
       {
         protocol: 'https',
         hostname: 'encrypted-tbn0.gstatic.com',

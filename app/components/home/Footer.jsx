@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FaFacebook,
   FaInstagram,
@@ -18,50 +18,40 @@ import {
   FaChevronDown,
 } from "react-icons/fa";
 
-const sections = [
-  {
-    title: "أشهر المتاجر",
-    items: [
-      "كود خصم نون",
-      "كود خصم نايك",
-      "كود خصم شي إن",
-      "كود خصم ماماز وباباز",
-      "كود خصم علي إكسبرس",
-      "كود خصم اي هيرب",
-      "كود خصم دكتور نيوترشن",
-    ],
-  },
-  // {
-  //   title: "عروض المناسبات",
-  //   items: [
-  //     "جميع المتاجر",
-  //     "الاعياد والعطلات",
-  //     "عروض الجمعة البيضاء",
-  //     "عروض اليوم الوطني السعودي",
-  //     "عيد الحب",
-  //     "أفضل مواقع حجز الفنادق",
-  //     "اضافة كود مكتشف الأكواد",
-  //   ],
-  // },
-  {
-    title: "معلومات الموفر",
-    items: [
-      "عن الموفر",
-      "اعلن مع الموفر",
-      "تواصل معنا",
-      "افصح المعلن",
-      "الشروط والاحكام",
-      "سياسة الخصوصية",
-      "خريطة الموقع",
-    ],
-  },
-];
-
-export default function Footer() {
+const Footer = () => {
   const [openSection, setOpenSection] = useState(null);
+  const [popularStores, setPopularStores] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPopularStores = async () => {
+      try {
+        const response = await fetch(
+          "https://api.eslamoffers.com/api/Store/GetBastStores/Bast"
+        );
+        const data = await response.json();
+        setPopularStores(data.slice(0, 7)); // عرض أول 7 متاجر فقط
+      } catch (error) {
+        console.error("Error fetching popular stores:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPopularStores();
+  }, []);
+
   const handleToggle = (idx) => {
     setOpenSection(openSection === idx ? null : idx);
   };
+
+  const siteInfoLinks = [
+    { title: "عن إسلام أوفرز", path: "/about" },
+    { title: "تواصل معنا", path: "/contact" },
+    { title: "الأسئلة الشائعة", path: "/faq" },
+    { title: "الشروط والاحكام", path: "/terms" },
+    { title: "سياسة الخصوصية", path: "/privacy" },
+  ];
 
   return (
     <footer className="bg-white border-t border-[#0000003b] mt-10 text-gray-800 text-sm">
@@ -100,75 +90,101 @@ export default function Footer() {
           </div>
         </div>
 
-{/* Links */}
-<div className="space-y-6 md:space-y-0 md:flex md:gap-8">
-  {sections.map((section, idx) => (
-    <div key={idx} className="w-full md:w-1/3">
-      <button
-        onClick={() => handleToggle(idx)}
-        className="flex justify-between items-center w-full text-right font-bold text-base text-gray-800 hover:text-[#14b8a6] md:cursor-default md:pointer-events-none md:hover:text-gray-800"
-      >
-        {section.title}
-        <FaChevronDown
-          className={`transition-transform duration-300 md:hidden ${
-            openSection === idx ? "rotate-180" : ""
-          }`}
-        />
-      </button>
-      <ul
-        className={`overflow-hidden transition-all duration-300 text-gray-600 text-sm pl-4 space-y-1 mt-2   w-[150px]  
-          ${openSection === idx ? "max-h-64" : "max-h-0"}
-          md:max-h-full md:block`}
-      >
-        {section.items.map((item, i) => (
-          <li
-            key={i}
-            className="hover:text-[#14b8a6] cursor-pointer transition duration-200"
-          >
-            {item}
-          </li>
-        ))}
-      </ul>
-    </div>
-  ))}
-</div>
+        {/* Links */}
+        <div className="space-y-6 md:space-y-0 md:flex md:gap-8">
+          {/* Popular Stores */}
+          <div className="w-full md:w-1/3">
+            <button
+              onClick={() => handleToggle(0)}
+              className="flex justify-between items-center w-full text-right font-bold text-base text-gray-800 hover:text-[#14b8a6] md:cursor-default md:pointer-events-none md:hover:text-gray-800"
+            >
+              أشهر المتاجر
+              <FaChevronDown
+                className={`transition-transform duration-300 md:hidden ${
+                  openSection === 0 ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+            <ul
+              className={`overflow-hidden transition-all duration-300 text-gray-600 text-sm pl-4 space-y-1 mt-2 w-[150px] ${
+                openSection === 0 ? "max-h-64" : "max-h-0"
+              } md:max-h-full md:block`}
+            >
+              {loading ? (
+                <li>جاري التحميل...</li>
+              ) : (
+                popularStores.map((store, i) => (
+                  <li key={i}>
+                    <a
+                      href={`/store/${store.id}`} // يمكنك تغيير الرابط حسب احتياجاتك
+                      className="hover:text-[#14b8a6] transition duration-200 block"
+                    >
+                      {store.name}
+                    </a>
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
 
+          {/* Site Info */}
+          <div className="w-full md:w-1/3">
+            <button
+              onClick={() => handleToggle(1)}
+              className="flex justify-between items-center w-full text-right font-bold text-base text-gray-800 hover:text-[#14b8a6] md:cursor-default md:pointer-events-none md:hover:text-gray-800"
+            >
+              معلومات الموقع
+              <FaChevronDown
+                className={`transition-transform duration-300 md:hidden ${
+                  openSection === 1 ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+            <ul
+              className={`overflow-hidden transition-all duration-300 text-gray-600 text-sm pl-4 space-y-1 mt-2 w-[150px] ${
+                openSection === 1 ? "max-h-64" : "max-h-0"
+              } md:max-h-full md:block`}
+            >
+              {siteInfoLinks.map((link, i) => (
+                <li key={i}>
+                  <a
+                    href={link.path}
+                    className="hover:text-[#14b8a6] transition duration-200 block"
+                  >
+                    {link.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
 
-        {/* Contact & Map */}
+        {/* Contact & Logo */}
         <div className="space-y-4 text-right">
           <div className="flex justify-center md:justify-end">
             <Image
               src="/logo4.png"
-              alt="Map"
+              alt="إسلام أوفرز"
               width={150}
               height={150}
               className=""
               loading="lazy"
             />
           </div>
-          <div className="flex items-center justify-end gap-2 text-gray-800 font-semibold">
-            <FaMapMarkerAlt className="text-[#14b8a6]" />
-            <a
-              href="https://goo.gl/maps/2Qe4k8Qw1wQ2"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:underline"
-            >
-              ALMAS Tower, دبي، الإمارات
-            </a>
-          </div>
+ 
           <div className="space-y-2 text-sm text-gray-600">
             <div className="flex justify-end items-center gap-2">
-              <FaEnvelope className="text-[#14b8a6]" /> support@almowafir.com
+              <FaEnvelope className="text-[#14b8a6]" /> support@eslamoffers.com
             </div>
- 
           </div>
         </div>
       </div>
 
       <div className="text-center text-xs text-gray-400 py-3 border-t">
-        جميع الحقوق محفوظة ©  2025
+        جميع الحقوق محفوظة © إسلام أوفرز 2025
       </div>
     </footer>
   );
-}
+};
+
+export default Footer;
