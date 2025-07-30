@@ -1,3 +1,5 @@
+"use client";
+import { useState } from 'react';
 import { FaAngleDoubleLeft } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 
@@ -13,6 +15,36 @@ const animatedEmails = [
 // animate-bounce-delay: animation-bounce مع تأخير
 
 const SubscribeBox = () => {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState({ type: '', message: '' });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!email) {
+      setStatus({ type: 'error', message: 'الرجاء إدخال البريد الإلكتروني' });
+      return;
+    }
+
+    try {
+      const response = await fetch('https://api.eslamoffers.com/api/SubscribeEmail/AddSubscribeEmail', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email })
+      });
+
+      if (response.ok) {
+        setStatus({ type: 'success', message: 'تم الاشتراك بنجاح!' });
+        setEmail('');
+      } else {
+        setStatus({ type: 'error', message: 'حدث خطأ أثناء الاشتراك' });
+      }
+    } catch (error) {
+      setStatus({ type: 'error', message: 'حدث خطأ أثناء الاشتراك' });
+    }
+  };
+
   return (
     <div className="relative max-w-4xl mx-auto mt-8">
       {/* الخلفية المائلة */}
@@ -34,16 +66,25 @@ const SubscribeBox = () => {
         <h3 className="text-xl font-bold text-black mb-2">إشترك في قائمة البريدية</h3>
         <p className="text-base text-[#3d3b3ba6] mb-6">احصل على عروض وكوبونات حصرية مباشرة على بريدك الالكتروني</p>
         {/* حقل الإدخال */}
-        <form className="w-full flex items-center justify-between bg-white rounded-full shadow-md px-4 py-2 gap-2 max-w-xl">
-          <button type="submit" className="text-teal-400 text-2xl">
-            <FaAngleDoubleLeft />
-          </button>
-          <input
-            type="email"
-            placeholder="ادخل بريدك الالكتروني"
-            className="flex-1 bg-transparent outline-none text-right placeholder:text-gray-400 text-base pr-2 rtl"
-            dir="rtl"
-          />
+        <form onSubmit={handleSubmit} className="w-full flex flex-col items-center gap-4 max-w-xl">
+          <div className="w-full flex items-center justify-between bg-white rounded-full shadow-md px-4 py-2 gap-2">
+            <button type="submit" className="text-teal-400 text-2xl hover:text-teal-600 transition-colors">
+              <FaAngleDoubleLeft />
+            </button>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="ادخل بريدك الالكتروني"
+              className="flex-1 bg-transparent outline-none text-right placeholder:text-gray-400 text-base pr-2 rtl"
+              dir="rtl"
+            />
+          </div>
+          {status.message && (
+            <div className={`text-sm ${status.type === 'success' ? 'text-green-600' : 'text-red-600'} text-center`}>
+              {status.message}
+            </div>
+          )}
         </form>
       </div>
     </div>

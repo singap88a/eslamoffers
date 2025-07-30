@@ -28,6 +28,7 @@ const Sidebar = () => {
     // category
     { href: "/admin/dashboard/category", label: "الفئات", icon: <FiList /> },
     { href: "/admin/dashboard/messages", label: "رسائل العملاء", icon: <FiMail /> },
+    { href: "/admin/dashboard/SubscribeEmail", label: "المشتركين", icon: <FiMail /> },
     { href: "/admin/dashboard/admins", label: "المشرفين", icon: <FiUsers /> },
     { href: "/admin/dashboard/Banner", label: "البانرات", icon: <CiBandage /> },
   ];
