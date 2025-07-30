@@ -28,7 +28,7 @@ export default function Categories() {
 
   const getSafeIconUrl = (iconUrl) => {
     const baseUrl = 'https://api.eslamoffers.com/uploads/';
-    if (!iconUrl) return '/logo.png';
+    if (!iconUrl) return '/logo4.png';
     try {
       const url = new URL(iconUrl);
       if (url.protocol === 'http:' || url.protocol === 'https:') return iconUrl;
@@ -38,12 +38,12 @@ export default function Categories() {
       const url = new URL(fullUrl);
       if (url.protocol === 'http:' || url.protocol === 'https:') return fullUrl;
     } catch (_) {}
-    return '/logo.png';
+    return '/logo4.png';
   };
 
   return (
-    <div className="w-full py-10 md:px-20 px-8">
-      <div className="flex justify-between items-center mb-4">
+    <div className="w-full py-10 md:px-20 px-4">
+      <div className="flex justify-between items-center mb-4 md:px-10 px-4">
         <h2 className="text-2xl font-bold">الفئات</h2>
         <Link href="/categories" className="text-teal-500 font-semibold hover:underline">
           عرض الكل
