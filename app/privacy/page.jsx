@@ -3,7 +3,7 @@
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-teal-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-lg p-8 transform hover:scale-[1.02] hover:shadow-xl transition-all duration-300 animate-fade-in">
+      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-lg p-8   duration-300 animate-fade-in">
         <h1 className="text-4xl font-bold text-center text-teal-600 mb-12 animate-fade-in-up">سياسة الخصوصية – Eslamoffers.com</h1>
         
         <div className="text-right text-gray-700 space-y-8">

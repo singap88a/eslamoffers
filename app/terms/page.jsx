@@ -3,7 +3,7 @@
 export default function TermsAndConditions() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-teal-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-[1.02] transition-all duration-300">
+      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden   duration-300">
         <div className="p-8 md:p-12">
           <h1 className="text-4xl md:text-5xl font-bold text-center text-teal-600 mb-12 animate-fade-in">
             الشروط والأحكام
