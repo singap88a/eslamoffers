@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { FiXCircle, FiImage, FiTrash2 } from "react-icons/fi";
+import { FiXCircle, FiImage, FiTrash2, FiPlus, FiMinus, FiChevronDown, FiChevronUp } from "react-icons/fi";
 
 const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => {
   const [formData, setFormData] = useState({
@@ -24,11 +24,27 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
   const [categoriesList, setCategoriesList] = useState([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [activeTab, setActiveTab] = useState("basic");
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
   const fileInputRef = useRef();
   const descFileInputRef = useRef();
 
   useEffect(() => {
     if (initialData) {
+      // تحويل descriptionStore إلى مصفوفة إذا كان كائنًا واحدًا
+      let descriptions = [];
+      if (initialData.descriptionStores && Array.isArray(initialData.descriptionStores)) {
+        descriptions = initialData.descriptionStores;
+      } else if (initialData.descriptionStore) {
+        // إذا كان descriptionStore مصفوفة
+        if (Array.isArray(initialData.descriptionStore)) {
+          descriptions = initialData.descriptionStore;
+        } else {
+          // إذا كان descriptionStore كائنًا واحدًا
+          descriptions = [initialData.descriptionStore];
+        }
+      }
+      
       setFormData({
         name: initialData.name || "",
         slug: initialData.slug || "",
@@ -36,7 +52,7 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
         description: initialData.description || "",
         isBast: initialData.isBast || false,
         logoUrl: initialData.logoUrl || "",
-        descriptionStores: initialData.descriptionStore || [],
+        descriptionStores: descriptions,
         categories: initialData.categorys || []
       });
     } else {
@@ -86,9 +102,13 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => {
-      // إذا كان الحقل هو اسم المتجر وكان الرابط المختصر فارغًا، قم بإنشاء رابط مختصر تلقائيًا
       if (name === 'name' && !prev.slug) {
-        const autoSlug = value.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '');
+        const autoSlug = value.trim().toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^\w\-]+/g, '')
+          .replace(/\-\-+/g, '-')
+          .replace(/^-+/, '')
+          .replace(/-+$/, '');
         return {
           ...prev,
           [name]: value,
@@ -164,23 +184,34 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
 
   const addDescriptionStore = () => {
     if (currentDescription.subHeader && currentDescription.description) {
+      const newDescription = {
+        subHeader: currentDescription.subHeader,
+        description: currentDescription.description,
+        image: currentDescription.image
+      };
+      
       setFormData(prev => ({
         ...prev,
-        descriptionStores: [...prev.descriptionStores, {
-          subHeader: currentDescription.subHeader,
-          description: currentDescription.description,
-          image: currentDescription.image
-        }]
+        descriptionStores: [...prev.descriptionStores, newDescription]
       }));
+      
       setCurrentDescription({
         subHeader: "",
         description: "",
         image: null
       });
+      
+      if (descFileInputRef.current) {
+        descFileInputRef.current.value = "";
+      }
     }
   };
 
   const removeDescriptionStore = (index) => {
+    // إذا كان الوصف موجود في قاعدة البيانات (له معرف)، فيجب حذفه من قاعدة البيانات أيضًا
+    const descToRemove = formData.descriptionStores[index];
+    
+    // حذف الوصف من حالة النموذج
     setFormData(prev => ({
       ...prev,
       descriptionStores: prev.descriptionStores.filter((_, i) => i !== index)
@@ -190,8 +221,12 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
   const handleSubmitForm = (e) => {
     e.preventDefault();
     
-    // إنشاء slug من اسم المتجر إذا كان فارغًا
-    const slugValue = formData.slug.trim() || formData.name.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '');
+    const slugValue = formData.slug.trim() || formData.name.trim().toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w\-]+/g, '')
+      .replace(/\-\-+/g, '-')
+      .replace(/^-+/, '')
+      .replace(/-+$/, '');
     
     const formDataToSend = new FormData();
     formDataToSend.append("Name", formData.name);
@@ -203,6 +238,8 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
     
     if (logoFile) {
       formDataToSend.append("ImageUrl", logoFile);
+    } else if (initialData?.logoUrl && !logoFile) {
+      formDataToSend.append("ImageUrl", initialData.logoUrl);
     }
     
     formData.categories.forEach(categoryId => {
@@ -210,8 +247,25 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
     });
     
     if (formData.descriptionStores.length > 0) {
-      formDataToSend.append("descriptionStores", JSON.stringify(formData.descriptionStores));
+      formData.descriptionStores.forEach((desc, index) => {
+        // إذا كان الوصف موجود مسبقًا (له معرف)، نرسل المعرف
+        if (desc.id) {
+          formDataToSend.append(`descriptionStores[${index}].id`, desc.id);
+        }
+        
+        formDataToSend.append(`descriptionStores[${index}].subHeader`, desc.subHeader);
+        formDataToSend.append(`descriptionStores[${index}].description`, desc.description);
+        
+        if (desc.image instanceof File) {
+          formDataToSend.append(`descriptionStores[${index}].image`, desc.image);
+        } else if (typeof desc.image === 'string') {
+          formDataToSend.append(`descriptionStores[${index}].image`, desc.image);
+        }
+      });
     }
+    
+    // إضافة علامة لتحديث الأوصاف
+    formDataToSend.append("IsUpdateDescriptionStore", "true");
 
     onSubmit(formDataToSend);
   };
@@ -225,195 +279,312 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-lg w-full max-w-lg p-8 relative max-h-[90vh] overflow-y-auto">
-        <button
-          className="absolute left-4 top-4 text-gray-400 hover:text-red-500 text-3xl"
-          onClick={onClose}
-        >
-          <FiXCircle />
-        </button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[95vh] overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between p-6 border-b">
+          <h2 className="text-2xl font-bold text-teal-600">
+            {initialData ? "تعديل متجر" : "إضافة متجر جديد"}
+          </h2>
+          <button
+            className="text-gray-500 hover:text-red-500 text-2xl transition"
+            onClick={onClose}
+          >
+            <FiXCircle />
+          </button>
+        </div>
         
-        <h2 className="text-2xl font-extrabold mb-8 text-center text-[#14b8a6]">
-          {initialData ? "تعديل متجر" : "إضافة متجر جديد"}
-        </h2>
+        <div className="flex border-b">
+          <button
+            className={`px-6 py-3 font-medium ${activeTab === 'basic' ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500'}`}
+            onClick={() => setActiveTab('basic')}
+          >
+            المعلومات الأساسية
+          </button>
+          <button
+            className={`px-6 py-3 font-medium ${activeTab === 'description' ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500'}`}
+            onClick={() => setActiveTab('description')}
+          >
+            الأوصاف الإضافية
+          </button>
+        </div>
         
-        <form onSubmit={handleSubmitForm} className="space-y-6">
-          <div>
-            <label className="block mb-2 font-semibold text-gray-700">اسم المتجر *</label>
-            <input
-              type="text"
-              name="name"
-              className="w-full border border-gray-200 bg-white rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#14b8a6] shadow-sm text-lg transition text-gray-800"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block mb-2 font-semibold text-gray-700">الرابط المختصر *</label>
-            <input
-              type="text"
-              name="slug"
-              className="w-full border border-gray-200 bg-white rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#14b8a6] shadow-sm text-lg transition text-gray-800"
-              value={formData.slug}
-              onChange={handleChange}
-              required
-              placeholder="example-store"
-            />
-            <p className="text-sm text-gray-500 mt-1">سيظهر في رابط المتجر مثل: /stores/example-store</p>
-          </div>
-          
-          <div>
-            <label className="block mb-2 font-semibold text-gray-700">وصف الهيدر</label>
-            <input
-              type="text"
-              name="headerDescription"
-              className="w-full border border-gray-200 bg-white rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#14b8a6] shadow-sm text-lg transition text-gray-800"
-              value={formData.headerDescription}
-              onChange={handleChange}
-            />
-          </div>
-          
-          <div>
-            <label className="block mb-2 font-semibold text-gray-700">الوصف</label>
-            <textarea
-              name="description"
-              className="w-full border border-gray-200 bg-white rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#14b8a6] shadow-sm text-lg transition text-gray-800 min-h-[100px]"
-              value={formData.description}
-              onChange={handleChange}
-            />
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="isBast"
-              name="isBast"
-              checked={formData.isBast}
-              onChange={handleChange}
-              className="accent-[#14b8a6] w-5 h-5 rounded focus:ring-2 focus:ring-[#14b8a6] cursor-pointer"
-            />
-            <label htmlFor="isBast" className="font-medium text-gray-700">متجر مميز؟</label>
-          </div>
-
-          <div>
-            <label className="block mb-2 font-semibold text-gray-700">شعار المتجر</label>
-            <div
-              className={`w-full h-40 border-2 ${dragActive ? "border-[#14b8a6]" : "border-dashed border-gray-300"} rounded-xl flex items-center justify-center bg-gray-50/60 cursor-pointer relative transition`}
-              onClick={() => fileInputRef.current.click()}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-            >
-              {formData.logoUrl ? (
-                <img src={getImageSrc(formData.logoUrl)} alt="شعار المتجر" className="w-full h-full object-contain rounded-xl shadow" />
-              ) : (
-                <span className="flex flex-col items-center text-gray-400 text-base text-center select-none">
-                  <FiImage className="text-3xl mb-1" />
-                  اسحب الصورة هنا أو اضغط للرفع
-                </span>
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                className="hidden"
-                onChange={handleLogoChange}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block mb-2 font-semibold text-gray-700">الفئات</label>
-            <div className="space-y-2 max-h-40 overflow-y-auto p-2 border rounded-lg">
-              {isLoadingCategories ? (
-                <p className="text-gray-500 text-sm">جارٍ تحميل الفئات...</p>
-              ) : categoriesList.length > 0 ? (
-                categoriesList.map(category => (
-                  <div key={category.id} className="flex items-center">
+        <div className="overflow-y-auto flex-1 p-6">
+          <form onSubmit={handleSubmitForm} className="space-y-6">
+            {activeTab === 'basic' && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block mb-2 font-medium text-gray-700">اسم المتجر *</label>
+                    <input
+                      type="text"
+                      name="name"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      value={formData.name}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block mb-2 font-medium text-gray-700">الرابط المختصر *</label>
+                    <input
+                      type="text"
+                      name="slug"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      value={formData.slug}
+                      onChange={handleChange}
+                      required
+                      placeholder="example-store"
+                    />
+                    <p className="text-sm text-gray-500 mt-1">سيظهر في رابط المتجر مثل: /stores/example-store</p>
+                  </div>
+                  
+                  <div>
+                    <label className="block mb-2 font-medium text-gray-700">وصف الهيدر</label>
+                    <input
+                      type="text"
+                      name="headerDescription"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      value={formData.headerDescription}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center">
                     <input
                       type="checkbox"
-                      id={`category-${category.id}`}
-                      checked={formData.categories.includes(category.id)}
-                      onChange={() => handleCategoryChange(category.id)}
-                      className="mr-2"
+                      id="isBast"
+                      name="isBast"
+                      checked={formData.isBast}
+                      onChange={handleChange}
+                      className="h-5 w-5 text-teal-600 rounded focus:ring-teal-500"
                     />
-                    <label htmlFor={`category-${category.id}`}>{category.name}</label>
+                    <label htmlFor="isBast" className="mr-2 font-medium text-gray-700">متجر مميز</label>
                   </div>
-                ))
-              ) : (
-                <p className="text-gray-500 text-sm">لا توجد فئات متاحة</p>
-              )}
-            </div>
-          </div>
+                </div>
+                
 
-          <div className="space-y-4 border-t pt-4 mt-4">
-            <h3 className="font-semibold text-gray-700">إضافة وصف للمتجر</h3>
-            <div className="space-y-3">
-              <input
-                type="text"
-                name="subHeader"
-                placeholder="العنوان الفرعي"
-                className="w-full border border-gray-200 bg-white rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#14b8a6] shadow-sm text-lg transition text-gray-800"
-                value={currentDescription.subHeader}
-                onChange={handleCurrentDescChange}
-              />
-              <textarea
-                name="description"
-                placeholder="الوصف"
-                className="w-full border border-gray-200 bg-white rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#14b8a6] shadow-sm text-lg transition text-gray-800 min-h-[100px]"
-                value={currentDescription.description}
-                onChange={handleCurrentDescChange}
-              />
-              <input
-                type="file"
-                accept="image/*"
-                ref={descFileInputRef}
-                onChange={handleDescImageChange}
-                className="w-full"
-              />
-              <button
-                type="button"
-                onClick={addDescriptionStore}
-                className="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl hover:bg-gray-200 transition"
-                disabled={!currentDescription.subHeader || !currentDescription.description}
-              >
-                إضافة وصف
-              </button>
-            </div>
+                
+                <div>
+                  <label className="block mb-2 font-medium text-gray-700">شعار المتجر</label>
+                  <div
+                    className={`w-full h-48 border-2 ${dragActive ? "border-teal-500" : "border-dashed border-gray-300"} rounded-lg flex items-center justify-center bg-gray-50 cursor-pointer relative transition`}
+                    onClick={() => fileInputRef.current.click()}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
+                    {formData.logoUrl ? (
+                      <div className="relative w-full h-full">
+                        <img 
+                          src={getImageSrc(formData.logoUrl)} 
+                          alt="شعار المتجر" 
+                          className="w-full h-full object-contain rounded-lg" 
+                        />
+                        <button
+                          type="button"
+                          className="absolute top-2 left-2 bg-white rounded-full p-1 shadow-md text-red-500 hover:text-red-700"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setLogoFile(null);
+                            setFormData(prev => ({...prev, logoUrl: ""}));
+                          }}
+                        >
+                          <FiTrash2 size={18} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center text-gray-400">
+                        <FiImage className="text-3xl mb-2" />
+                        <p>اسحب الصورة هنا أو اضغط للرفع</p>
+                        <p className="text-sm mt-1 text-gray-500">الحجم الموصى به: 300x300 بكسل</p>
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      ref={fileInputRef}
+                      className="hidden"
+                      onChange={handleLogoChange}
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="font-medium text-gray-700">الفئات</label>
+                    <button 
+                      type="button"
+                      onClick={() => setCategoriesOpen(!categoriesOpen)}
+                      className="flex items-center text-sm text-teal-600"
+                    >
+                      {categoriesOpen ? (
+                        <>
+                          <FiChevronUp className="ml-1" /> إخفاء
+                        </>
+                      ) : (
+                        <>
+                          <FiChevronDown className="ml-1" /> عرض الفئات
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  
+                  {categoriesOpen && (
+                    <div className="border rounded-lg bg-gray-50 p-3">
+                      {isLoadingCategories ? (
+                        <div className="flex justify-center py-4">
+                          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-teal-500"></div>
+                        </div>
+                      ) : categoriesList.length > 0 ? (
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                          {categoriesList.map(category => (
+                            <div key={category.id} className="flex items-center">
+                              <input
+                                type="checkbox"
+                                id={`category-${category.id}`}
+                                checked={formData.categories.includes(category.id)}
+                                onChange={() => handleCategoryChange(category.id)}
+                                className="h-4 w-4 text-teal-600 rounded focus:ring-teal-500"
+                              />
+                              <label htmlFor={`category-${category.id}`} className="mr-2 text-sm text-gray-700">
+                                {category.name}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-gray-500 text-sm py-2">لا توجد فئات متاحة</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
             
-            {formData.descriptionStores.length > 0 && (
-              <div className="mt-4 space-y-3">
-                <h4 className="font-medium text-gray-700">الأوصاف المضافة:</h4>
-                {formData.descriptionStores.map((desc, index) => (
-                  <div key={index} className="flex items-start justify-between bg-gray-50 p-3 rounded-lg">
-                    <div>
-                      <p className="font-medium">{desc.subHeader}</p>
-                      <p className="text-sm text-gray-600">{desc.description}</p>
+            {activeTab === 'description' && (
+              <div className="space-y-6">
+                <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+                                  <div>
+                  <label className="block mb-2 font-medium text-gray-700">الوصف</label>
+                  <input
+                    name="description"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent  "
+                    value={formData.description}
+                    onChange={handleChange}
+                  />
+                </div>
+                  <h3 className="font-medium text-gray-700">إضافة وصف جديد</h3>
+                  <div className="space-y-3">
+                    <input
+                      type="text"
+                      name="subHeader"
+                      placeholder="العنوان الفرعي"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      value={currentDescription.subHeader}
+                      onChange={handleCurrentDescChange}
+                    />
+                    <textarea
+                      name="description"
+                      placeholder="الوصف"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent min-h-[100px]"
+                      value={currentDescription.description}
+                      onChange={handleCurrentDescChange}
+                    />
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => descFileInputRef.current.click()}
+                        className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm"
+                      >
+                        <FiImage />
+                        {currentDescription.image ? "تغيير الصورة" : "إضافة صورة"}
+                      </button>
+                      {currentDescription.image && (
+                        <span className="text-sm text-gray-600 truncate flex-1">
+                          {currentDescription.image.name || "صورة مرفوعة"}
+                        </span>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        ref={descFileInputRef}
+                        onChange={handleDescImageChange}
+                        className="hidden"
+                      />
                     </div>
                     <button
                       type="button"
-                      onClick={() => removeDescriptionStore(index)}
-                      className="text-red-500 hover:text-red-700"
+                      onClick={addDescriptionStore}
+                      className="flex items-center justify-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition w-full"
+                      disabled={!currentDescription.subHeader || !currentDescription.description}
                     >
-                      <FiTrash2 />
+                      <FiPlus />
+                      إضافة وصف
                     </button>
                   </div>
-                ))}
+                </div>
+                
+                {formData.descriptionStores.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="font-medium text-gray-700">الأوصاف المضافة</h3>
+                    <div className="space-y-3">
+                      {formData.descriptionStores.map((desc, index) => (
+                        <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <h4 className="font-medium text-gray-800">{desc.subHeader}</h4>
+                              <p className="text-sm text-gray-600 mt-1">{desc.description}</p>
+                              {desc.image && (
+                                <div className="mt-2">
+                                  <img 
+                                    src={typeof desc.image === 'string' ? getImageSrc(desc.image) : URL.createObjectURL(desc.image)} 
+                                    alt={`وصف ${index + 1}`} 
+                                    className="max-h-32 object-contain rounded"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeDescriptionStore(index)}
+                              className="text-red-500 hover:text-red-700 p-1"
+                              title="حذف"
+                            >
+                              <FiTrash2 />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-[#14b8a6] text-white py-3 rounded-xl hover:bg-[#14b8a6]/90 transition text-lg font-extrabold shadow-lg focus:ring-2 focus:ring-[#14b8a6] focus:outline-none cursor-pointer mt-2"
-            disabled={loading}
-          >
-            {loading ? "جاري الحفظ..." : initialData ? "حفظ التعديلات" : "إضافة المتجر"}
-          </button>
-        </form>
+            
+            <div className="flex justify-end gap-3 pt-4 border-t">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+              >
+                إلغاء
+              </button>
+              <button
+                type="submit"
+                className="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition font-medium disabled:opacity-70"
+                disabled={loading}
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    جاري الحفظ...
+                  </span>
+                ) : initialData ? "حفظ التعديلات" : "إضافة المتجر"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

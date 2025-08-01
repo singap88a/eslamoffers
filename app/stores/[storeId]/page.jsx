@@ -110,14 +110,9 @@ const StoreCouponsPage = () => {
             <div className="mr-6">
               <h1 className="text-4xl font-bold text-gray-800">{store.name}</h1>
               <div className="flex flex-wrap gap-2 mt-2">
-                {store.categorys?.map((categoryId) => (
-                  <span
-                    key={categoryId}
-                    className="px-3 py-1 bg-teal-100 text-teal-800 rounded-full text-sm"
-                  >
-                    {getCategoryName(categoryId)}
-                  </span>
-                ))}
+                 <h2 className=" font-[400] text-gray-600 mb-4">
+              {store.headerDescription || `جميع الكوبونات والعروض الخاصة بـ ${store.name}`}
+            </h2>
               </div>
             </div>
           </div>
@@ -138,22 +133,20 @@ const StoreCouponsPage = () => {
           
           {/* وصف الهيدر والوصف التفصيلي تحت الكوبونات */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">
-              {store.headerDescription || `جميع الكوبونات والعروض الخاصة بـ ${store.name}`}
-            </h2>
+
             
             {store.description && (
               <div className="mt-4">
-                <h3 className="text-xl font-bold text-gray-700 mb-2">وصف المتجر</h3>
-                <p className="text-gray-600">{store.description}</p>
+                {/* <h3 className="text-xl font-bold text-gray-700 mb-2">وصف المتجر</h3> */}
+                <p className="text-gray-600 font-bold text-2xl">{store.description}</p>
               </div>
             )}
 
             {store.descriptionStore && store.descriptionStore.length > 0 && (
               <div className="mt-8">
-                <h3 className="text-xl font-bold text-gray-700 mb-4">تفاصيل إضافية</h3>
+                {/* <h3 className="text-xl font-bold text-gray-700 mb-4">تفاصيل إضافية</h3> */}
                 {store.descriptionStore.map((desc, index) => (
-                  <div key={desc.id} className="bg-white rounded-lg shadow-sm p-6 mb-4 border border-gray-100">
+                  <div key={desc.id} className="     mb-4  ">
                     {desc.subHeader && (
                       <h4 className="text-lg font-semibold text-gray-800 mb-2">{desc.subHeader}</h4>
                     )}
