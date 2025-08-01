@@ -1,10 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { RiCoupon3Line } from "react-icons/ri";
 
 const StoreTable = ({ stores, onEdit, onDelete, onNavigateToCoupons, loading }) => {
   const [categories, setCategories] = useState([]);
+  const [expandedDescriptions, setExpandedDescriptions] = useState({});
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -24,107 +25,157 @@ const StoreTable = ({ stores, onEdit, onDelete, onNavigateToCoupons, loading }) 
     return category ? category.name : categoryId;
   };
 
+  const toggleDescription = (id) => {
+    setExpandedDescriptions(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  const truncateText = (text, maxLength = 20) => {
+    if (!text) return "-";
+    if (text.length <= maxLength) return text;
+    return `${text.substring(0, maxLength)}...`;
+  };
+
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 overflow-x-auto border border-gray-200">
+    <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
       {loading ? (
-        <p className="text-center text-gray-500 text-lg font-semibold">جاري التحميل...</p>
+        <div className="flex justify-center items-center p-8">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-teal-600"></div>
+        </div>
       ) : stores.length === 0 ? (
-        <p className="text-center text-gray-400 text-lg font-semibold">لا توجد متاجر بعد.</p>
+        <div className="text-center p-8">
+          <p className="text-lg font-medium text-gray-600">لا توجد متاجر متاحة حالياً</p>
+          <p className="text-sm mt-2 text-gray-400">يمكنك البدء بإضافة متجر جديد</p>
+        </div>
       ) : (
-        <table className="min-w-full text-right">
-          <thead>
-            <tr className="bg-gray-50">
-              <th className="py-3 px-4 text-gray-700">الشعار</th>
-              <th className="py-3 px-4 text-gray-700">اسم المتجر</th>
-              <th className="py-3 px-4 text-gray-700">الرابط المختصر</th>
-              <th className="py-3 px-4 text-gray-700">وصف الهيدر</th>
-              <th className="py-3 px-4 text-gray-700">مميز؟</th>
-              <th className="py-3 px-4 text-gray-700">تاريخ الإنشاء</th>
-              <th className="py-3 px-4 text-gray-700">الحالة</th>
-              <th className="py-3 px-4 text-gray-700">إجراءات</th>
-              <th className="px-4 py-2 text-right">الفئات</th>
-            </tr>
-          </thead>
-          <tbody>
-            {stores.map((store) => (
-              <tr key={store.id} className={`border-b hover:bg-gray-50 transition-all duration-200 ${store.isBast ? 'bg-yellow-50/60' : ''}`}>
-                <td className="py-2 px-4">
-                  <img
-                    src={store.logoUrl ? `https://api.eslamoffers.com/uploads/${store.logoUrl}` : "/default-image.png"}
-                    alt={store.name}
-                    className="w-14 h-14 object-contain rounded-lg border border-gray-200 bg-white shadow-sm"
-                  />
-                </td>
-                <td className="py-2 px-4 font-bold text-lg text-gray-800">{store.name}</td>
-                <td className="py-2 px-4 text-gray-600">
-                  {store.slug ? (
-                    <span className="bg-gray-100 px-3 py-1 rounded-full text-sm font-mono">{store.slug}</span>
-                  ) : (
-                    <span className="text-red-500 text-sm">غير محدد</span>
-                  )}
-                </td>
-                <td className="py-2 px-4 text-gray-600 max-w-[200px] truncate">{store.headerDescription || "-"}</td>
-                <td className="py-2 px-4">
-                  {store.isBast ? (
-                    <span className="inline-block bg-yellow-400 text-white px-3 py-1 rounded-full text-xs font-bold shadow">⭐ أفضل متجر</span>
-                  ) : (
-                    <span className="inline-block bg-gray-200 text-gray-600 px-3 py-1 rounded-full text-xs">عادي</span>
-                  )}
-                </td>
-                <td className="py-2 px-4 text-gray-600">
-                  {store.createdAt
-                    ? new Date(store.createdAt).toLocaleDateString()
-                    : "-"}
-                </td>
-                <td className="py-2 px-4">
-                  {store.isactive ? (
-                    <span className="text-green-600 font-bold">نشط</span>
-                  ) : (
-                    <span className="text-red-600 font-bold">غير نشط</span>
-                  )}
-                </td>
-                <td className="py-2 px-4 flex gap-2">
-                  <button
-                    className="flex items-center gap-1 bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition font-bold shadow text-base cursor-pointer border border-blue-200"
-                    onClick={() => onNavigateToCoupons(store.id)}
-                    title="الكوبونات"
-                  >
-                    <RiCoupon3Line className="text-lg" />
-                    الكوبونات
-                  </button>
-                  <button
-                    className="flex items-center gap-1 bg-[#14b8a6]/90 text-white px-4 py-2 rounded-lg hover:bg-[#14b8a6] transition font-bold shadow text-base cursor-pointer border border-[#14b8a6]/30"
-                    onClick={() => onEdit(store)}
-                    title="تعديل"
-                  >
-                    <FiEdit2 className="text-lg" />
-                    تعديل
-                  </button>
-                  <button
-                    className="flex items-center gap-1 bg-red-100 text-red-700 px-4 py-2 rounded-lg hover:bg-red-200 transition font-bold shadow text-base cursor-pointer border border-red-200"
-                    onClick={() => onDelete(store)}
-                    title="حذف"
-                  >
-                    <FiTrash2 className="text-lg" />
-                    حذف
-                  </button>
-                </td>
-                <td className="px-4 py-2">
-                  <div className="flex flex-wrap gap-1">
-                    {store.categorys?.map((categoryId) => (
-                      <span
-                        key={categoryId}
-                        className="px-2 py-1 text-sm bg-teal-100 text-teal-800 rounded-full"
-                      >
-                        {getCategoryName(categoryId)}
-                      </span>
-                    ))}
-                  </div>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gradient-to-r from-teal-50 to-gray-50">
+              <tr>
+                <th scope="col" className="px-6 py-4 text-right text-sm font-semibold text-teal-800 uppercase tracking-wider">
+                  المتجر
+                </th>
+                <th scope="col" className="px-6 py-4 text-right text-sm font-semibold text-teal-800 uppercase tracking-wider">
+                  التفاصيل
+                </th>
+                <th scope="col" className="px-6 py-4 text-right text-sm font-semibold text-teal-800 uppercase tracking-wider">
+                  الحالة
+                </th>
+                <th scope="col" className="px-6 py-4 text-right text-sm font-semibold text-teal-800 uppercase tracking-wider">
+                  الإجراءات
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {stores.map((store) => (
+                <tr key={store.id} className={store.isBast ? "bg-amber-50 hover:bg-amber-100" : "hover:bg-gray-50"}>
+                  {/* Column 1: Store Info */}
+                  <td className="px-6 py-4">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-12 w-12">
+                        <img
+                          className="h-12 w-12 rounded-lg object-contain border border-gray-200 bg-white shadow-sm"
+                          src={store.logoUrl ? `https://api.eslamoffers.com/uploads/${store.logoUrl}` : "/default-store.png"}
+                          alt={store.name}
+                        />
+                      </div>
+                      <div className="mr-4">
+                        <div className="text-lg font-bold text-gray-800">{store.name}</div>
+                        <div className="text-sm text-gray-500 mt-1">
+                          /{store.slug || "---"}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  
+                  {/* Column 2: Details */}
+                  <td className="px-6 py-4">
+                    <div className="space-y-2">
+                      <div 
+                        className="text-sm text-gray-600 cursor-pointer hover:text-teal-600 transition"
+                        onClick={() => toggleDescription(store.id)}
+                      >
+                        {expandedDescriptions[store.id] ? (
+                          <>
+                            <span className="font-medium">وصف الهيدر:</span> {store.headerDescription || "لا يوجد وصف"}
+                            <FiChevronUp className="inline mr-1 text-teal-600" />
+                          </>
+                        ) : (
+                          <>
+                            <span className="font-medium">وصف الهيدر:</span> {truncateText(store.headerDescription, 25) || "---"}
+                            {store.headerDescription && store.headerDescription.length > 25 && (
+                              <FiChevronDown className="inline mr-1 text-teal-600" />
+                            )}
+                          </>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {store.categorys?.slice(0, 3).map(categoryId => (
+                          <span
+                            key={categoryId}
+                            className="px-2 py-1 text-xs bg-teal-100 text-teal-800 rounded-full"
+                          >
+                            {getCategoryName(categoryId)}
+                          </span>
+                        ))}
+                        {store.categorys?.length > 3 && (
+                          <span className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
+                            +{store.categorys.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  
+                  {/* Column 3: Status */}
+                  <td className="px-6 py-4">
+                    <div className="space-y-2">
+                      <span className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full 
+                        ${store.isBast ? 'bg-amber-200 text-amber-900' : 'bg-gray-200 text-gray-800'}`}>
+                        {store.isBast ? '⭐ متجر مميز' : 'متجر عادي'}
+                      </span>
+                      <span className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full 
+                        ${store.isactive ? 'bg-green-200 text-green-900' : 'bg-red-200 text-red-900'}`}>
+                        {store.isactive ? '🟢 نشط' : '🔴 غير نشط'}
+                      </span>
+                    </div>
+                  </td>
+                  
+                  {/* Column 4: Actions */}
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col space-y-2">
+                      <button
+                        onClick={() => onNavigateToCoupons(store.id)}
+                        className="flex items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow-sm transition"
+                      >
+                        <RiCoupon3Line className="h-5 w-5" />
+                        <span>كوبونات المتجر</span>
+                      </button>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => onEdit(store)}
+                          className="flex-1 flex items-center justify-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg shadow-sm transition"
+                        >
+                          <FiEdit2 className="h-4 w-4" />
+                          <span>تعديل</span>
+                        </button>
+                        <button
+                          onClick={() => onDelete(store)}
+                          className="flex-1 flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-sm transition"
+                        >
+                          <FiTrash2 className="h-4 w-4" />
+                          <span>حذف</span>
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

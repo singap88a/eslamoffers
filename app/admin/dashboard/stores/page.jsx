@@ -1,11 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import StoreTable from "../../../components/admin/Store/StoreTable";
 import StoreFormModal from "../../../components/admin/Store/StoreFormModal";
 import ConfirmDialog from "../../../components/admin/Store/ConfirmDialog";
 import Toast from "../../../components/admin/Store/Toast";
 import { useRouter } from "next/navigation";
-import { FiPlus } from "react-icons/fi";
+import { FiPlus, FiSearch } from "react-icons/fi";
 
 const API_BASE = "https://api.eslamoffers.com/api/Store";
 
@@ -37,7 +37,18 @@ const StoresPage = () => {
   const [storeToDelete, setStoreToDelete] = useState(null);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [toast, setToast] = useState({ message: "", type: "success" });
+  const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
+
+  // Filter stores based on search term
+  const filteredStores = useMemo(() => {
+    if (!searchTerm) return stores;
+    return stores.filter(store => 
+      store.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (store.slug && store.slug.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (store.headerDescription && store.headerDescription.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }, [stores, searchTerm]);
 
   const handleNavigateToCoupons = (storeId) => {
     router.push(`/admin/dashboard/coupons?storeId=${storeId}`);
@@ -146,18 +157,35 @@ const StoresPage = () => {
   return (
     <div className="flex-1 p-4 md:p-8 min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <h1 className="text-3xl font-bold text-gray-800">إدارة المتاجر</h1>
-          <button
-            className="flex items-center gap-2 bg-[#14b8a6] text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-[#11a394] transition-all duration-300 font-semibold"
-            onClick={() => {
-              setEditStore(null);
-              setModalOpen(true);
-            }}
-          >
-            <FiPlus size={20} />
-            <span>إضافة متجر جديد</span>
-          </button>
+          
+          <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+            {/* Search Input */}
+            <div className="relative flex-1 md:w-64">
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <FiSearch className="text-gray-400" />
+              </div>
+              <input
+                type="text"
+                className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full pr-10 p-2.5"
+                placeholder="ابحث عن متجر..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            
+            <button
+              className="flex items-center justify-center gap-2 bg-[#14b8a6] text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-[#11a394] transition-all duration-300 font-semibold whitespace-nowrap"
+              onClick={() => {
+                setEditStore(null);
+                setModalOpen(true);
+              }}
+            >
+              <FiPlus size={20} />
+              <span>إضافة متجر جديد</span>
+            </button>
+          </div>
         </div>
 
         {error && (
@@ -170,19 +198,35 @@ const StoresPage = () => {
         {loading ? (
           <Spinner />
         ) : (
-          <StoreTable
-            stores={stores}
-            loading={loading}
-            onEdit={(store) => {
-              setEditStore(store);
-              setModalOpen(true);
-            }}
-            onDelete={(store) => {
-              setStoreToDelete(store);
-              setConfirmOpen(true);
-            }}
-            onNavigateToCoupons={handleNavigateToCoupons}
-          />
+          <>
+            {searchTerm && (
+              <div className="mb-4 text-sm text-gray-600">
+                عرض {filteredStores.length} من أصل {stores.length} متجر
+                {filteredStores.length !== stores.length && (
+                  <button 
+                    onClick={() => setSearchTerm("")}
+                    className="mr-2 text-teal-600 hover:text-teal-800"
+                  >
+                    (إلغاء البحث)
+                  </button>
+                )}
+              </div>
+            )}
+            
+            <StoreTable
+              stores={filteredStores}
+              loading={loading}
+              onEdit={(store) => {
+                setEditStore(store);
+                setModalOpen(true);
+              }}
+              onDelete={(store) => {
+                setStoreToDelete(store);
+                setConfirmOpen(true);
+              }}
+              onNavigateToCoupons={handleNavigateToCoupons}
+            />
+          </>
         )}
 
         <StoreFormModal
