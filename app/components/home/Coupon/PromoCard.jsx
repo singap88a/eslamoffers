@@ -13,19 +13,30 @@ const PromoCard = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isClient, setIsClient] = useState(false);
 
-  // لون أساسي يتناسب مع الخلفية الكبيرة
   const primaryColor = '#0d9488';
-  const cardColor = '#0b8378'; // لون أغمق قليلاً للتمييز
+  const cardColor = '#0b8378';
+
+  // Static initial positions for bubbles
+  const initialBubbles = [
+    { width: 70, height: 70, left: 20, top: 20, delay: 0 },
+    { width: 90, height: 90, left: 40, top: 40, delay: 200 },
+    { width: 80, height: 80, left: 60, top: 60, delay: 400 },
+    { width: 100, height: 100, left: 80, top: 80, delay: 600 },
+    { width: 85, height: 85, left: 30, top: 70, delay: 800 },
+    { width: 95, height: 95, left: 70, top: 30, delay: 1000 }
+  ];
 
   useEffect(() => {
+    setIsClient(true);
     const fetchOffers = async () => {
       try {
         const res = await fetch('https://api.eslamoffers.com/api/Offers/GetAllOffers');
         const data = await res.json();
         const lastFiveOffers = data.slice(0, 5).map(offer => ({
           ...offer,
-          icon: <MdLocalOffer className="text-2xl" />, // أيقونة موحدة للجميع
+          icon: <MdLocalOffer className="text-2xl" />
         }));
         setOffers(lastFiveOffers);
       } catch (error) {
@@ -38,31 +49,32 @@ const PromoCard = () => {
 
     fetchOffers();
 
-    const interval = setInterval(() => {
-      const bubbles = document.querySelectorAll(".bubble");
-      bubbles.forEach(bubble => {
-        bubble.style.left = `${Math.random() * 100}%`;
-        bubble.style.top = `${Math.random() * 100}%`;
-      });
-    }, 3000);
-    
-    return () => clearInterval(interval);
+    if (typeof window !== 'undefined') {
+      const interval = setInterval(() => {
+        const bubbles = document.querySelectorAll(".bubble");
+        bubbles.forEach(bubble => {
+          bubble.style.left = `${Math.random() * 100}%`;
+          bubble.style.top = `${Math.random() * 100}%`;
+        });
+      }, 3000);
+      
+      return () => clearInterval(interval);
+    }
   }, []);
 
   return (
     <div className="relative overflow-hidden rounded-2xl shadow-xl max-w-4xl mx-auto my-8" dir="rtl">
-      {/* خلفية متحركة */}
       <div className="absolute inset-0 bg-[#14b8a6] z-0 overflow-hidden">
-        {[...Array(6)].map((_, i) => (
+        {initialBubbles.map((bubble, i) => (
           <div 
             key={i}
             className="bubble absolute rounded-full bg-white/10 transition-all duration-[3000ms] ease-in-out"
             style={{
-              width: `${Math.random() * 100 + 50}px`,
-              height: `${Math.random() * 100 + 50}px`,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              transitionDelay: `${i * 200}ms`
+              width: isClient ? `${Math.random() * 100 + 50}px` : `${bubble.width}px`,
+              height: isClient ? `${Math.random() * 100 + 50}px` : `${bubble.height}px`,
+              left: isClient ? `${Math.random() * 100}%` : `${bubble.left}%`,
+              top: isClient ? `${Math.random() * 100}%` : `${bubble.top}%`,
+              transitionDelay: `${bubble.delay}ms`
             }}
           />
         ))}
@@ -72,7 +84,6 @@ const PromoCard = () => {
         </svg>
       </div>
 
-      {/* المحتوى الرئيسي */}
       <div className="relative z-10 p-6 md:p-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

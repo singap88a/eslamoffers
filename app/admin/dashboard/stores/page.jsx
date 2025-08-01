@@ -2,12 +2,11 @@
 import React, { useEffect, useState } from "react";
 import StoreTable from "../../../components/admin/Store/StoreTable";
 import StoreFormModal from "../../../components/admin/Store/StoreFormModal";
-// import ConfirmDialog from "../../../../components/admin/Store/ConfirmDialog";
 import ConfirmDialog from "../../../components/admin/Store/ConfirmDialog";
-
 import Toast from "../../../components/admin/Store/Toast";
- import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { FiPlus } from "react-icons/fi";
+
 const API_BASE = "https://api.eslamoffers.com/api/Store";
 
 const getCookie = (name) => {
@@ -44,17 +43,6 @@ const StoresPage = () => {
     router.push(`/admin/dashboard/coupons?storeId=${storeId}`);
   };
 
-  // The middleware now handles the auth check, so this useEffect is no longer needed.
-  // useEffect(() => {
-  //   if (typeof window !== 'undefined') {
-  //     const token = getCookie('token');
-  //     if (!token) {
-  //       router.replace('/admin/login');
-  //     }
-  //   }
-  // }, [router]);
-
-  // Fetch stores
   const fetchStores = async () => {
     setLoading(true);
     setError(null);
@@ -71,6 +59,7 @@ const StoresPage = () => {
       setStores(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message);
+      setToast({ message: err.message, type: "error" });
     } finally {
       setLoading(false);
     }
@@ -80,58 +69,40 @@ const StoresPage = () => {
     fetchStores();
   }, []);
 
-  // Add or Edit Store
-  const handleSubmit = async (values, imageFile) => {
+  const handleSubmit = async (formData) => {
     setModalLoading(true);
     setError(null);
     try {
       const token = getCookie("token");
-      let res, data;
-      const formData = new FormData();
-      formData.append("Name", values.Name);
-      formData.append("IsBast", values.IsBast ? "true" : "false"); // أرسلها كنص
-      formData.append("HeaderDescription", values.HeaderDescription || "");
-      formData.append("Description", values.Description || "");
-      if (imageFile) {
-        formData.append("ImageUrl", imageFile);
+      const isEditing = !!editStore;
+      const url = isEditing 
+        ? `${API_BASE}/UpdateStore/${editStore.id}`
+        : `${API_BASE}/AddStore`;
+
+      const res = await fetch(url, {
+        method: isEditing ? "PUT" : "POST",
+        headers: {
+          accept: "*/*",
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(isEditing 
+          ? `فشل في تعديل المتجر: ${errorText}` 
+          : `فشل في إضافة المتجر: ${errorText}`);
       }
-      // Debug: اطبع القيم
-      for (let pair of formData.entries()) {
-        console.log(pair[0]+ ', ' + pair[1]);
-      }
-      if (editStore) {
-        // Update
-        res = await fetch(`${API_BASE}/UpdateStore/${editStore.id}`, {
-          method: "PUT",
-          headers: {
-            accept: "*/*",
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        });
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error("فشل في تعديل المتجر: " + errorText);
-        }
-        data = await res.json();
-        setToast({ message: "تم تعديل المتجر بنجاح!", type: "success" });
-      } else {
-        // Add
-        res = await fetch(`${API_BASE}/AddStore`, {
-          method: "POST",
-          headers: {
-            accept: "*/*",
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        });
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error("فشل في إضافة المتجر: " + errorText);
-        }
-        data = await res.json();
-        setToast({ message: "تمت إضافة المتجر بنجاح!", type: "success" });
-      }
+
+      const data = await res.json();
+      setToast({ 
+        message: isEditing 
+          ? "تم تعديل المتجر بنجاح!" 
+          : "تمت إضافة المتجر بنجاح!", 
+        type: "success" 
+      });
+      
       setModalOpen(false);
       setEditStore(null);
       fetchStores();
@@ -142,7 +113,6 @@ const StoresPage = () => {
     }
   };
 
-  // Delete Store
   const handleDelete = async () => {
     if (!storeToDelete) return;
     setConfirmLoading(true);
@@ -156,7 +126,12 @@ const StoresPage = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!res.ok) throw new Error("فشل في حذف المتجر");
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`فشل في حذف المتجر: ${errorText}`);
+      }
+
       setToast({ message: "تم حذف المتجر بنجاح!", type: "success" });
       setConfirmOpen(false);
       setStoreToDelete(null);
@@ -168,15 +143,13 @@ const StoresPage = () => {
     }
   };
 
-  // UI
   return (
     <div className="flex-1 p-4 md:p-8 min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">إدارة المتاجر</h1>
           <button
-            className="flex items-center cursor-pointer
- gap-2 bg-[#14b8a6] text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-[#11a394] transition-all duration-300 font-semibold"
+            className="flex items-center gap-2 bg-[#14b8a6] text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-[#11a394] transition-all duration-300 font-semibold"
             onClick={() => {
               setEditStore(null);
               setModalOpen(true);
@@ -186,7 +159,14 @@ const StoresPage = () => {
             <span>إضافة متجر جديد</span>
           </button>
         </div>
-        {error && <div className="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-md"><p className="font-bold">خطأ</p><p>{error}</p></div>}
+
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-md">
+            <p className="font-bold">خطأ</p>
+            <p>{error}</p>
+          </div>
+        )}
+
         {loading ? (
           <Spinner />
         ) : (
@@ -204,6 +184,7 @@ const StoresPage = () => {
             onNavigateToCoupons={handleNavigateToCoupons}
           />
         )}
+
         <StoreFormModal
           isOpen={modalOpen}
           onClose={() => {
@@ -214,6 +195,7 @@ const StoresPage = () => {
           initialData={editStore}
           loading={modalLoading}
         />
+
         <ConfirmDialog
           isOpen={confirmOpen}
           onClose={() => {
@@ -224,6 +206,7 @@ const StoresPage = () => {
           message={storeToDelete ? `هل أنت متأكد أنك تريد حذف المتجر "${storeToDelete.name}"؟` : ""}
           loading={confirmLoading}
         />
+
         <Toast
           message={toast.message}
           type={toast.type}

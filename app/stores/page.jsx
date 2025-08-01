@@ -144,7 +144,7 @@ const StoresPage = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-3 gap-4">
                   {visibleStores.length > 0 ? (
                     visibleStores.map((store) => (
-                      <Link href={`/stores/${store.id}`} key={store.id}>
+                      <Link href={`/stores/${store.slug}`} key={store.id}>
                         <StoreCard store={store} />
                       </Link>
                     ))
