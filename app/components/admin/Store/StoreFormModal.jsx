@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { FiXCircle, FiImage, FiTrash2, FiPlus, FiMinus, FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { FiXCircle, FiImage, FiTrash2, FiPlus, FiMinus, FiChevronDown, FiChevronUp, FiEdit2, FiCheck, FiX } from "react-icons/fi";
 
 const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => {
   const [formData, setFormData] = useState({
@@ -17,7 +17,9 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
   const [currentDescription, setCurrentDescription] = useState({
     subHeader: "",
     description: "",
-    image: null
+    image: null,
+    isEditing: false,
+    editIndex: null
   });
 
   const [logoFile, setLogoFile] = useState(null);
@@ -31,18 +33,13 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
 
   useEffect(() => {
     if (initialData) {
-      // تحويل descriptionStore إلى مصفوفة إذا كان كائنًا واحدًا
       let descriptions = [];
       if (initialData.descriptionStores && Array.isArray(initialData.descriptionStores)) {
         descriptions = initialData.descriptionStores;
       } else if (initialData.descriptionStore) {
-        // إذا كان descriptionStore مصفوفة
-        if (Array.isArray(initialData.descriptionStore)) {
-          descriptions = initialData.descriptionStore;
-        } else {
-          // إذا كان descriptionStore كائنًا واحدًا
-          descriptions = [initialData.descriptionStore];
-        }
+        descriptions = Array.isArray(initialData.descriptionStore) 
+          ? initialData.descriptionStore 
+          : [initialData.descriptionStore];
       }
       
       setFormData({
@@ -184,21 +181,84 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
 
   const addDescriptionStore = () => {
     if (currentDescription.subHeader && currentDescription.description) {
-      const newDescription = {
+      const descData = {
         subHeader: currentDescription.subHeader,
         description: currentDescription.description,
         image: currentDescription.image
       };
       
-      setFormData(prev => ({
-        ...prev,
-        descriptionStores: [...prev.descriptionStores, newDescription]
-      }));
+      // إذا كان في وضع التعديل
+      if (currentDescription.isEditing && typeof currentDescription.editIndex === 'number') {
+        const index = currentDescription.editIndex;
+        const descToEdit = formData.descriptionStores[index];
+        
+        // إذا كان الوصف له معرف (موجود في قاعدة البيانات)، نقوم بإرسال طلب تعديل للـ API
+        if (descToEdit.id && initialData?.id) {
+          // إنشاء FormData للتعديل
+          const editFormData = new FormData();
+          editFormData.append("SubHeader", descData.subHeader);
+          editFormData.append("Description", descData.description);
+          
+          // إضافة الصورة إذا كانت موجودة
+          if (descData.image instanceof File) {
+            editFormData.append("Image", descData.image);
+          } else if (typeof descData.image === 'string' && descData.image) {
+            editFormData.append("Image", descData.image);
+          }
+          
+          // إرسال طلب التعديل
+          fetch(`https://api.eslamoffers.com/api/Store/UpdateDescriptionStore/${initialData.id}/${descToEdit.id}`, {
+            method: 'PUT',
+            headers: {
+              'accept': '*/*',
+              'Authorization': `Bearer ${localStorage.getItem('token')}` // استخدام التوكن المخزن
+            },
+            body: editFormData
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('فشل تعديل الوصف');
+            }
+            return response.json();
+          })
+          .then(data => {
+            // تحديث الوصف في حالة النموذج
+            setFormData(prev => ({
+              ...prev,
+              descriptionStores: prev.descriptionStores.map((desc, i) => 
+                i === index ? { ...data } : desc
+              )
+            }));
+            alert('تم تعديل الوصف بنجاح');
+          })
+          .catch(error => {
+            console.error('Error updating description:', error);
+            alert('حدث خطأ أثناء تعديل الوصف');
+          });
+        } else {
+          // إذا كان الوصف غير موجود في قاعدة البيانات، نقوم بتحديثه محليًا فقط
+          setFormData(prev => ({
+            ...prev,
+            descriptionStores: prev.descriptionStores.map((desc, i) => 
+              i === index ? { ...desc, ...descData } : desc
+            )
+          }));
+        }
+      } else {
+        // إضافة وصف جديد
+        setFormData(prev => ({
+          ...prev,
+          descriptionStores: [...prev.descriptionStores, descData]
+        }));
+      }
       
+      // إعادة تعيين حالة الوصف الحالي
       setCurrentDescription({
         subHeader: "",
         description: "",
-        image: null
+        image: null,
+        isEditing: false,
+        editIndex: null
       });
       
       if (descFileInputRef.current) {
@@ -207,11 +267,65 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
     }
   };
 
-  const removeDescriptionStore = (index) => {
-    // إذا كان الوصف موجود في قاعدة البيانات (له معرف)، فيجب حذفه من قاعدة البيانات أيضًا
-    const descToRemove = formData.descriptionStores[index];
+  // وظيفة لتعديل وصف إضافي موجود
+  const editDescriptionStore = (index, updatedDesc) => {
+    // إذا كان الوصف له معرف (موجود في قاعدة البيانات)، نقوم بإرسال طلب تعديل للـ API
+    const descToEdit = formData.descriptionStores[index];
     
-    // حذف الوصف من حالة النموذج
+    if (descToEdit.id && initialData?.id) {
+      // إنشاء FormData للتعديل
+      const editFormData = new FormData();
+      editFormData.append("SubHeader", updatedDesc.subHeader);
+      editFormData.append("Description", updatedDesc.description);
+      
+      // إضافة الصورة إذا كانت موجودة
+      if (updatedDesc.image instanceof File) {
+        editFormData.append("Image", updatedDesc.image);
+      } else if (typeof updatedDesc.image === 'string' && updatedDesc.image) {
+        editFormData.append("Image", updatedDesc.image);
+      }
+      
+      // إرسال طلب التعديل
+      fetch(`https://api.eslamoffers.com/api/Store/UpdateDescriptionStore/${initialData.id}/${descToEdit.id}`, {
+        method: 'PUT',
+        headers: {
+          'accept': '*/*',
+          'Authorization': `Bearer ${localStorage.getItem('token')}` // استخدام التوكن المخزن
+        },
+        body: editFormData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('فشل تعديل الوصف');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // تحديث الوصف في حالة النموذج
+        setFormData(prev => ({
+          ...prev,
+          descriptionStores: prev.descriptionStores.map((desc, i) => 
+            i === index ? { ...data } : desc
+          )
+        }));
+        alert('تم تعديل الوصف بنجاح');
+      })
+      .catch(error => {
+        console.error('Error updating description:', error);
+        alert('حدث خطأ أثناء تعديل الوصف');
+      });
+    } else {
+      // إذا كان الوصف غير موجود في قاعدة البيانات، نقوم بتحديثه محليًا فقط
+      setFormData(prev => ({
+        ...prev,
+        descriptionStores: prev.descriptionStores.map((desc, i) => 
+          i === index ? { ...desc, ...updatedDesc } : desc
+        )
+      }));
+    }
+  };
+  
+  const removeDescriptionStore = (index) => {
     setFormData(prev => ({
       ...prev,
       descriptionStores: prev.descriptionStores.filter((_, i) => i !== index)
@@ -235,6 +349,7 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
     formDataToSend.append("Description", formData.description);
     formDataToSend.append("IsBast", formData.isBast.toString());
     formDataToSend.append("IsUpdateCategory", "true");
+    formDataToSend.append("IsUpdateDescriptionStore", "true");
     
     if (logoFile) {
       formDataToSend.append("ImageUrl", logoFile);
@@ -246,26 +361,33 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
       formDataToSend.append("CategoryId", categoryId);
     });
     
-    if (formData.descriptionStores.length > 0) {
-      formData.descriptionStores.forEach((desc, index) => {
-        // إذا كان الوصف موجود مسبقًا (له معرف)، نرسل المعرف
-        if (desc.id) {
-          formDataToSend.append(`descriptionStores[${index}].id`, desc.id);
-        }
-        
-        formDataToSend.append(`descriptionStores[${index}].subHeader`, desc.subHeader);
-        formDataToSend.append(`descriptionStores[${index}].description`, desc.description);
-        
-        if (desc.image instanceof File) {
-          formDataToSend.append(`descriptionStores[${index}].image`, desc.image);
-        } else if (typeof desc.image === 'string') {
-          formDataToSend.append(`descriptionStores[${index}].image`, desc.image);
-        }
-      });
-    }
+    // تصفية الأوصاف الإضافية للتأكد من أنها تحتوي على البيانات المطلوبة
+    const validDescriptions = formData.descriptionStores.filter(
+      desc => desc.subHeader && desc.description
+    );
     
-    // إضافة علامة لتحديث الأوصاف
-    formDataToSend.append("IsUpdateDescriptionStore", "true");
+    // إضافة علامة تحديث الأوصاف الإضافية
+    formDataToSend.append('IsUpdateDescriptionStore', 'true');
+    
+    if (validDescriptions.length === 0) {
+      // إذا لم تكن هناك أوصاف إضافية، نرسل مصفوفة فارغة
+      formDataToSend.append('descriptionStores', JSON.stringify([]));
+    } else {
+      // إضافة الأوصاف الإضافية الصالحة
+      validDescriptions.forEach((desc, index) => {
+      if (desc.id) {
+        formDataToSend.append(`descriptionStores[${index}].id`, desc.id);
+      }
+      formDataToSend.append(`descriptionStores[${index}].subHeader`, desc.subHeader);
+      formDataToSend.append(`descriptionStores[${index}].description`, desc.description);
+      
+      if (desc.image instanceof File) {
+        formDataToSend.append(`descriptionStores[${index}].image`, desc.image);
+      } else if (typeof desc.image === 'string' && desc.image) {
+        formDataToSend.append(`descriptionStores[${index}].image`, desc.image);
+      }
+    });
+    }
 
     onSubmit(formDataToSend);
   };
@@ -363,8 +485,6 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
                   </div>
                 </div>
                 
-
-                
                 <div>
                   <label className="block mb-2 font-medium text-gray-700">شعار المتجر</label>
                   <div
@@ -411,53 +531,76 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
                 </div>
                 
                 <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label className="font-medium text-gray-700">الفئات</label>
-                    <button 
-                      type="button"
-                      onClick={() => setCategoriesOpen(!categoriesOpen)}
-                      className="flex items-center text-sm text-teal-600"
-                    >
-                      {categoriesOpen ? (
-                        <>
-                          <FiChevronUp className="ml-1" /> إخفاء
-                        </>
-                      ) : (
-                        <>
-                          <FiChevronDown className="ml-1" /> عرض الفئات
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  
-                  {categoriesOpen && (
-                    <div className="border rounded-lg bg-gray-50 p-3">
-                      {isLoadingCategories ? (
-                        <div className="flex justify-center py-4">
-                          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-teal-500"></div>
-                        </div>
-                      ) : categoriesList.length > 0 ? (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                          {categoriesList.map(category => (
-                            <div key={category.id} className="flex items-center">
-                              <input
-                                type="checkbox"
-                                id={`category-${category.id}`}
-                                checked={formData.categories.includes(category.id)}
-                                onChange={() => handleCategoryChange(category.id)}
-                                className="h-4 w-4 text-teal-600 rounded focus:ring-teal-500"
-                              />
-                              <label htmlFor={`category-${category.id}`} className="mr-2 text-sm text-gray-700">
-                                {category.name}
-                              </label>
+                  <div className="mb-2">
+                    <label className="font-medium text-gray-700 block mb-2">الفئات</label>
+                    <div className="relative">
+                      <button 
+                        type="button"
+                        onClick={() => setCategoriesOpen(!categoriesOpen)}
+                        className="flex items-center justify-between w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      >
+                        <span>
+                          {formData.categories.length > 0 
+                            ? `${formData.categories.length} فئة محددة` 
+                            : 'اختر الفئات'}
+                        </span>
+                        {categoriesOpen ? <FiChevronUp /> : <FiChevronDown />}
+                      </button>
+                      
+                      {categoriesOpen && (
+                        <div className="absolute z-10 mt-1 w-full border rounded-lg bg-white shadow-lg max-h-60 overflow-y-auto">
+                          {isLoadingCategories ? (
+                            <div className="flex justify-center py-4">
+                              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-teal-500"></div>
                             </div>
-                          ))}
+                          ) : categoriesList.length > 0 ? (
+                            <div className="p-2">
+                              {categoriesList.map(category => (
+                                <div 
+                                  key={category.id} 
+                                  className={`flex items-center p-2 hover:bg-gray-100 rounded cursor-pointer ${formData.categories.includes(category.id) ? 'bg-teal-50' : ''}`}
+                                  onClick={() => handleCategoryChange(category.id)}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    id={`category-${category.id}`}
+                                    checked={formData.categories.includes(category.id)}
+                                    onChange={() => {}} // تم نقل المعالجة إلى الـ div الأب
+                                    className="h-4 w-4 text-teal-600 rounded focus:ring-teal-500"
+                                  />
+                                  <label htmlFor={`category-${category.id}`} className="mr-2 text-sm text-gray-700 cursor-pointer flex-1">
+                                    {category.name}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-gray-500 text-sm py-2 px-4">لا توجد فئات متاحة</p>
+                          )}
                         </div>
-                      ) : (
-                        <p className="text-gray-500 text-sm py-2">لا توجد فئات متاحة</p>
                       )}
                     </div>
-                  )}
+                    
+                    {formData.categories.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {formData.categories.map(categoryId => {
+                          const category = categoriesList.find(c => c.id === categoryId);
+                          return category ? (
+                            <span key={categoryId} className="inline-flex items-center bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded">
+                              {category.name}
+                              <button 
+                                type="button" 
+                                className="mr-1 text-teal-600 hover:text-teal-800"
+                                onClick={() => handleCategoryChange(categoryId)}
+                              >
+                                <FiX size={14} />
+                              </button>
+                            </span>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </>
             )}
@@ -465,15 +608,15 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
             {activeTab === 'description' && (
               <div className="space-y-6">
                 <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
-                                  <div>
-                  <label className="block mb-2 font-medium text-gray-700">الوصف</label>
-                  <input
-                    name="description"
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent  "
-                    value={formData.description}
-                    onChange={handleChange}
-                  />
-                </div>
+                  <div>
+                    <label className="block mb-2 font-medium text-gray-700">الوصف</label>
+                    <input
+                      name="description"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      value={formData.description}
+                      onChange={handleChange}
+                    />
+                  </div>
                   <h3 className="font-medium text-gray-700">إضافة وصف جديد</h3>
                   <div className="space-y-3">
                     <input
@@ -519,8 +662,17 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
                       className="flex items-center justify-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition w-full"
                       disabled={!currentDescription.subHeader || !currentDescription.description}
                     >
-                      <FiPlus />
-                      إضافة وصف
+                      {currentDescription.isEditing ? (
+                        <>
+                          <FiCheck />
+                          حفظ التعديل
+                        </>
+                      ) : (
+                        <>
+                          <FiPlus />
+                          إضافة وصف
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -545,14 +697,31 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
                                 </div>
                               )}
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => removeDescriptionStore(index)}
-                              className="text-red-500 hover:text-red-700 p-1"
-                              title="حذف"
-                            >
-                              <FiTrash2 />
-                            </button>
+                            <div className="flex">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  // تعيين الوصف الحالي للتعديل
+                                  setCurrentDescription({
+                                    ...desc,
+                                    isEditing: true,
+                                    editIndex: index
+                                  });
+                                }}
+                                className="text-blue-500 hover:text-blue-700 p-1 ml-2"
+                                title="تعديل"
+                              >
+                                <FiEdit2 />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => removeDescriptionStore(index)}
+                                className="text-red-500 hover:text-red-700 p-1"
+                                title="حذف"
+                              >
+                                <FiTrash2 />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))}
