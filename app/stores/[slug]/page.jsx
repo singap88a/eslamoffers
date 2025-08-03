@@ -153,7 +153,7 @@ const StoreCouponsPage = () => {
               <h2 className="font-[400] text-gray-600 mb-4">
                 {store.headerDescription || `جميع الكوبونات والعروض الخاصة بـ ${store.name}`}
               </h2>
-              {store.categorys && store.categorys.length > 0 && (
+              {/* {store.categorys && store.categorys.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-4">
                   {store.categorys.map((categoryId, index) => (
                     <span key={index} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
@@ -161,7 +161,7 @@ const StoreCouponsPage = () => {
                     </span>
                   ))}
                 </div>
-              )}
+              )} */}
               <div className="flex items-center gap-3">
                 {store.isBast && (
                   <div className="flex items-center gap-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-bold">
@@ -260,7 +260,7 @@ const StoreCouponsPage = () => {
                 </div>
               </div>
               
-              {store.categorys && store.categorys.length > 0 && (
+              {/* {store.categorys && store.categorys.length > 0 && (
                 <div className="mb-6">
                   <h4 className="text-lg font-semibold text-gray-800 mb-3">الفئات</h4>
                   <div className="flex flex-wrap gap-2">
@@ -271,18 +271,18 @@ const StoreCouponsPage = () => {
                     ))}
                   </div>
                 </div>
-              )}
+              )} */}
             
             {store.description && (
               <div className="mb-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-2">الوصف</h4>
-                <p className="text-gray-600">{store.description}</p>
+                {/* <h4 className="text-lg font-semibold text-gray-800 mb-2">الوصف</h4> */}
+                <p className="text-[#000] font-bold text-2xl ">{store.description}</p>
               </div>
             )}
 
             {store.descriptionStore?.length > 0 && (
               <div className="space-y-6">
-                <h4 className="text-lg font-semibold text-gray-800">تفاصيل إضافية</h4>
+                {/* <h4 className="text-lg font-semibold text-gray-800">تفاصيل إضافية</h4> */}
                 {store.descriptionStore.map((desc, index) => (
                   <div key={desc.id || index} className="border-l-4 border-teal-500 pl-4">
                     {desc.subHeader && (
@@ -306,33 +306,7 @@ const StoreCouponsPage = () => {
               </div>
             )}
             
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span className="font-semibold">تاريخ الإنشاء:</span>
-                  <span>{new Date(store.createdAt).toLocaleDateString('ar-EG')}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="font-semibold">آخر تحديث:</span>
-                  <span>{new Date(store.lastUpdatedAt).toLocaleDateString('ar-EG')}</span>
-                </div>
-              </div>
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="font-semibold">معرف المتجر:</span>
-                  <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">{store.id}</span>
-                </div>
-              </div>
-            </div>
+ 
           </div>
         </div>
         
