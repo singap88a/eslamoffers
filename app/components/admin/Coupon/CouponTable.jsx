@@ -13,8 +13,27 @@ const CouponTable = ({ coupons, onEdit, onDelete, loading }) => {
   if (coupons.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-10 text-center">
-        <p className="text-lg font-semibold text-gray-400">لم يتم العثور على كوبونات.</p>
-        <p className="text-gray-400 mt-2">جرب إضافة كوبون جديد لهذا المتجر.</p>
+        <div className="mb-6">
+          <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <h3 className="text-xl font-semibold text-gray-700 mb-2">لا توجد كوبونات</h3>
+          <p className="text-gray-500">
+            لم يتم العثور على كوبونات لهذا المتجر. يمكنك البدء بإضافة كوبون جديد.
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            // Trigger the modal to open
+            const addButton = document.querySelector('[data-add-coupon]');
+            if (addButton) {
+              addButton.click();
+            }
+          }}
+          className="inline-flex items-center px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition"
+        >
+          <span>إضافة كوبون جديد</span>
+        </button>
       </div>
     );
   }
@@ -29,6 +48,7 @@ const CouponTable = ({ coupons, onEdit, onDelete, loading }) => {
               <th className="py-4 px-6 text-sm font-bold text-gray-600 uppercase tracking-wider hidden md:table-cell">الخصم</th>
               <th className="py-4 px-6 text-sm font-bold text-gray-600 uppercase tracking-wider">الكود</th>
               <th className="py-4 px-6 text-sm font-bold text-gray-600 uppercase tracking-wider hidden md:table-cell">تاريخ الانتهاء</th>
+                              <th className="py-4 px-6 text-sm font-bold text-gray-600 uppercase tracking-wider hidden lg:table-cell">النسخ</th>
               <th className="py-4 px-6 text-sm font-bold text-gray-600 uppercase tracking-wider">الحالة</th>
               <th className="py-4 px-6 text-sm font-bold text-gray-600 uppercase tracking-wider">إجراءات</th>
             </tr>
@@ -39,7 +59,14 @@ const CouponTable = ({ coupons, onEdit, onDelete, loading }) => {
                 <td className="py-4 px-6 whitespace-nowrap">
                   <div className="flex items-center gap-3">
                     <FiTag className="text-gray-400"/>
-                    <span className="font-semibold text-gray-800">{coupon.title}</span>
+                    <div>
+                      <span className="font-semibold text-gray-800">{coupon.title}</span>
+                      {(coupon.isBest || coupon.isBastDiscount) && (
+                        <span className="inline-block ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
+                          الأفضل
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </td>
                 <td className="py-4 px-6 whitespace-nowrap hidden md:table-cell">
@@ -57,7 +84,15 @@ const CouponTable = ({ coupons, onEdit, onDelete, loading }) => {
                 <td className="py-4 px-6 whitespace-nowrap hidden md:table-cell">
                   <div className="flex items-center gap-2">
                     <FiClock className="text-gray-400" />
-                    <span className="text-gray-600">{new Date(coupon.endDate).toLocaleDateString('ar-EG')}</span>
+                    <span className="text-gray-600">
+                      {new Date(coupon.endDate || coupon.stratDate).toLocaleDateString('ar-EG')}
+                    </span>
+                  </div>
+                </td>
+                <td className="py-4 px-6 whitespace-nowrap hidden lg:table-cell">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 font-semibold">{coupon.number || 0}</span>
+                    <span className="text-gray-400 text-sm">نسخة</span>
                   </div>
                 </td>
                 <td className="py-4 px-6 whitespace-nowrap">

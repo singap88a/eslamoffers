@@ -50,8 +50,8 @@ const StoresPage = () => {
     );
   }, [stores, searchTerm]);
 
-  const handleNavigateToCoupons = (storeId) => {
-    router.push(`/admin/dashboard/coupons?storeId=${storeId}`);
+  const handleNavigateToCoupons = (store) => {
+    router.push(`/admin/dashboard/coupons?storeId=${store.slug || store.id}`);
   };
 
   const fetchStores = async () => {

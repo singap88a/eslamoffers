@@ -5,7 +5,7 @@ import CouponTable from "../../../components/admin/Coupon/CouponTable";
 import CouponFormModal from "../../../components/admin/Coupon/CouponFormModal";
 import ConfirmDialog from "../../../components/admin/Store/ConfirmDialog";
 import Toast from "../../../components/admin/Store/Toast";
-import { FiPlus } from "react-icons/fi";
+import { FiPlus, FiArrowRight } from "react-icons/fi";
 
 const API_BASE = "https://api.eslamoffers.com/api/Coupons";
 const CATEGORY_API_URL = "https://api.eslamoffers.com/api/Category";
@@ -34,6 +34,7 @@ const CouponsPageContent = () => {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [toast, setToast] = useState({ message: "", type: "success" });
   const [categories, setCategories] = useState([]);
+  const [storeInfo, setStoreInfo] = useState(null);
 
   useEffect(() => {
     // The middleware now handles the auth check, so this is just for the storeId check.
@@ -48,17 +49,32 @@ const CouponsPageContent = () => {
     setError(null);
     try {
       const token = getCookie("token");
-      const res = await fetch(`${API_BASE}/GetAllCoupons`, {
+      // جلب الكوبونات باستخدام API الجديد
+      const res = await fetch(`${API_BASE}/GetCouponsByStore/${storeId}`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (!res.ok) throw new Error("فشل في جلب الكوبونات");
       let data = await res.json();
-      data = data.filter(c => c.storeId === storeId);
       setCoupons(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchStoreInfo = async () => {
+    if (!storeId) return;
+    try {
+      const token = getCookie("token");
+      const res = await fetch(`https://api.eslamoffers.com/api/Store/GetStoreBySlug/${storeId}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error("فشل في جلب معلومات المتجر");
+      const data = await res.json();
+      setStoreInfo(Array.isArray(data) ? data[0] : data);
+    } catch (err) {
+      console.error("Error fetching store info:", err);
     }
   };
 
@@ -77,6 +93,7 @@ const CouponsPageContent = () => {
   useEffect(() => {
     fetchCoupons();
     fetchCategories();
+    fetchStoreInfo();
   }, [storeId]);
 
   const handleSubmit = async (values) => {
@@ -95,9 +112,12 @@ const CouponsPageContent = () => {
         formData.append(key, values[key]);
       }
     });
-    // Ensure storeId is included
+    // Ensure storeId and slugStore are included
     if (!values.storeId && storeId) {
         formData.set('storeId', storeId);
+    }
+    if (!values.slugStore && storeId) {
+        formData.set('slugStore', storeId);
     }
     try {
       const token = getCookie("token");
@@ -153,9 +173,52 @@ const CouponsPageContent = () => {
   return (
     <div className="flex-1 p-4 md:p-8 min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto">
+        {/* معلومات المتجر */}
+        {storeInfo && (
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <img
+                  src={storeInfo.logoUrl ? `https://api.eslamoffers.com/uploads/${storeInfo.logoUrl}` : "/default-store.png"}
+                  alt={storeInfo.name}
+                  className="w-16 h-16 rounded-lg object-contain border border-gray-200 bg-white shadow-sm"
+                />
+                <div className="mr-4">
+                  <h2 className="text-2xl font-bold text-gray-800">{storeInfo.name}</h2>
+                  <p className="text-gray-600">إدارة كوبونات المتجر</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  {storeInfo.isBast && (
+                    <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-bold">
+                      متجر مميز
+                    </span>
+                  )}
+                  <span className={`px-3 py-1 rounded-full text-sm font-bold ${
+                    storeInfo.isactive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    {storeInfo.isactive ? 'نشط' : 'غير نشط'}
+                  </span>
+                </div>
+                <button
+                  onClick={() => router.push('/admin/dashboard/stores')}
+                  className="flex items-center gap-2 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition"
+                >
+                  <FiArrowRight className="w-4 h-4" />
+                  <span>العودة للمتاجر</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">إدارة الكوبونات</h1>
+          <h1 className="text-3xl font-bold text-gray-800">
+            {storeInfo ? `كوبونات ${storeInfo.name}` : 'إدارة الكوبونات'}
+          </h1>
           <button
+            data-add-coupon
             onClick={() => {
               setEditCoupon(null);
               setModalOpen(true);
@@ -165,6 +228,32 @@ const CouponsPageContent = () => {
             <FiPlus size={20} />
             <span>إضافة كوبون جديد</span>
           </button>
+        </div>
+
+        {/* إحصائيات سريعة */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow-md p-6 text-center">
+            <div className="text-3xl font-bold text-teal-600 mb-2">{coupons.length}</div>
+            <div className="text-gray-600">إجمالي الكوبونات</div>
+          </div>
+          <div className="bg-white rounded-lg shadow-md p-6 text-center">
+            <div className="text-3xl font-bold text-green-600 mb-2">
+              {coupons.filter(c => c.isActive).length}
+            </div>
+            <div className="text-gray-600">كوبونات نشطة</div>
+          </div>
+          <div className="bg-white rounded-lg shadow-md p-6 text-center">
+            <div className="text-3xl font-bold text-yellow-600 mb-2">
+              {coupons.filter(c => c.isBest || c.isBastDiscount).length}
+            </div>
+            <div className="text-gray-600">كوبونات مميزة</div>
+          </div>
+          <div className="bg-white rounded-lg shadow-md p-6 text-center">
+            <div className="text-3xl font-bold text-orange-600 mb-2">
+              {coupons.filter(c => c.isBastDiscount).length}
+            </div>
+            <div className="text-gray-600">أفضل الخصومات</div>
+          </div>
         </div>
         {error && (
           <div className="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-md">

@@ -51,25 +51,25 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffMinutes < 1) {
-      return { text: "تم الاستخدام", time: "الآن" };
+      return { text: "تم النسخ", time: "الآن" };
     }
 
     if (diffMinutes < 60) {
       return {
-        text: "تم الاستخدام منذ",
+        text: "تم النسخ منذ",
         time: `${diffMinutes} دقيقة${diffMinutes > 1 ? " " : ""}`,
       };
     }
 
     if (diffHours < 24) {
       return {
-        text: "تم الاستخدام منذ",
+        text: "تم النسخ منذ",
         time: `${diffHours} ساعات${diffHours > 1 ? " " : ""}`,
       };
     }
 
     return {
-      text: "تم الاستخدام منذ",
+      text: "تم النسخ منذ",
       time: `${diffDays} يوم${diffDays > 1 ? "ين" : ""}`,
     };
   };
@@ -126,11 +126,11 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
           </div>
         </div>
 
-        {/* عرض آخر استخدام للكود - يظهر فقط إذا كان showLastUsed = true */}
+        {/* عرض آخر نسخ للكود - يظهر فقط إذا كان showLastUsed = true */}
         {showLastUsed && lastUsedTime && (
           <div className="bg-green-50 border border-green-100 rounded-md px-2 flex items-center justify-center gap-1 text-[11px] font-medium w-fit mx-auto">
             <FiClock className="text-green-500 text-[13px] -mt-[1px]" />
-            <span className="text-gray-700">آخر استخدام للكود:</span>
+            <span className="text-gray-700">آخر نسخ للكود:</span>
             <span className="text-green-600 font-bold">
               {lastUsedTime.time}
             </span>
@@ -139,7 +139,7 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
         {showLastUsed && !lastUsedTime && coupon.number === 0 && (
           <div className="bg-blue-50 border border-blue-100 rounded-md px-2 flex items-center justify-center gap-1 text-[11px] font-medium w-fit mx-auto">
             <FiClock className="text-blue-500 text-[13px] -mt-[1px]" />
-            <span className="text-gray-700">لم يتم استخدام الكود بعد</span>
+            <span className="text-gray-700">لم يتم نسخ الكود بعد</span>
           </div>
         )}
 
@@ -211,15 +211,15 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
               </div>
             </div>
 
-            {/* عرض عدد مرات الاستخدام */}
+            {/* عرض عدد مرات النسخ */}
             {coupon.number > 0 && (
               <div className="bg-purple-50 text-purple-700 rounded-md px-3 py-2 text-center mb-2 font-semibold text-sm">
-                تم استخدام هذا الكود {coupon.number} مرة
+                تم نسخ هذا الكود {coupon.number} مرة
               </div>
             )}
             {coupon.number === 0 && (
               <div className="bg-blue-50 text-blue-700 rounded-md px-3 py-2 text-center mb-2 font-semibold text-sm">
-                لم يتم استخدام هذا الكود بعد
+                لم يتم نسخ هذا الكود بعد
               </div>
             )}
 

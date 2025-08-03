@@ -32,9 +32,10 @@ const CouponFormModal = ({
     endDate: "",
     isActive: true,
     isBest: false,
+    isBastDiscount: false,
     linkRealStore: "",
     storeId: storeId || "",
-    categoryId: "",
+    slugStore: storeId || "",
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
@@ -53,23 +54,24 @@ const CouponFormModal = ({
             ? new Date(initialData.endDate).toISOString().slice(0, 16)
             : "",
           storeId: initialData.storeId || storeId || "",
-          categoryId: initialData.categoryId || "",
+          slugStore: initialData.slugStore || storeId || "",
         };
       }
-      return {
-        title: "",
-        description: "",
-        imageUrl: "",
-        discount: 0,
-        couponCode: "",
-        stratDate: "",
-        endDate: "",
-        isActive: true,
-        isBest: false,
-        linkRealStore: "",
-        storeId: storeId || "",
-        categoryId: "",
-      };
+              return {
+          title: "",
+          description: "",
+          imageUrl: "",
+          discount: 0,
+          couponCode: "",
+          stratDate: "",
+          endDate: "",
+          isActive: true,
+          isBest: false,
+          isBastDiscount: false,
+          linkRealStore: "",
+          storeId: storeId || "",
+          slugStore: storeId || "",
+        };
     };
     setFormData(getInitialFormData());
     setImageFile(null);
@@ -155,23 +157,20 @@ const CouponFormModal = ({
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <input
+            <InputField
               icon={<FiTag />}
               name="title"
               value={formData.title}
               onChange={handleChange}
               placeholder="عنوان الكوبون"
               required
-              className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pr-10 p-2.5 transition"
             />
-            <input
-              icon={<FiCode />}
-              name="couponCode"
-              value={formData.couponCode}
+            <InputField
+              icon={<FiLink />}
+              name="linkRealStore"
+              value={formData.linkRealStore}
               onChange={handleChange}
-              placeholder="كود الكوبون"
-              required
-              className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pr-10 p-2.5 transition"
+              placeholder="رابط المتجر"
             />
           </div>
 
@@ -238,50 +237,33 @@ const CouponFormModal = ({
                 />
               </div>
             </div>
-            <InputField
-              icon={<FiLink />}
-              name="linkRealStore"
-              value={formData.linkRealStore}
-              onChange={handleChange}
-              placeholder="رابط المتجر"
-            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
             <div>
               <label className="block mb-2 text-sm font-medium text-gray-600">
-                فئة الكوبون
-              </label>
-              <select
-                name="categoryId"
-                value={formData.categoryId}
-                onChange={handleChange}
-                className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block p-2.5"
-                required
-              >
-                <option value="" disabled>
-                  -- اختر الفئة --
-                </option>
-                {categories?.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block mb-2 text-sm font-medium text-gray-600">
                 نسبة الخصم
               </label>
-              <input
+              <InputField
                 icon={<FiPercent />}
                 type="number"
                 name="discount"
-                              className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pr-10 p-2.5 transition"
-
                 value={formData.discount}
                 onChange={handleChange}
                 placeholder="0"
+                required
+              />
+            </div>
+            <div>
+              <label className="block mb-2 text-sm font-medium text-gray-600">
+                كود الكوبون
+              </label>
+              <InputField
+                icon={<FiCode />}
+                name="couponCode"
+                value={formData.couponCode}
+                onChange={handleChange}
+                placeholder="كود الكوبون"
                 required
               />
             </div>
@@ -316,6 +298,7 @@ const CouponFormModal = ({
           </div>
 
           <input type="hidden" name="storeId" value={formData.storeId} />
+          <input type="hidden" name="slugStore" value={formData.slugStore} />
 
           <div className="flex items-center gap-6 pt-4 border-t mt-6">
             <label className="flex items-center gap-2 cursor-pointer text-gray-700">
@@ -339,6 +322,17 @@ const CouponFormModal = ({
               />
               <FiStar className="text-yellow-500" />
               <span>أفضل كوبون</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer text-gray-700">
+              <input
+                type="checkbox"
+                name="isBastDiscount"
+                checked={formData.isBastDiscount}
+                onChange={handleChange}
+                className="w-5 h-5 text-[#14b8a6] bg-gray-100 border-gray-300 rounded focus:ring-[#14b8a6] focus:ring-2"
+              />
+              <FiStar className="text-orange-500" />
+              <span>أفضل الخصومات</span>
             </label>
           </div>
 

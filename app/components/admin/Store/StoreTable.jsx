@@ -147,7 +147,7 @@ const StoreTable = ({ stores, onEdit, onDelete, onNavigateToCoupons, loading }) 
                   <td className="px-6 py-4">
                     <div className="flex flex-col space-y-2">
                       <button
-                        onClick={() => onNavigateToCoupons(store.id)}
+                        onClick={() => onNavigateToCoupons(store)}
                         className="flex items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow-sm transition"
                       >
                         <RiCoupon3Line className="h-5 w-5" />
