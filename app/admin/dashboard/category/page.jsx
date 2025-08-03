@@ -153,6 +153,7 @@ const CategoryPage = () => {
     try {
       const formData = new FormData();
       formData.append('Name', category.name);
+      formData.append('Slug', category.slug);
       if (imageFile) {
         formData.append('IconUrl', imageFile);
       } else if (category.iconUrl) {

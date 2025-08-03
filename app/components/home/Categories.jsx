@@ -74,14 +74,13 @@ export default function Categories() {
             ))
           : categories.map((cat) => (
               <SwiperSlide key={cat.id}>
-                <Link href={`/categories/${cat.id}`} className="flex flex-col items-center gap-2 py-2">
-                  <div className="rounded-full bg-gradient-to-tr from-teal-200 via-white to-teal-100 shadow-xl flex items-center justify-center w-24 h-24 mb-2 hover:scale-110 hover:shadow-2xl transition-all border-2 border-teal-200 hover:border-teal-400">
-                    <Image
+                <Link href={`/categories/${cat.slug || cat.id}`} className="flex flex-col items-center gap-2 py-2">
+                  <div className="rounded-full bg-gradient-to-tr from-teal-200 via-white to-teal-100 shadow-xl flex items-center justify-center w-24 h-24 mb-2 hover:scale-110 hover:shadow-2xl transition-all border-2 border-teal-200 hover:border-teal-400">                    <Image
                       src={getSafeIconUrl(cat.iconUrl)}
                       alt={cat.name}
-                      width={60}
-                      height={60}
-                      className="rounded-full"
+                      width={55}
+                      height={55}
+                      className="rounded-full p-1"
                     />
                   </div>
                   <span className="text-sm font-semibold text-gray-700">{cat.name}</span>

@@ -3,22 +3,17 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-// Helper to ensure iconUrl is always valid
 const getSafeIconUrl = (iconUrl) => {
     const baseUrl = 'https://api.eslamoffers.com/uploads/';
-    if (!iconUrl) {
-        return '/logo.png'; // fallback
-    }
+    if (!iconUrl) return '/logo.png';
+    
     try {
-        // If already a valid http(s) url
         const url = new URL(iconUrl);
         if (url.protocol === 'http:' || url.protocol === 'https:') {
             return iconUrl;
         }
-    } catch (_) {
-        // Not a full URL, try to construct
-    }
-    // If it's a path, construct the full URL
+    } catch (_) {}
+    
     const fullUrl = iconUrl.startsWith('/') ? `${baseUrl}${iconUrl}` : `${baseUrl}/${iconUrl}`;
     try {
         const url = new URL(fullUrl);
@@ -26,7 +21,7 @@ const getSafeIconUrl = (iconUrl) => {
             return fullUrl;
         }
     } catch (_) {}
-    // fallback
+    
     return '/logo.png';
 };
 
@@ -38,6 +33,7 @@ const AllCategoriesPage = () => {
         const fetchCategories = async () => {
             try {
                 const response = await fetch('https://api.eslamoffers.com/api/Category/GetAllCategories');
+                if (!response.ok) throw new Error('Failed to fetch categories');
                 const data = await response.json();
                 setCategories(data);
             } catch (error) {
@@ -69,18 +65,23 @@ const AllCategoriesPage = () => {
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-6 gap-y-10">
                     {categories.map((category) => (
-                        <Link key={category.id} href={`/categories/${category.id}`} className="flex flex-col items-center gap-3 group text-center">
-                            <div className="rounded-full bg-gradient-to-tr from-teal-100 via-white to-gray-50 shadow-md flex items-center justify-center w-28 h-28 group-hover:scale-105 group-hover:shadow-lg transition-all duration-300 ease-in-out border-2 border-white group-hover:border-teal-200">
-                                <Image
+                        <Link 
+                            key={category.id} 
+                            href={`/categories/${encodeURIComponent(category.slug || category.id)}`}
+                            className="flex flex-col items-center gap-2 group text-center"
+                        >
+                            <div className="rounded-full bg-gradient-to-tr from-teal-100 via-white to-gray-50 shadow-md flex items-center justify-center w-28 h-28 group-hover:scale-105 group-hover:shadow-lg transition-all duration-300 ease-in-out border-2 border-white group-hover:border-teal-200">                                <Image
                                     src={getSafeIconUrl(category.iconUrl)}
                                     alt={category.name}
-                                    width={70}
-                                    height={70}
-                                    className="rounded-full"
+                                    width={60}
+                                    height={60}
+                                    className="rounded-full p-1"
                                     objectFit="cover"
                                 />
                             </div>
-                            <span className="text-md font-semibold text-gray-700 group-hover:text-teal-600 transition-colors">{category.name}</span>
+                            <span className="text-sm font-semibold text-gray-700 group-hover:text-teal-600 transition-colors">
+                                {category.name}
+                            </span>
                         </Link>
                     ))}
                 </div>
@@ -89,4 +90,4 @@ const AllCategoriesPage = () => {
     );
 };
 
-export default AllCategoriesPage; 
+export default AllCategoriesPage;

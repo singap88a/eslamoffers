@@ -14,6 +14,7 @@ const InputField = ({ icon, ...props }) => (
 
 const CategoryFormModal = ({ isOpen, onClose, onSave, category }) => {
   const [name, setName] = useState('');
+  const [slug, setSlug] = useState('');
   const [iconUrl, setIconUrl] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [dragActive, setDragActive] = useState(false);
@@ -22,10 +23,12 @@ const CategoryFormModal = ({ isOpen, onClose, onSave, category }) => {
   useEffect(() => {
     if (category) {
       setName(category.name);
+      setSlug(category.slug || '');
       setIconUrl(category.iconUrl);
       setImageFile(null);
     } else {
       setName('');
+      setSlug('');
       setIconUrl('');
       setImageFile(null);
     }
@@ -57,7 +60,7 @@ const CategoryFormModal = ({ isOpen, onClose, onSave, category }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave({ ...category, name, iconUrl }, imageFile);
+    onSave({ ...category, name, slug, iconUrl }, imageFile);
   };
 
   if (!isOpen) return null;
@@ -73,6 +76,7 @@ const CategoryFormModal = ({ isOpen, onClose, onSave, category }) => {
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <InputField icon={<FiTag />} name="name" value={name} onChange={e => setName(e.target.value)} placeholder="اسم الفئة" required />
+          <InputField icon={<FiTag />} name="slug" value={slug} onChange={e => setSlug(e.target.value)} placeholder="الرابط المختصر (بالعربية)" required dir="rtl" />
           {/* Drag & Drop Image Upload */}
           <div
             className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer ${dragActive ? 'border-[#14b8a6]' : 'hover:border-[#14b8a6]'}`}
@@ -117,4 +121,4 @@ const CategoryFormModal = ({ isOpen, onClose, onSave, category }) => {
   );
 };
 
-export default CategoryFormModal; 
+export default CategoryFormModal;

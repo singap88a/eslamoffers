@@ -34,7 +34,7 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
 
   const isExpired =
     !coupon.isActive ||
-    new Date(coupon.endDate || coupon.end_date) < new Date();
+    new Date(coupon.endDate || coupon.end_date || coupon.stratDate) < new Date();
 
   const getLastUsedTime = () => {
     if (!coupon.lastUseAt) return null;
@@ -76,8 +76,8 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
 
   // إنشاء رابط المتجر الداخلي
   const getStoreInternalLink = () => {
-    if (!coupon.storeId) return "#";
-    return `/stores/${coupon.storeId}`;
+    if (!coupon.slugStore) return "#";
+    return `/stores/${coupon.slugStore}`;
   };
 
   const lastUsedTime = getLastUsedTime();
@@ -90,14 +90,14 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
           className={`absolute top-2 left-2 px-3 py-1 rounded-full text-xs font-bold ${
             isExpired
               ? "bg-red-100 text-red-600"
-              : "bg-green-100 text-green-600"
+              : (coupon.isActive ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-600")
           }`}
         >
-          {isExpired ? "منتهي" : "نشط"}
+          {isExpired ? "منتهي" : (coupon.isActive ? "نشط" : "غير نشط")}
         </span>
 
         {/* شارة أفضل كوبون */}
-        {coupon.isBest && (
+        {(coupon.isBest || coupon.isBastDiscount) && (
           <span className="absolute top-2 right-2 bg-yellow-100 text-yellow-600 px-2 py-1 rounded-full text-xs font-bold">
             الأفضل
           </span>
@@ -134,6 +134,12 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
             <span className="text-green-600 font-bold">
               {lastUsedTime.time}
             </span>
+          </div>
+        )}
+        {showLastUsed && !lastUsedTime && coupon.number === 0 && (
+          <div className="bg-blue-50 border border-blue-100 rounded-md px-2 flex items-center justify-center gap-1 text-[11px] font-medium w-fit mx-auto">
+            <FiClock className="text-blue-500 text-[13px] -mt-[1px]" />
+            <span className="text-gray-700">لم يتم استخدام الكود بعد</span>
           </div>
         )}
 
@@ -201,7 +207,7 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
                 خصم {coupon.discount}%
               </div>
               <div className="text-sm text-gray-500">
-                صالح حتى: {new Date(coupon.endDate).toLocaleDateString("ar-EG")}
+                صالح حتى: {new Date(coupon.endDate || coupon.stratDate).toLocaleDateString("ar-EG")}
               </div>
             </div>
 
@@ -209,6 +215,11 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
             {coupon.number > 0 && (
               <div className="bg-purple-50 text-purple-700 rounded-md px-3 py-2 text-center mb-2 font-semibold text-sm">
                 تم استخدام هذا الكود {coupon.number} مرة
+              </div>
+            )}
+            {coupon.number === 0 && (
+              <div className="bg-blue-50 text-blue-700 rounded-md px-3 py-2 text-center mb-2 font-semibold text-sm">
+                لم يتم استخدام هذا الكود بعد
               </div>
             )}
 

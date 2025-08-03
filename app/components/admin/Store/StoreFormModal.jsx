@@ -119,11 +119,11 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
     });
   };
 
-  const handleCategoryChange = (categoryId) => {
+  const handleCategoryChange = (categoryValue) => {
     setFormData(prev => {
-      const newCategories = prev.categories.includes(categoryId)
-        ? prev.categories.filter(id => id !== categoryId)
-        : [...prev.categories, categoryId];
+      const newCategories = prev.categories.includes(categoryValue)
+        ? prev.categories.filter(value => value !== categoryValue)
+        : [...prev.categories, categoryValue];
       return { ...prev, categories: newCategories };
     });
   };
@@ -357,9 +357,12 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
       formDataToSend.append("ImageUrl", initialData.logoUrl);
     }
     
-    formData.categories.forEach(categoryId => {
-      formDataToSend.append("CategoryId", categoryId);
+    formData.categories.forEach(categoryValue => {
+      formDataToSend.append("SlugCategory", categoryValue);
     });
+    
+    // Set IsUpdateCategory to true
+    formDataToSend.append("IsUpdateCategory", "true");
     
     // تصفية الأوصاف الإضافية للتأكد من أنها تحتوي على البيانات المطلوبة
     const validDescriptions = formData.descriptionStores.filter(
@@ -558,13 +561,13 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
                               {categoriesList.map(category => (
                                 <div 
                                   key={category.id} 
-                                  className={`flex items-center p-2 hover:bg-gray-100 rounded cursor-pointer ${formData.categories.includes(category.id) ? 'bg-teal-50' : ''}`}
-                                  onClick={() => handleCategoryChange(category.id)}
+                                  className={`flex items-center p-2 hover:bg-gray-100 rounded cursor-pointer ${formData.categories.includes(category.slug || category.id) ? 'bg-teal-50' : ''}`}
+                                  onClick={() => handleCategoryChange(category.slug || category.id)}
                                 >
                                   <input
                                     type="checkbox"
                                     id={`category-${category.id}`}
-                                    checked={formData.categories.includes(category.id)}
+                                    checked={formData.categories.includes(category.slug || category.id)}
                                     onChange={() => {}} // تم نقل المعالجة إلى الـ div الأب
                                     className="h-4 w-4 text-teal-600 rounded focus:ring-teal-500"
                                   />
@@ -583,15 +586,15 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
                     
                     {formData.categories.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2">
-                        {formData.categories.map(categoryId => {
-                          const category = categoriesList.find(c => c.id === categoryId);
+                        {formData.categories.map(categoryValue => {
+                          const category = categoriesList.find(c => (c.slug || c.id) === categoryValue);
                           return category ? (
-                            <span key={categoryId} className="inline-flex items-center bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded">
+                            <span key={categoryValue} className="inline-flex items-center bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded">
                               {category.name}
                               <button 
                                 type="button" 
                                 className="mr-1 text-teal-600 hover:text-teal-800"
-                                onClick={() => handleCategoryChange(categoryId)}
+                                onClick={() => handleCategoryChange(categoryValue)}
                               >
                                 <FiX size={14} />
                               </button>
