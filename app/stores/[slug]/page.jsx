@@ -138,19 +138,19 @@ const StoreCouponsPage = () => {
   }
 
   return (
-    <div className="min-h-screen" dir="rtl">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto py-20">
+    <div className="min-h-screen " dir="rtl">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto py-8 md:py-12 lg:py-20 px-4 sm:px-6 lg:px-8">
         <div className="lg:col-span-2">
-          <div className="bg-white border-b pb-4 border-gray-300 mb-12 flex items-center">
+          <div className="bg-white border-b pb-4 border-gray-300 mb-8 md:mb-12 flex flex-col sm:flex-row items-center">
             <img
               src={getLogoSrc()}
               alt={store.name}
-              className="w-24 h-24 object-contain rounded-full border p-1 shadow-lg"
+              className="w-20 h-20 sm:w-24 sm:h-24 object-contain rounded-full border p-1 shadow-lg mb-4 sm:mb-0"
               loading="lazy"
             />
-            <div className="mr-6 flex-1">
-              <h1 className="text-4xl font-bold text-gray-800 mb-2">{store.name}</h1>
-              <h2 className="font-[400] text-gray-600 mb-4">
+            <div className="sm:mr-6 flex-1 text-center sm:text-right">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">{store.name}</h1>
+              <h2 className="text-sm sm:text-base font-[400] text-gray-600 mb-4">
                 {store.headerDescription || `جميع الكوبونات والعروض الخاصة بـ ${store.name}`}
               </h2>
               {/* {store.categorys && store.categorys.length > 0 && (
@@ -162,7 +162,7 @@ const StoreCouponsPage = () => {
                   ))}
                 </div>
               )} */}
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 mt-2 sm:mt-0">
                 {store.isBast && (
                   <div className="flex items-center gap-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-bold">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" className="w-4 h-4">
@@ -179,14 +179,14 @@ const StoreCouponsPage = () => {
                 </div>
               </div>
             </div>
-            <div className="text-left">
+            <div className="text-center sm:text-left mt-4 sm:mt-0">
               <div className={`px-4 py-2 rounded-lg text-center shadow-sm ${
                 coupons.length > 0 
                   ? 'bg-teal-50 text-teal-700' 
                   : 'bg-gray-50 text-gray-500'
               }`}>
-                <div className="text-2xl font-bold">{coupons.length}</div>
-                <div className="text-sm">
+                <div className="text-xl sm:text-2xl font-bold">{coupons.length}</div>
+                <div className="text-xs sm:text-sm">
                   {coupons.length > 0 ? 'كوبون متاح' : 'لا توجد كوبونات'}
                 </div>
               </div>
@@ -195,13 +195,13 @@ const StoreCouponsPage = () => {
 
           {coupons.length > 0 ? (
             <>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">كوبونات {store.name}</h2>
-                <div className="text-sm text-gray-500">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-0 text-center sm:text-right">كوبونات {store.name}</h2>
+                <div className="text-sm text-gray-500 text-center sm:text-right">
                   {coupons.length} كوبون متاح
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 md:mb-12">
                 {coupons.map((coupon) => (
                   <CouponCard key={coupon.id} coupon={coupon} />
                 ))}
@@ -209,32 +209,32 @@ const StoreCouponsPage = () => {
             </>
           ) : (
             <>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">كوبونات {store.name}</h2>
-                <div className="text-sm text-gray-500">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-0 text-center sm:text-right">كوبونات {store.name}</h2>
+                <div className="text-sm text-gray-500 text-center sm:text-right">
                   لا توجد كوبونات
                 </div>
               </div>
-              <div className="text-center py-20 bg-white rounded-lg shadow-md mb-12">
-              <div className="mb-6">
-                <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="text-center py-12 sm:py-20 bg-white rounded-lg shadow-md mb-12">
+              <div className="mb-4 sm:mb-6">
+                <svg className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-3 sm:mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">لا توجد كوبونات متاحة</h3>
-                <p className="text-gray-500">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-2">لا توجد كوبونات متاحة</h3>
+                <p className="text-sm sm:text-base text-gray-500 px-2 sm:px-4">
                   لا توجد كوبونات متاحة حاليًا لـ {store.name}. تحقق مرة أخرى لاحقًا للحصول على أحدث العروض!
                 </p>
               </div>
-              <div className="flex gap-4 justify-center">
-                <Link href="/coupons" className="inline-flex items-center px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                <Link href="/coupons" className="inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-teal-500 text-white text-sm sm:text-base rounded-lg hover:bg-teal-600 transition">
                   <span>تصفح جميع الكوبونات</span>
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
-                <Link href="/stores" className="inline-flex items-center px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
+                <Link href="/stores" className="inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-gray-500 text-white text-sm sm:text-base rounded-lg hover:bg-gray-600 transition">
                   <span>تصفح المتاجر الأخرى</span>
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
@@ -243,10 +243,10 @@ const StoreCouponsPage = () => {
             </>
           )}
           
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-800">معلومات المتجر</h3>
-                <div className="flex items-center gap-2">
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-0 text-center sm:text-right">معلومات المتجر</h3>
+                <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2">
                   <span className={`px-3 py-1 rounded-full text-sm font-bold ${
                     store.isactive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                   }`}>
@@ -257,6 +257,13 @@ const StoreCouponsPage = () => {
                       مميز
                     </span>
                   )}
+                </div>
+              </div>
+              
+              <div className="mb-6 md:mb-8">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 md:mb-6 text-center sm:text-right">متاجر مشابهة</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+                  {/* هنا سيتم عرض المتاجر المشابهة */}
                 </div>
               </div>
               
@@ -274,24 +281,24 @@ const StoreCouponsPage = () => {
               )} */}
             
             {store.description && (
-              <div className="mb-6">
+              <div className="mb-4 sm:mb-6">
                 {/* <h4 className="text-lg font-semibold text-gray-800 mb-2">الوصف</h4> */}
-                <p className="text-[#000] font-bold text-2xl ">{store.description}</p>
+                <p className="text-[#000] font-bold text-xl sm:text-2xl text-center sm:text-right">{store.description}</p>
               </div>
             )}
 
             {store.descriptionStore?.length > 0 && (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {/* <h4 className="text-lg font-semibold text-gray-800">تفاصيل إضافية</h4> */}
                 {store.descriptionStore.map((desc, index) => (
-                  <div key={desc.id || index} className="border-l-4 border-teal-500 pl-4">
+                  <div key={desc.id || index} className="border-r-4 sm:border-r-0 sm:border-l-4 border-teal-500 pr-3 sm:pr-0 sm:pl-4 text-right">
                     {desc.subHeader && (
-                      <h5 className="text-md font-semibold text-gray-800 mb-2">
+                      <h5 className="text-sm sm:text-md font-semibold text-gray-800 mb-1 sm:mb-2">
                         {desc.subHeader}
                       </h5>
                     )}
                     {desc.description && (
-                      <p className="text-gray-600 mb-3">{desc.description}</p>
+                      <p className="text-sm sm:text-base text-gray-600 mb-2 sm:mb-3">{desc.description}</p>
                     )}
                     {desc.image && (
                       <img
@@ -311,12 +318,12 @@ const StoreCouponsPage = () => {
         </div>
         
         <div className="lg:col-span-1">
-          <div className="sticky top-8">
+          <div className="sticky top-4 lg:top-8">
             <BestStores />
-            <div className="pt-8">
+            <div className="pt-4 sm:pt-6 lg:pt-8">
               <CountdownOfferBox />
             </div>
-            <div className="pt-8">
+            <div className="pt-4 sm:pt-6 lg:pt-8">
               <PromoCard />
             </div>
           </div>
