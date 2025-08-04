@@ -5,7 +5,7 @@ import Image from "next/image";
 import { FiCopy, FiCheck, FiX, FiClock } from "react-icons/fi";
 import Link from "next/link";
 
-const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
+const CouponCard = ({ coupon, onGetCode, showLastUsed = true, showBadges = true }) => {
   const [showModal, setShowModal] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
@@ -37,13 +37,21 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
     new Date(coupon.endDate || coupon.end_date || coupon.stratDate) < new Date();
 
   const getLastUsedTime = () => {
-    if (!coupon.lastUseAt) return null;
+    if (!coupon.lastUseAt || coupon.lastUseAt === coupon.createdAt) return null;
 
     const lastUseDate = new Date(coupon.lastUseAt);
     const now = new Date();
 
     if (isNaN(lastUseDate.getTime())) return null;
     if (lastUseDate > now) return { text: "الآن", time: "" };
+
+    // إذا كان lastUpdatedAt موجودًا، نستخدمه بدلاً من الحساب
+    if (coupon.lastUpdatedAt && coupon.lastUpdatedAt !== "0:0:0") {
+      return {
+        text: "آخر نسخ للكود",
+        time: coupon.lastUpdatedAt
+      };
+    }
 
     const diffTime = Math.abs(now - lastUseDate);
     const diffMinutes = Math.floor(diffTime / (1000 * 60));
@@ -64,7 +72,7 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
     if (diffHours < 24) {
       return {
         text: "تم النسخ منذ",
-        time: `${diffHours} ساعات${diffHours > 1 ? " " : ""}`,
+        time: `${diffHours} ساعة${diffHours > 1 ? "ات" : ""}`,
       };
     }
 
@@ -84,20 +92,22 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
 
   return (
     <>
-      <div className="relative bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-2xl transform hover:-translate-y-2 duration-300 ease-in-out transition-all p-6 h-[300px] flex flex-col justify-between">
-        {/* شارة الحالة */}
-        <span
-          className={`absolute top-2 left-2 px-3 py-1 rounded-full text-xs font-bold ${
-            isExpired
-              ? "bg-red-100 text-red-600"
-              : (coupon.isActive ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-600")
-          }`}
-        >
-          {isExpired ? "منتهي" : (coupon.isActive ? "نشط" : "غير نشط")}
-        </span>
+      <div className="relative bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-2xl transform hover:-translate-y-2 duration-300 ease-in-out transition-all p-6 h-[290px] flex flex-col justify-between">
+        {/* شارة الحالة - تظهر فقط إذا كان showBadges = true */}
+        {showBadges && (
+          <span
+            className={`absolute top-2 left-2 px-3 py-1 rounded-full text-xs font-bold ${
+              isExpired
+                ? "bg-red-100 text-red-600"
+                : (coupon.isActive ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-600")
+            }`}
+          >
+            {isExpired ? "منتهي" : (coupon.isActive ? "نشط" : "غير نشط")}
+          </span>
+        )}
 
-        {/* شارة أفضل كوبون */}
-        {(coupon.isBest || coupon.isBastDiscount) && (
+        {/* شارة أفضل كوبون - تظهر فقط إذا كان showBadges = true */}
+        {showBadges && (coupon.isBest || coupon.isBastDiscount) && (
           <span className="absolute top-2 right-2 bg-yellow-100 text-yellow-600 px-2 py-1 rounded-full text-xs font-bold">
             الأفضل
           </span>
@@ -130,7 +140,7 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
         {showLastUsed && lastUsedTime && (
           <div className="bg-green-50 border border-green-100 rounded-md px-2 flex items-center justify-center gap-1 text-[11px] font-medium w-fit mx-auto">
             <FiClock className="text-green-500 text-[13px] -mt-[1px]" />
-            <span className="text-gray-700">آخر نسخ للكود:</span>
+            <span className="text-gray-700">{lastUsedTime.text}:</span>
             <span className="text-green-600 font-bold">
               {lastUsedTime.time}
             </span>
@@ -143,7 +153,7 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-2 mt-4">
+        <div className="flex items-center justify-between gap-2  ">
           <button
             onClick={() => {
               if (onGetCode) {
@@ -223,6 +233,14 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
               </div>
             )}
 
+            {/* عرض وقت آخر استخدام */}
+            {lastUsedTime && coupon.number > 0 && (
+              <div className="bg-green-50 text-green-700 rounded-md px-3 py-2 text-center mb-2 font-semibold text-sm flex items-center justify-center gap-1">
+                <FiClock className="text-green-500" />
+                <span>{lastUsedTime.text}: {lastUsedTime.time}</span>
+              </div>
+            )}
+
             {/* رسالة تم النسخ */}
             {isCopied && (
               <div className="bg-green-100 text-green-700 rounded-md px-3 py-2 text-center mb-2 font-semibold text-sm">
@@ -248,15 +266,33 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true }) => {
               </span>
             </div>
 
-            {/* زر الذهاب للمتجر */}
-            <a
-              href={coupon.linkRealStore}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full block bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 rounded-lg text-lg text-center transition"
-            >
-              اذهب إلى المتجر الآن
-            </a>
+            {/* زر النسخ أو الذهاب للمتجر */}
+            {!isCopied ? (
+              <button
+                onClick={() => {
+                  handleCopy();
+                  window.open(coupon.linkRealStore, '_blank', 'noopener,noreferrer');
+                }}
+                className="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 rounded-lg text-lg transition"
+              >
+                انسخ الكود وتسوق
+              </button>
+            ) : (
+              <a
+                href={coupon.linkRealStore}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full block bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg text-lg text-center transition"
+              >
+                اذهب الى المتجر
+              </a>
+            )}
+
+            {isCopied && (
+              <div className="bg-orange-100 text-orange-700 rounded-md px-3 py-2 text-center mt-4 font-semibold text-sm">
+                تم نسخ الكود - اذهب الى المتجر
+              </div>
+            )}
           </div>
         </div>
       )}

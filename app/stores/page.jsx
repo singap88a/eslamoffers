@@ -26,7 +26,7 @@ const StoreCard = ({ store }) => {
   };
   return (
     <div className="bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-xl overflow-hidden shadow-sm h-full flex flex-col relative transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl group">
-      <div className="relative w-full h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
+      <div className="relative w-full h-[120px] bg-gray-100 flex items-center justify-center overflow-hidden">
         {/* شارة الأفضل على الجنب */}
         {store.isBast && (
           <div className="absolute top-4 right-6 flex items-center gap-1 bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full border border-yellow-200 text-xs font-bold shadow-sm z-10">
@@ -48,7 +48,7 @@ const StoreCard = ({ store }) => {
         <img
           src={getLogoSrc()}
           alt={`${store.name} logo`}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+          className="w-full h-full    group-hover:scale-110 transition-transform duration-300"
         />
         
         {/* طبقة التدرج عند التحويم */}
@@ -146,7 +146,7 @@ const StoresPage = () => {
               <div className="w-40 h-1 bg-gradient-to-l from-[#14b8a6] mb-5 rounded-full"></div>
               
               {/* إحصائيات سريعة */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div className="bg-white rounded-lg shadow-md p-6 text-center">
                   <div className="text-3xl font-bold text-teal-600 mb-2">{stores.length}</div>
                   <div className="text-gray-600">إجمالي المتاجر</div>
@@ -163,7 +163,7 @@ const StoresPage = () => {
                   </div>
                   <div className="text-gray-600">متاجر نشطة</div>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {loading && (
@@ -193,7 +193,7 @@ const StoresPage = () => {
 
             {!loading && !error && (
               <>
-                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
                   {visibleStores.length > 0 ? (
                     visibleStores.map((store) => (
                       <Link href={`/stores/${store.slug}`} key={store.id}>

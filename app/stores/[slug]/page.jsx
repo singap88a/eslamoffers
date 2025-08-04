@@ -67,7 +67,7 @@ const StoreCouponsPage = () => {
   }, [fetchStoreAndCoupons]);
 
   const getLogoSrc = useCallback(() => {
-    if (!store || !store.logoUrl) return "/logo.png";
+    if (!store || !store.logoUrl) return "/logo4.png";
     if (store.logoUrl.startsWith("http") || store.logoUrl.startsWith("https")) {
       return store.logoUrl;
     }

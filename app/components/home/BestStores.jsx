@@ -34,10 +34,10 @@ const BestStores = () => {
 
   const getSafeLogoUrl = (logoUrl) => {
     const baseUrl = 'https://api.eslamoffers.com/uploads/';
-    if (!logoUrl) return '/logo.png';
+    if (!logoUrl) return '/logo4.png';
     if (isValidHttpUrl(logoUrl)) return logoUrl;
     const fullUrl = logoUrl.startsWith('/') ? `${baseUrl}${logoUrl}` : `${baseUrl}/${logoUrl}`;
-    return isValidHttpUrl(fullUrl) ? fullUrl : '/logo.png';
+    return isValidHttpUrl(fullUrl) ? fullUrl : '/logo4.png';
   };
 
   return (
@@ -55,9 +55,8 @@ const BestStores = () => {
         ) : (
           <div className="grid grid-cols-3 gap-3">
             {stores.slice(0, 9).map((store) => (
-              <Link
-                key={store.id}
-                href={`/stores/${store.id}`}
+                             <Link href={`/stores/${store.slug}`} key={store.id}
+
                 className="bg-gray-50 rounded-md flex items-center justify-center border border-gray-200 hover:shadow-md transition duration-200 ease-in-out hover:border-[#14b8a6] w-24 h-[3.7rem] overflow-hidden"
               >
                 <div className="w-full h-full relative">
@@ -65,7 +64,7 @@ const BestStores = () => {
                     src={getSafeLogoUrl(store.logoUrl)} 
                     alt={store.name} 
                     fill
-                    className="object-cover"
+                    className=" "
                   />
                 </div>
               </Link>

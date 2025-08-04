@@ -2,42 +2,69 @@
 import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-import StoreCard from "../stores/StoreCard";
+import CouponCard from "../coupons/CouponCard";
 import Link from "next/link";
 import { FiArrowLeft } from "react-icons/fi";
-
-const fetchBestStores = async () => {
+import CouponCodeModal from "./Coupon/CouponCodeModal";
+ 
+const fetchBestDiscounts = async () => {
   try {
-    const res = await fetch("https://api.eslamoffers.com/api/Store/GetBastStores/Bast");
-    if (!res.ok) throw new Error("Failed to fetch stores");
+    const res = await fetch("https://api.eslamoffers.com/api/Coupons/GetBestCoupons/BestDiscount");
+    if (!res.ok) throw new Error("Failed to fetch discounts");
     const data = await res.json();
-    return data.filter(s => s.isBast).slice(0, 8); // نعرض فقط 8 متاجر
+    return data.filter(c => c.isBastDiscount).slice(0, 8); // نعرض فقط 8 خصومات
   } catch (e) {
     console.error(e);
     return [];
   }
 };
 
-const BestStoresSlider = () => {
-  const [stores, setStores] = useState([]);
+const BestDiscountsSlider = () => {
+  const [discounts, setDiscounts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [modalCoupon, setModalCoupon] = useState(null);
+  const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
-    fetchBestStores().then(fetchedStores => {
-      setStores(fetchedStores);
+    fetchBestDiscounts().then(fetchedDiscounts => {
+      setDiscounts(fetchedDiscounts);
       setLoading(false);
     });
   }, []);
 
+  const openModal = (coupon) => {
+    setModalCoupon(coupon);
+    setIsCopied(false);
+  };
+  
+  const closeModal = () => {
+    setModalCoupon(null);
+    setIsCopied(false);
+  };
+  
+  const handleCopy = () => {
+    if (modalCoupon) {
+      navigator.clipboard.writeText(modalCoupon.couponCode);
+      setIsCopied(true);
+      
+      fetch(`https://api.eslamoffers.com/api/Coupons/UpdateLastUse/${modalCoupon.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).catch(err => console.error('Error updating last use:', err));
+    }
+  };
+
   return (
     <div className="mt-12">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-[#14b8a6]">أفضل المتاجر</h2>
+        <h2 className="text-2xl font-bold text-[#14b8a6]">أفضل الخصومات</h2>
         <Link
-          href="/stores"
+          href="/coupons"
           className="text-lg font-medium text-[#14b8a6] hover:text-teal-700 underline flex items-center gap-2"
         >
-          <span>كل المتاجر</span>
+          <span>كل الخصومات</span>
           <FiArrowLeft />
         </Link>
       </div>
@@ -47,7 +74,7 @@ const BestStoresSlider = () => {
         <div className="flex justify-center items-center py-10">
           <div className="animate-pulse flex flex-col items-center">
             <div className="h-12 w-12 rounded-full border-4 border-t-teal-500 border-r-transparent border-b-teal-300 border-l-transparent animate-spin"></div>
-            <p className="mt-4 text-teal-600 font-medium">جاري تحميل المتاجر...</p>
+            <p className="mt-4 text-teal-600 font-medium">جاري تحميل الخصومات...</p>
           </div>
         </div>
       ) : (
@@ -64,15 +91,34 @@ const BestStoresSlider = () => {
             disableOnInteraction: false,
           }}
         >
-          {stores.map((store) => (
-            <SwiperSlide key={store.id} className="my-2 !w-[220px] md:!w-[220px] lg:!w-[220px]">
-              <StoreCard store={store} />
+          {discounts.map((discount) => (
+            <SwiperSlide key={discount.id} className="my-2 !w-[220px] md:!w-[220px] lg:!w-[220px]">
+              <CouponCard 
+                coupon={discount} 
+                onGetCode={openModal} 
+                showLastUsed={false}
+                showBadges={false}  
+              />
             </SwiperSlide>
           ))}
         </Swiper>
       )}
+      
+      <CouponCodeModal
+        show={!!modalCoupon}
+        couponCode={modalCoupon?.couponCode || ""}
+        linkRealStore={modalCoupon?.linkRealStore || ""}
+        isCopied={isCopied}
+        onCopy={handleCopy}
+        onClose={closeModal}
+        imageSrc={modalCoupon ? (modalCoupon.imageUrl?.startsWith('http') ? modalCoupon.imageUrl : `https://api.eslamoffers.com/uploads/${modalCoupon.imageUrl}`) : null}
+        couponTitle={modalCoupon?.title || ""}
+        couponDescription={modalCoupon?.descriptionCoupon || ""}
+        lastUseAt={modalCoupon?.lastUseAt || null}
+        className="mx-4"
+      />
     </div>
   );
 };
 
-export default BestStoresSlider;
+export default BestDiscountsSlider;
