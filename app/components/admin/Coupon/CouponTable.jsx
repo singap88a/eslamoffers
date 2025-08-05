@@ -111,7 +111,7 @@ const CouponTable = ({ coupons, onEdit, onDelete, loading }) => {
                 <td className="py-4 px-6 whitespace-nowrap">
                   <div className="flex items-center gap-2">
                     <button
-                      className="flex items-center gap-1.5 text-sm bg-blue-100 text-blue-700 px-3 py-1.5 rounded-md hover:bg-blue-200 transition-all font-semibold shadow-sm"
+                      className="flex cursor-pointer items-center gap-1.5 text-sm bg-blue-100 text-blue-700 px-3 py-1.5 rounded-md hover:bg-blue-200 transition-all font-semibold shadow-sm"
                       onClick={() => onEdit(coupon)}
                       title="تعديل"
                     >
@@ -119,7 +119,7 @@ const CouponTable = ({ coupons, onEdit, onDelete, loading }) => {
                       تعديل
                     </button>
                     <button
-                      className="flex items-center gap-1.5 text-sm bg-red-100 text-red-700 px-3 py-1.5 rounded-md hover:bg-red-200 transition-all font-semibold shadow-sm"
+                      className="flex cursor-pointer items-center gap-1.5 text-sm bg-red-100 text-red-700 px-3 py-1.5 rounded-md hover:bg-red-200 transition-all font-semibold shadow-sm"
                       onClick={() => onDelete(coupon)}
                       title="حذف"
                     >

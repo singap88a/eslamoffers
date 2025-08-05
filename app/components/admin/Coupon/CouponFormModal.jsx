@@ -143,7 +143,7 @@ const CouponFormModal = ({
         className="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-2xl md:max-h-[90vh] overflow-y-auto duration-300 scale-100"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center mb-6 pb-4 border-b">
+        <div className="flex justify-between items-center mb-6 pb-4 border-b cursor-pointer">
           <h2 className="text-2xl font-bold text-gray-800">
             {initialData ? "تعديل بيانات الكوبون" : "إضافة كوبون جديد"}
           </h2>
@@ -296,7 +296,7 @@ const CouponFormModal = ({
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                  <FiCalendar />
+                  {/* <FiCalendar /> */}
                 </div>
                 <input
                   name="stratDate"
@@ -313,7 +313,7 @@ const CouponFormModal = ({
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                  <FiCalendar />
+                  {/* <FiCalendar /> */}
                 </div>
                 <input
                   name="endDate"
