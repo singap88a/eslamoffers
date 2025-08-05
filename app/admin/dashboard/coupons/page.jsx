@@ -1,11 +1,11 @@
 "use client";
-import React, { useEffect, useState, Suspense } from "react";
+import React, { useEffect, useState, Suspense, useMemo } from "react";
 import { useSearchParams, useRouter } from 'next/navigation';
 import CouponTable from "../../../components/admin/Coupon/CouponTable";
 import CouponFormModal from "../../../components/admin/Coupon/CouponFormModal";
 import ConfirmDialog from "../../../components/admin/Store/ConfirmDialog";
 import Toast from "../../../components/admin/Store/Toast";
-import { FiPlus, FiArrowRight } from "react-icons/fi";
+import { FiPlus, FiArrowRight, FiSearch } from "react-icons/fi";
 
 const API_BASE = "https://api.eslamoffers.com/api/Coupons";
 const CATEGORY_API_URL = "https://api.eslamoffers.com/api/Category";
@@ -35,9 +35,9 @@ const CouponsPageContent = () => {
   const [toast, setToast] = useState({ message: "", type: "success" });
   const [categories, setCategories] = useState([]);
   const [storeInfo, setStoreInfo] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    // The middleware now handles the auth check, so this is just for the storeId check.
     if (!storeId) {
       router.replace('/admin/dashboard/stores');
     }
@@ -49,7 +49,6 @@ const CouponsPageContent = () => {
     setError(null);
     try {
       const token = getCookie("token");
-      // جلب الكوبونات باستخدام API الجديد
       const res = await fetch(`${API_BASE}/GetCouponsByStore/${storeId}`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -85,10 +84,9 @@ const CouponsPageContent = () => {
       const data = await res.json();
       setCategories(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err.message); // Or handle category-specific error state
+      setError(err.message);
     }
   };
-
 
   useEffect(() => {
     fetchCoupons();
@@ -96,29 +94,35 @@ const CouponsPageContent = () => {
     fetchStoreInfo();
   }, [storeId]);
 
+  const filteredCoupons = useMemo(() => {
+    return coupons.filter(coupon => 
+      coupon.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      coupon.couponCode?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [coupons, searchTerm]);
+
   const handleSubmit = async (values) => {
     setModalLoading(true);
     const formData = new FormData();
-    // Handle image file upload
     if (values.imageFile) {
       formData.append('imageUrl', values.imageFile);
     } else if (values.imageUrl) {
-      // If editing and no new image, keep the old imageUrl string
       formData.append('imageUrl', values.imageUrl);
     }
-    // Append other fields except imageFile and imageUrl (already handled)
+    
     Object.keys(values).forEach(key => {
       if (key !== 'imageFile' && key !== 'imageUrl') {
         formData.append(key, values[key]);
       }
     });
-    // Ensure storeId and slugStore are included
+    
     if (!values.storeId && storeId) {
         formData.set('storeId', storeId);
     }
     if (!values.slugStore && storeId) {
         formData.set('slugStore', storeId);
     }
+    
     try {
       const token = getCookie("token");
       let res;
@@ -230,39 +234,57 @@ const CouponsPageContent = () => {
           </button>
         </div>
 
+        {/* شريط البحث */}
+        <div className="mb-6">
+          <div className="relative max-w-md">
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+              <FiSearch />
+            </div>
+            <input
+              type="text"
+              placeholder="ابحث عن كوبون بالاسم أو الكود..."
+              className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pr-10 p-2.5 transition"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+
         {/* إحصائيات سريعة */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <div className="text-3xl font-bold text-teal-600 mb-2">{coupons.length}</div>
+            <div className="text-3xl font-bold text-teal-600 mb-2">{filteredCoupons.length}</div>
             <div className="text-gray-600">إجمالي الكوبونات</div>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6 text-center">
             <div className="text-3xl font-bold text-green-600 mb-2">
-              {coupons.filter(c => c.isActive).length}
+              {filteredCoupons.filter(c => c.isActive).length}
             </div>
             <div className="text-gray-600">كوبونات نشطة</div>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6 text-center">
             <div className="text-3xl font-bold text-yellow-600 mb-2">
-              {coupons.filter(c => c.isBest || c.isBastDiscount).length}
+              {filteredCoupons.filter(c => c.isBest || c.isBastDiscount).length}
             </div>
             <div className="text-gray-600">كوبونات مميزة</div>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6 text-center">
             <div className="text-3xl font-bold text-orange-600 mb-2">
-              {coupons.filter(c => c.isBastDiscount).length}
+              {filteredCoupons.filter(c => c.isBastDiscount).length}
             </div>
             <div className="text-gray-600">أفضل الخصومات</div>
           </div>
         </div>
+
         {error && (
           <div className="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-md">
             <p className="font-bold">خطأ</p>
             <p>{error}</p>
           </div>
         )}
+
         <CouponTable
-          coupons={coupons}
+          coupons={filteredCoupons}
           loading={loading}
           onEdit={(coupon) => {
             setEditCoupon(coupon);
@@ -273,6 +295,7 @@ const CouponsPageContent = () => {
             setConfirmOpen(true);
           }}
         />
+
         <CouponFormModal
           isOpen={modalOpen}
           onClose={() => {
@@ -285,6 +308,7 @@ const CouponsPageContent = () => {
           storeId={storeId}
           categories={categories}
         />
+
         <ConfirmDialog
           isOpen={confirmOpen}
           onClose={() => setConfirmOpen(false)}
@@ -292,6 +316,7 @@ const CouponsPageContent = () => {
           message={couponToDelete ? `هل أنت متأكد أنك تريد حذف الكوبون "${couponToDelete.title}"؟` : ""}
           loading={confirmLoading}
         />
+
         <Toast
           message={toast.message}
           type={toast.type}
@@ -308,4 +333,4 @@ const CouponsPage = () => (
   </Suspense>
 );
 
-export default CouponsPage; 
+export default CouponsPage;
