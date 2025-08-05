@@ -43,39 +43,46 @@ const CouponFormModal = ({
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    const getInitialFormData = () => {
-      if (initialData) {
-        return {
-          ...initialData,
-          stratDate: initialData.stratDate
-            ? new Date(initialData.stratDate).toISOString().slice(0, 16)
-            : "",
-          endDate: initialData.endDate
-            ? new Date(initialData.endDate).toISOString().slice(0, 16)
-            : "",
-          storeId: initialData.storeId || storeId || "",
-          slugStore: initialData.slugStore || storeId || "",
-        };
-      }
-              return {
-          title: "",
-          description: "",
-          imageUrl: "",
-          discount: 0,
-          couponCode: "",
-          stratDate: "",
-          endDate: "",
-          isActive: true,
-          isBest: false,
-          isBastDiscount: false,
-          linkRealStore: "",
-          storeId: storeId || "",
-          slugStore: storeId || "",
-        };
-    };
-    setFormData(getInitialFormData());
+    if (initialData) {
+      setFormData({
+        title: initialData.title || "",
+        description: initialData.descriptionCoupon || "",
+        imageUrl: initialData.imageUrl || "",
+        discount: initialData.discount || 0,
+        couponCode: initialData.couponCode || "",
+        stratDate: initialData.stratDate 
+          ? new Date(initialData.stratDate).toISOString().slice(0, 16)
+          : "",
+        endDate: initialData.endDate 
+          ? new Date(initialData.endDate).toISOString().slice(0, 16)
+          : "",
+        isActive: initialData.isActive || true,
+        isBest: initialData.isBest || false,
+        isBastDiscount: initialData.isBastDiscount || false,
+        linkRealStore: initialData.linkRealStore || "",
+        storeId: initialData.storeId || storeId || "",
+        slugStore: initialData.slugStore || storeId || "",
+      });
+      setImagePreview(initialData.imageUrl || "");
+    } else {
+      setFormData({
+        title: "",
+        description: "",
+        imageUrl: "",
+        discount: 0,
+        couponCode: "",
+        stratDate: "",
+        endDate: "",
+        isActive: true,
+        isBest: false,
+        isBastDiscount: false,
+        linkRealStore: "",
+        storeId: storeId || "",
+        slugStore: storeId || "",
+      });
+      setImagePreview("");
+    }
     setImageFile(null);
-    setImagePreview(initialData?.imageUrl || "");
   }, [initialData, storeId, isOpen]);
 
   if (!isOpen) return null;
@@ -119,20 +126,13 @@ const CouponFormModal = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ ...formData, imageFile });
+    const dataToSubmit = {
+      ...formData,
+      imageFile,
+      isBastDiscount: formData.isBastDiscount,
+    };
+    onSubmit(dataToSubmit);
   };
-
-  const InputField = ({ icon, ...props }) => (
-    <div className="relative">
-      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
-        {icon}
-      </div>
-      <input
-        {...props}
-        className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pr-10 p-2.5 transition"
-      />
-    </div>
-  );
 
   return (
     <div
@@ -157,25 +157,35 @@ const CouponFormModal = ({
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <InputField
-              icon={<FiTag />}
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              placeholder="عنوان الكوبون"
-              required
-            />
-            <InputField
-              icon={<FiLink />}
-              name="linkRealStore"
-              value={formData.linkRealStore}
-              onChange={handleChange}
-              placeholder="رابط المتجر"
-            />
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                <FiTag />
+              </div>
+              <input
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                placeholder="عنوان الكوبون"
+                className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pl-10 p-2.5 transition"
+                required
+              />
+            </div>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                <FiLink />
+              </div>
+              <input
+                name="linkRealStore"
+                value={formData.linkRealStore}
+                onChange={handleChange}
+                placeholder="رابط المتجر"
+                className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pl-10 p-2.5 transition"
+              />
+            </div>
           </div>
 
           <div className="relative">
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
               <FiType />
             </div>
             <textarea
@@ -183,7 +193,7 @@ const CouponFormModal = ({
               value={formData.description}
               onChange={handleChange}
               placeholder="وصف الكوبون"
-              className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pr-10 p-2.5 transition"
+              className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pl-10 p-2.5 transition"
               rows="3"
             ></textarea>
           </div>
@@ -244,28 +254,38 @@ const CouponFormModal = ({
               <label className="block mb-2 text-sm font-medium text-gray-600">
                 نسبة الخصم
               </label>
-              <InputField
-                icon={<FiPercent />}
-                type="number"
-                name="discount"
-                value={formData.discount}
-                onChange={handleChange}
-                placeholder="0"
-                required
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                  <FiPercent />
+                </div>
+                <input
+                  type="number"
+                  name="discount"
+                  value={formData.discount}
+                  onChange={handleChange}
+                  placeholder="0"
+                  className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pl-10 p-2.5 transition"
+                  required
+                />
+              </div>
             </div>
             <div>
               <label className="block mb-2 text-sm font-medium text-gray-600">
                 كود الكوبون
               </label>
-              <InputField
-                icon={<FiCode />}
-                name="couponCode"
-                value={formData.couponCode}
-                onChange={handleChange}
-                placeholder="كود الكوبون"
-                required
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                  <FiCode />
+                </div>
+                <input
+                  name="couponCode"
+                  value={formData.couponCode}
+                  onChange={handleChange}
+                  placeholder="كود الكوبون"
+                  className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pl-10 p-2.5 transition"
+                  required
+                />
+              </div>
             </div>
           </div>
 
@@ -274,26 +294,36 @@ const CouponFormModal = ({
               <label className="block mb-2 text-sm font-medium text-gray-600">
                 تاريخ البدء
               </label>
-              <InputField
-                icon={<FiCalendar />}
-                name="stratDate"
-                type="datetime-local"
-                value={formData.stratDate}
-                onChange={handleChange}
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                  <FiCalendar />
+                </div>
+                <input
+                  name="stratDate"
+                  type="datetime-local"
+                  value={formData.stratDate}
+                  onChange={handleChange}
+                  className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pl-10 p-2.5 transition"
+                />
+              </div>
             </div>
             <div>
               <label className="block mb-2 text-sm font-medium text-gray-600">
                 تاريخ الانتهاء
               </label>
-              <InputField
-                icon={<FiCalendar />}
-                name="endDate"
-                type="datetime-local"
-                value={formData.endDate}
-                onChange={handleChange}
-                required
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                  <FiCalendar />
+                </div>
+                <input
+                  name="endDate"
+                  type="datetime-local"
+                  value={formData.endDate}
+                  onChange={handleChange}
+                  className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pl-10 p-2.5 transition"
+                  required
+                />
+              </div>
             </div>
           </div>
 
