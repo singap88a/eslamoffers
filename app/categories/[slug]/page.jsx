@@ -82,14 +82,14 @@ export default function CategoryPage() {
  
       
       {/* شبكة المتاجر المعدلة */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
         {stores.map((store) => (
           <div 
             key={store.id}
             className="group relative bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
           >
             <Link href={`/stores/${store.slug || store.id}`} prefetch={false}>
-              <div className="relative h-48">
+              <div className="relative  h-32 w-full">
                 <Image
                   src={store.logoUrl ? `https://api.eslamoffers.com/uploads/${store.logoUrl}` : '/default-store.png'}
                   alt={store.name}

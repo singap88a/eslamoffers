@@ -94,7 +94,7 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true, showBadges = true 
     <>
       <div className="relative bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-2xl transform hover:-translate-y-2 duration-300 ease-in-out transition-all p-6 h-[290px] flex flex-col justify-between">
         {/* شارة الحالة - تظهر فقط إذا كان showBadges = true */}
-        {showBadges && (
+        {/* {showBadges && (
           <span
             className={`absolute top-2 left-2 px-3 py-1 rounded-full text-xs font-bold ${
               isExpired
@@ -106,17 +106,16 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true, showBadges = true 
           </span>
         )}
 
-        {/* شارة أفضل كوبون - تظهر فقط إذا كان showBadges = true */}
-        {showBadges && (coupon.isBest || coupon.isBastDiscount) && (
+         {showBadges && (coupon.isBest || coupon.isBastDiscount) && (
           <span className="absolute top-2 right-2 bg-yellow-100 text-yellow-600 px-2 py-1 rounded-full text-xs font-bold">
             الأفضل
           </span>
-        )}
+        )} */}
 
         <div className="mx-auto text-center mb-6">
           <Link
             href={getStoreInternalLink()}
-            className="w-24 h-16 relative flex justify-center items-center mx-auto"
+            className="md:w-44 w-24 h-16 relative flex justify-center items-center mx-auto"
           >
             <Image
               src={getImageSrc()}
@@ -127,10 +126,10 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true, showBadges = true 
             />
           </Link>
           <div className="flex-1">
-            <h3 className="text-l font-semibold text-gray-900 mb-1 line-clamp-2">
+            <h3 className="md:text-[16px] font-semibold text-gray-900 mb-1 line-clamp-2 text-[12px]">
               {coupon.title}
             </h3>
-            <p className="text-center text-gray-500 text-[13px]">
+            <p className="text-center text-gray-500 text-[11px] md:text-[13px]">
               {coupon.descriptionCoupon || coupon.description}
             </p>
           </div>
@@ -163,7 +162,7 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true, showBadges = true 
                 setIsCopied(false);
               }
             }}
-            className="w-full bg-gradient-to-r from-teal-500 to-teal-600 text-white font-semibold px-4 py-2 rounded-lg hover:from-teal-600 hover:to-teal-700 transition"
+            className="w-full bg-gradient-to-r from-teal-500 to-teal-600 text-white font-semibold px-4 py-1 rounded-lg hover:from-teal-600 hover:to-teal-700 transition md:text-sm text-[11px]"
           >
             انسخ الكود
           </button>

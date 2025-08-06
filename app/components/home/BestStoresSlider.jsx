@@ -92,7 +92,8 @@ const BestDiscountsSlider = () => {
           }}
         >
           {discounts.map((discount) => (
-            <SwiperSlide key={discount.id} className="my-2 !w-[220px] md:!w-[220px] lg:!w-[220px]">
+            <SwiperSlide key={discount.id}               className="my-2 !w-[140px] md:!w-[220px] lg:!w-[220px]"
+>
               <CouponCard 
                 coupon={discount} 
                 onGetCode={openModal} 

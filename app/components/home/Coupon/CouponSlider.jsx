@@ -88,7 +88,7 @@ const CouponSlider = () => {
           {coupons.map((coupon) => (
             <SwiperSlide
               key={coupon.id}
-              className="my-2 !w-[220px] md:!w-[220px] lg:!w-[220px]"
+              className="my-2 !w-[140px] md:!w-[220px] lg:!w-[220px]"
             >
               <div className="h-full">
                 <CouponCard coupon={coupon} onGetCode={openModal} showLastUsed={false} />

@@ -27,22 +27,7 @@ const StoreCard = ({ store }) => {
   return (
     <div className="bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-xl overflow-hidden shadow-sm h-full flex flex-col relative transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl group">
       <div className="relative w-full h-[120px] bg-gray-100 flex items-center justify-center overflow-hidden">
-        {/* شارة الأفضل على الجنب */}
-        {store.isBast && (
-          <div className="absolute top-4 right-6 flex items-center gap-1 bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full border border-yellow-200 text-xs font-bold shadow-sm z-10">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" className="w-3 h-3 text-yellow-500">
-              <path d="M10 2l2.39 4.84 5.34.78-3.87 3.77.91 5.33L10 14.77l-4.77 2.51.91-5.33-3.87-3.77 5.34-.78L10 2z" />
-            </svg>
-            الأفضل
-          </div>
-        )}
-        
-        {/* شارة الحالة */}
-        <div className={`absolute top-4 left-6 px-2 py-0.5 rounded-full text-xs font-bold shadow-sm z-10 ${
-          store.isactive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-        }`}>
-          {store.isactive ? 'نشط' : 'غير نشط'}
-        </div>
+  
         
         {/* صورة المتجر تغطي كامل الهيدر */}
         <img
@@ -106,35 +91,7 @@ const StoresPage = () => {
   return (
     <div className="  min-h-screen" dir="rtl">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-12 max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">ابحث عن متجرك المفضل</h2>
-            <p className="text-gray-600">اكتشف أفضل العروض والكوبونات من متاجرنا المميزة</p>
-          </div>
-          <div className="relative">
-            <span className="absolute inset-y-0 right-0 flex items-center pr-3">
-              <svg
-                className="h-5 w-5 text-gray-400"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </span>
-            <input
-              type="text"
-              placeholder="ابحث عن متجر..."
-              className="w-full pr-10 pl-4 py-4 border border-gray-300 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-[#14b8a6] focus:border-[#14b8a6] transition text-lg"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </div>
+ 
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {/* Main Content */}
@@ -145,25 +102,7 @@ const StoresPage = () => {
               </h1>
               <div className="w-40 h-1 bg-gradient-to-l from-[#14b8a6] mb-5 rounded-full"></div>
               
-              {/* إحصائيات سريعة */}
-              {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white rounded-lg shadow-md p-6 text-center">
-                  <div className="text-3xl font-bold text-teal-600 mb-2">{stores.length}</div>
-                  <div className="text-gray-600">إجمالي المتاجر</div>
-                </div>
-                <div className="bg-white rounded-lg shadow-md p-6 text-center">
-                  <div className="text-3xl font-bold text-yellow-600 mb-2">
-                    {stores.filter(store => store.isBast).length}
-                  </div>
-                  <div className="text-gray-600">متاجر مميزة</div>
-                </div>
-                <div className="bg-white rounded-lg shadow-md p-6 text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">
-                    {stores.filter(store => store.isactive).length}
-                  </div>
-                  <div className="text-gray-600">متاجر نشطة</div>
-                </div>
-              </div> */}
+ 
             </div>
 
             {loading && (

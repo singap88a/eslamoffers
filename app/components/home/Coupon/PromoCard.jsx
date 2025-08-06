@@ -3,20 +3,18 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectCards } from "swiper/modules";
-import { FaGift, FaArrowLeft, FaShoppingBag, FaTag } from "react-icons/fa";
-import { MdStars, MdLocalOffer } from "react-icons/md";
+import { FaArrowLeft } from "react-icons/fa";
+import { MdStars } from "react-icons/md";
 import "swiper/css";
 import "swiper/css/effect-cards";
 import Link from "next/link";
+import Image from "next/image";
 
 const PromoCard = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
-
-  const primaryColor = '#0d9488';
-  const cardColor = '#0b8378';
 
   // Static initial positions for bubbles
   const initialBubbles = [
@@ -34,10 +32,7 @@ const PromoCard = () => {
       try {
         const res = await fetch('https://api.eslamoffers.com/api/Offers/GetAllOffers');
         const data = await res.json();
-        const lastFiveOffers = data.slice(0, 5).map(offer => ({
-          ...offer,
-          icon: <MdLocalOffer className="text-2xl" />
-        }));
+        const lastFiveOffers = data.slice(0, 5);
         setOffers(lastFiveOffers);
       } catch (error) {
         console.error('Error fetching offers:', error);
@@ -62,8 +57,22 @@ const PromoCard = () => {
     }
   }, []);
 
+  const getImageSrc = (url) => {
+    if (!url) return '/default-product.png';
+    if (url.startsWith('http')) return url;
+    return `https://api.eslamoffers.com/uploads/${url}`;
+  };
+
+  const calculateOriginalPrice = (price, discount) => {
+    if (price && discount) {
+      return (price / (1 - discount / 100)).toFixed(2);
+    }
+    return null;
+  };
+
   return (
     <div className="relative overflow-hidden rounded-2xl shadow-xl max-w-4xl mx-auto my-8" dir="rtl">
+      {/* الخلفية المموجة مع الفقاقيع */}
       <div className="absolute inset-0 bg-[#14b8a6] z-0 overflow-hidden">
         {initialBubbles.map((bubble, i) => (
           <div 
@@ -84,6 +93,7 @@ const PromoCard = () => {
         </svg>
       </div>
 
+      {/* المحتوى */}
       <div className="relative z-10 p-6 md:p-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -130,31 +140,51 @@ const PromoCard = () => {
                   }}
                   className="w-full max-w-[280px] h-[180px]"
                 >
-                  {offers.map((offer) => (
-                    <SwiperSlide key={offer.id} className="rounded-xl overflow-hidden">
-                      <div 
-                        className="h-full w-full p-6 flex flex-col justify-between"
-                        style={{ 
-                          backgroundColor: cardColor,
-                          backgroundImage: 'linear-gradient(to bottom right, rgba(255,255,255,0.1), rgba(255,255,255,0))'
-                        }}
-                      >
-                        <div className="text-white text-4xl flex justify-center">
-                          {offer.icon}
+                  {offers.map((offer) => {
+                    const originalPrice = calculateOriginalPrice(offer.price, offer.discount);
+                    
+                    return (
+                      <SwiperSlide key={offer.id} className="rounded-xl overflow-hidden">
+                        <div 
+                          className="h-full w-full p-4 flex flex-col justify-between"
+                          style={{ 
+                            backgroundColor: '#ffffff',
+                            backgroundImage: 'linear-gradient(to bottom right, rgba(255,255,255,0.9), rgba(255,255,255,0.8))',
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                          }}
+                        >
+                          {/* صورة المنتج */}
+                          <div className="relative w-full h-24 mx-auto">
+                            <Image
+                              src={getImageSrc(offer.logoUrl)}
+                              alt={offer.title}
+                              fill
+                              className="object-contain rounded-md"
+                            />
+                          </div>
+
+                          {/* معلومات المنتج */}
+                          <div className="text-center">
+                            <h4 className="text-sm font-bold text-gray-800 mb-1 line-clamp-1">
+                              {offer.title}
+                            </h4>
+                            
+                            {offer.discount && (
+                              <div className="bg-gradient-to-r from-orange-400 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full inline-block">
+                                خصم {offer.discount}%
+                              </div>
+                            )}
+                            
+                            {offer.price && (
+                              <div className="text-lg font-bold text-teal-600 mt-1">
+                                {offer.price} {offer.currencyCodes || "USD"}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <div className="text-center">
-                          <h4 className="text-white font-bold text-lg mb-2 line-clamp-2">{offer.title}</h4>
-                          {offer.discount && (
-                            <div className="bg-white/20 backdrop-blur-sm rounded-lg py-1 px-3 inline-block">
-                              <p className="text-white font-bold">
-                                خصم {offer.discount}% {offer.currencyCodes && `(${offer.currencyCodes})`}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </SwiperSlide>
-                  ))}
+                      </SwiperSlide>
+                    );
+                  })}
                 </Swiper>
               </div>
               
