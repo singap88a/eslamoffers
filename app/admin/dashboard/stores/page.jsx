@@ -9,13 +9,7 @@ import { FiPlus, FiSearch } from "react-icons/fi";
 
 const API_BASE = "https://api.eslamoffers.com/api/Store";
 
-const getCookie = (name) => {
-  if (typeof window === 'undefined') return null;
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-  return null;
-};
+// Removed getCookie function as we now use getTokenFromCookies
 
 const Spinner = () => (
   <div className="flex justify-center items-center min-h-[300px]">
@@ -38,6 +32,7 @@ const StoresPage = () => {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [toast, setToast] = useState({ message: "", type: "success" });
   const [searchTerm, setSearchTerm] = useState("");
+  const [token, setToken] = useState("");
   const router = useRouter();
 
   // Filter stores based on search term
@@ -58,7 +53,6 @@ const StoresPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const token = getCookie("token");
       const res = await fetch(`${API_BASE}/GetAllStores`, {
         headers: {
           accept: "*/*",
@@ -76,15 +70,58 @@ const StoresPage = () => {
     }
   };
 
+  // Get token from cookies
+  const getTokenFromCookies = () => {
+    if (typeof window !== 'undefined') {
+      const cookies = document.cookie.split(';');
+      const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='));
+      return tokenCookie ? tokenCookie.split('=')[1] : '';
+    }
+    return '';
+  };
+
+  // Initialize token from cookies and redirect if not logged in
   useEffect(() => {
-    fetchStores();
-  }, []);
+    const tokenFromCookies = getTokenFromCookies();
+    if (!tokenFromCookies) {
+      router.push('/admin/login');
+      return;
+    }
+    setToken(tokenFromCookies);
+  }, [router]);
+
+  // Response interceptor for handling 401 errors
+  useEffect(() => {
+    const handleUnauthorizedResponse = (response) => {
+      if (!response.ok && response.status === 401) {
+        router.push('/admin/login');
+      }
+      return response;
+    };
+
+    // Override fetch to handle 401 errors
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+      const response = await originalFetch(...args);
+      return handleUnauthorizedResponse(response.clone());
+    };
+
+    return () => {
+      window.fetch = originalFetch;
+    };
+  }, [router]);
+
+  // Fetch stores when token is available
+  useEffect(() => {
+    if (token) {
+      fetchStores();
+    }
+  }, [token]);
 
   const handleSubmit = async (formData) => {
     setModalLoading(true);
     setError(null);
     try {
-      const token = getCookie("token");
       const isEditing = !!editStore;
       const url = isEditing 
         ? `${API_BASE}/UpdateStore/${editStore.id}`
@@ -129,7 +166,6 @@ const StoresPage = () => {
     setConfirmLoading(true);
     setError(null);
     try {
-      const token = getCookie("token");
       const res = await fetch(`${API_BASE}/DeleteStore/${storeToDelete.id}`, {
         method: "DELETE",
         headers: {
@@ -153,7 +189,6 @@ const StoresPage = () => {
       setConfirmLoading(false);
     }
   };
-
   return (
     <div className="flex-1 p-4 md:p-8 min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto">

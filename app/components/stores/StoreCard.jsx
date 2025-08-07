@@ -16,7 +16,7 @@ const StoreCard = ({ store }) => {
     <div className="relative bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-2xl transform hover:-translate-y-2 duration-300 ease-in-out transition-all p-6 w-full max-w-sm flex flex-col justify-between">
       <div className="mx-auto text-center mb-6">
         <Link href={`/stores/${store.id}`}>
-          <div className="w-24 h-16 relative flex justify-center items-center cursor-pointer">
+          <div className="w-[200] h-[80] relative flex justify-center items-center cursor-pointer">
             <Image
               src={getImageSrc()}
               alt={store.name}

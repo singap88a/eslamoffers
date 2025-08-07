@@ -82,21 +82,19 @@ export default function CategoryPage() {
  
       
       {/* شبكة المتاجر المعدلة */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+      <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
         {stores.map((store) => (
           <div 
             key={store.id}
-            className="group relative bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-          >
+className="bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-xl overflow-hidden shadow-sm h-full flex flex-col relative transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl group"          >
             <Link href={`/stores/${store.slug || store.id}`} prefetch={false}>
-              <div className="relative  h-32 w-full">
+              <div className="relative  w-[200] h-[80] w-full">
                 <Image
                   src={store.logoUrl ? `https://api.eslamoffers.com/uploads/${store.logoUrl}` : '/default-store.png'}
                   alt={store.name}
                   fill
-                  className="  p-4 group-hover:scale-105 transition-transform duration-300"
-                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-                />
+          className="   group-hover:scale-110 transition-transform duration-300 w-[200] h-[80px]"
+                 />
               </div>
               <div className="p-4 border-t border-gray-100">
                 <h3 className="font-semibold text-center text-gray-800 group-hover:text-teal-600 transition-colors">
