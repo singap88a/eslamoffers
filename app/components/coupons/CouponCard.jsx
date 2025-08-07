@@ -5,7 +5,12 @@ import Image from "next/image";
 import { FiCopy, FiCheck, FiX, FiClock } from "react-icons/fi";
 import Link from "next/link";
 
-const CouponCard = ({ coupon, onGetCode, showLastUsed = true, showBadges = true }) => {
+const CouponCard = ({
+  coupon,
+  onGetCode,
+  showLastUsed = true,
+  showBadges = true,
+}) => {
   const [showModal, setShowModal] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
@@ -16,7 +21,8 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true, showBadges = true 
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxOTcwZGYxMi00ZDZiLTQ0OTYtOGZmNi1jZmVmMDJlMjhlM2MiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjQ5YmFjNWVmLWY4MjktNGRjMy1hZWIyLTFjNmQ1ZTgxYWE3YSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJyZWRhc2FhZDAxMDI2MCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwiZXhwIjoxNzUzNTY5NjQyLCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo3MjYyLyIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjcyNjIvIn0.uNVL0lKRVGO30MifLDc4PQTeA4RzRYWRrnQo_G_elhQ",
+        Authorization:
+          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxOTcwZGYxMi00ZDZiLTQ0OTYtOGZmNi1jZmVmMDJlMjhlM2MiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjQ5YmFjNWVmLWY4MjktNGRjMy1hZWIyLTFjNmQ1ZTgxYWE3YSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJyZWRhc2FhZDAxMDI2MCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwiZXhwIjoxNzUzNTY5NjQyLCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo3MjYyLyIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjcyNjIvIn0.uNVL0lKRVGO30MifLDc4PQTeA4RzRYWRrnQo_G_elhQ",
       },
     }).catch((err) => console.error("Error updating last use:", err));
   };
@@ -34,7 +40,8 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true, showBadges = true 
 
   const isExpired =
     !coupon.isActive ||
-    new Date(coupon.endDate || coupon.end_date || coupon.stratDate) < new Date();
+    new Date(coupon.endDate || coupon.end_date || coupon.stratDate) <
+      new Date();
 
   const getLastUsedTime = () => {
     if (!coupon.lastUseAt || coupon.lastUseAt === coupon.createdAt) return null;
@@ -49,7 +56,7 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true, showBadges = true 
     if (coupon.lastUpdatedAt && coupon.lastUpdatedAt !== "0:0:0") {
       return {
         text: "آخر نسخ للكود",
-        time: coupon.lastUpdatedAt
+        time: coupon.lastUpdatedAt,
       };
     }
 
@@ -92,7 +99,7 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true, showBadges = true 
 
   return (
     <>
-      <div className="relative bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-2xl transform hover:-translate-y-2 duration-300 ease-in-out transition-all p-6 h-[290px] flex flex-col justify-between">
+      <div className="relative bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-2xl transform hover:-translate-y-2 duration-300 ease-in-out transition-all  p-3 h-[240px] flex flex-col justify-between">
         {/* شارة الحالة - تظهر فقط إذا كان showBadges = true */}
         {/* {showBadges && (
           <span
@@ -112,7 +119,7 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true, showBadges = true 
           </span>
         )} */}
 
-        <div className="mx-auto text-center mb-6">
+        <div className="mx-auto text-center  mb-2">
           <Link
             href={getStoreInternalLink()}
             className="md:w-44 w-24 h-16 relative flex justify-center items-center mx-auto"
@@ -129,7 +136,7 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true, showBadges = true 
             <h3 className="md:text-[16px] font-semibold text-gray-900 mb-1 line-clamp-2 text-[12px]">
               {coupon.title}
             </h3>
-            <p className="text-center text-gray-500 text-[11px] md:text-[13px]">
+            <p className="text-center text-gray-500 text-[11px] md:text-[13px] line-clamp-2 overflow-hidden">
               {coupon.descriptionCoupon || coupon.description}
             </p>
           </div>
@@ -137,7 +144,7 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true, showBadges = true 
 
         {/* عرض آخر نسخ للكود - يظهر فقط إذا كان showLastUsed = true */}
         {showLastUsed && lastUsedTime && (
-          <div className="bg-green-50 border border-green-100 rounded-md px-2 flex items-center justify-center gap-1 text-[11px] font-medium w-fit mx-auto">
+          <div className="bg-green-50 border border-green-100 rounded-md px-2 flex items-center justify-center gap-1 text-[11px]  mb-1  font-medium w-fit mx-auto    ">
             <FiClock className="text-green-500 text-[13px] -mt-[1px]" />
             <span className="text-gray-700">{lastUsedTime.text}:</span>
             <span className="text-green-600 font-bold">
@@ -152,7 +159,7 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true, showBadges = true 
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-2  ">
+        <div className="flex items-center justify-between gap-2     ">
           <button
             onClick={() => {
               if (onGetCode) {
@@ -216,7 +223,10 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true, showBadges = true 
                 خصم {coupon.discount}%
               </div>
               <div className="text-sm text-gray-500">
-                صالح حتى: {new Date(coupon.endDate || coupon.stratDate).toLocaleDateString("ar-EG")}
+                صالح حتى:{" "}
+                {new Date(
+                  coupon.endDate || coupon.stratDate
+                ).toLocaleDateString("ar-EG")}
               </div>
             </div>
 
@@ -236,7 +246,9 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true, showBadges = true 
             {lastUsedTime && coupon.number > 0 && (
               <div className="bg-green-50 text-green-700 rounded-md px-3 py-2 text-center mb-2 font-semibold text-sm flex items-center justify-center gap-1">
                 <FiClock className="text-green-500" />
-                <span>{lastUsedTime.text}: {lastUsedTime.time}</span>
+                <span>
+                  {lastUsedTime.text}: {lastUsedTime.time}
+                </span>
               </div>
             )}
 
@@ -270,7 +282,11 @@ const CouponCard = ({ coupon, onGetCode, showLastUsed = true, showBadges = true 
               <button
                 onClick={() => {
                   handleCopy();
-                  window.open(coupon.linkRealStore, '_blank', 'noopener,noreferrer');
+                  window.open(
+                    coupon.linkRealStore,
+                    "_blank",
+                    "noopener,noreferrer"
+                  );
                 }}
                 className="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 rounded-lg text-lg transition"
               >

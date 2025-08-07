@@ -10,7 +10,7 @@ import Link from "next/link";
 const fetchBestCoupons = async () => {
   try {
     const res = await fetch(
-      "https://api.eslamoffers.com/api/Coupons/GetAllCoupons"
+      "https://api.eslamoffers.com/api/Coupons/GetBestCoupons/Best"
     );
     if (!res.ok) throw new Error("Failed to fetch coupons");
     const data = await res.json();
@@ -107,7 +107,7 @@ const CouponSlider = () => {
         imageSrc={modalCoupon ? (modalCoupon.imageUrl?.startsWith('http') ? modalCoupon.imageUrl : `https://api.eslamoffers.com/uploads/${modalCoupon.imageUrl}`) : null}
         couponTitle={modalCoupon?.title || ""}
         couponDescription={modalCoupon?.description || ""}
-        lastUseAt={modalCoupon?.lastUseAt || null}
+        // lastUseAt={modalCoupon?.lastUseAt || null}
         className="mx-4"
       />
     </div>

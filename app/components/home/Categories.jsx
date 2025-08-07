@@ -42,7 +42,7 @@ export default function Categories() {
   };
 
   return (
-    <div className="w-full py-10 md:px-20 px-4">
+    <div className="w-full md:pb-10   pt-10 md:px-20 px-4">
       <div className="flex justify-between items-center mb-4 md:px-10 px-4">
         <h2 className="text-2xl font-bold">الفئات</h2>
         <Link href="/categories" className="text-teal-500 font-semibold hover:underline">

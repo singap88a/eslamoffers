@@ -183,13 +183,13 @@ const StoreCouponsPage = () => {
 
   return (
     <div className="min-h-screen " dir="rtl">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto py-8 md:py-12 lg:py-20 px-4 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto md:py-14    px-4 sm:px-6 lg:px-8">
         <div className="lg:col-span-2">
           <div className="bg-white border-b pb-4 border-gray-300 mb-8 md:mb-12 flex flex-col sm:flex-row items-center">
             <img
               src={getLogoSrc()}
               alt={store.name}
-              className="w-full h-full sm:w-24 sm:h-24     p-1 shadow-lg mb-4 sm:mb-0"
+              className=" md:w-44    h-24 md:h-24  rounded-lg   p-1 shadow-lg mb-4 sm:mb-0"
               loading="lazy"
             />
             <div className="sm:mr-6 flex-1 text-center sm:text-right">
@@ -200,17 +200,8 @@ const StoreCouponsPage = () => {
                 {store.headerDescription ||
                   `جميع الكوبونات والعروض الخاصة بـ ${store.name}`}
               </h2>
-              {/* {store.categorys && store.categorys.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {store.categorys.map((categoryId, index) => (
-                    <span key={index} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
-                      {getCategoryName(categoryId)}
-                    </span>
-                  ))}
-                </div>
-              )} */}
             </div>
-            <div className="text-center sm:text-left mt-4 sm:mt-0">
+            <div className="text-center sm:text-left mt-4 sm:mt-0 md:block flex items-center justify-center gap-10 hidden ">
               <div className=" pb-2">
                 {store.isBast && (
                   <div className="flex items-center gap-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-bold">
@@ -245,29 +236,28 @@ const StoreCouponsPage = () => {
 
           {coupons.length > 0 ? (
             <>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-0 text-center sm:text-right">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between  ">
+                {/* <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-0 text-center sm:text-right">
                   كوبونات {store.name}
-                </h2>
-                <div className="text-sm text-gray-500 text-center sm:text-right">
-                  {coupons.length} كوبون متاح
-                </div>
+                </h2> */}
+                <div className="text-sm text-gray-500 text-center sm:text-right"></div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 md:mb-12">
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 md:mb-12">
                 {coupons.map((coupon) => (
-                  <CouponCard key={coupon.id} coupon={coupon} />
+                  <CouponCard key={coupon.id} coupon={coupon}
+  />
                 ))}
               </div>
             </>
           ) : (
             <>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-0 text-center sm:text-right">
+                {/* <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-0 text-center sm:text-right">
                   كوبونات {store.name}
-                </h2>
-                <div className="text-sm text-gray-500 text-center sm:text-right">
+                </h2> */}
+                {/* <div className="text-sm text-gray-500 text-center sm:text-right">
                   لا توجد كوبونات
-                </div>
+                </div> */}
               </div>
               <div className="text-center py-12 sm:py-20 bg-white rounded-lg shadow-md mb-12">
                 <div className="mb-4 sm:mb-6">
@@ -338,9 +328,45 @@ const StoreCouponsPage = () => {
 
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-0 text-center sm:text-right">
-                معلومات المتجر
-              </h3>
+              <div className="flex justify-between items-center">
+                <div className="">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-0 text-center sm:text-right">
+                    معلومات المتجر
+                  </h3>
+                </div>
+
+                <div className="text-center sm:text-left mt-4 sm:mt-0  block   items-center justify-center gap-10 md:hidden">
+                  <div className=" pb-2">
+                    {store.isBast && (
+                      <div className="flex items-center gap-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-bold">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                          className="w-4 h-4"
+                        >
+                          <path d="M10 2l2.39 4.84 5.34.78-3.87 3.77.91 5.33L10 14.77l-4.77 2.51.91-5.33-3.87-3.77 5.34-.78L10 2z" />
+                        </svg>
+                        متجر مميز
+                      </div>
+                    )}
+                  </div>
+                  <div
+                    className={`px-4 py-2 rounded-lg text-center shadow-sm ${
+                      coupons.length > 0
+                        ? "bg-teal-50 text-teal-700"
+                        : "bg-gray-50 text-gray-500"
+                    }`}
+                  >
+                    <div className="text-xl sm:text-2xl font-bold">
+                      {coupons.length}
+                    </div>
+                    <div className="text-xs sm:text-sm">
+                      {coupons.length > 0 ? "كوبون متاح" : "لا توجد كوبونات"}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="mb-6 md:mb-8">
