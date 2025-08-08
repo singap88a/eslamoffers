@@ -30,7 +30,7 @@ const Footer = () => {
           "https://api.eslamoffers.com/api/Store/GetBastStores/Bast"
         );
         const data = await response.json();
-        setPopularStores(data.slice(0, 7)); // عرض أول 7 متاجر فقط
+        setPopularStores(data.slice(0, 5)); // عرض أول 5 متاجر فقط
       } catch (error) {
         console.error("Error fetching popular stores:", error);
       } finally {
@@ -58,36 +58,31 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Social & App */}
         <div className="space-y-4">
-          <h4 className="text-lg font-bold">لا تفوت أي عرض أبدًا!</h4>
+          <h4 className="text-lg font-bold">   وفر أكتر… بكل سهولة!
+       </h4>
           <p className="text-gray-500">
-            تابعنا على مواقع التواصل الاجتماعي، واحصل على أفضل الكوبونات والعروض
-          </p>
-          <div className="flex flex-wrap gap-3 text-xl text-gray-600">
-            {[FaFacebook, FaInstagram, FaTwitter, FaTiktok, FaPinterest, FaTelegram, FaYoutube].map((Icon, i) => (
+تابعنا على مواقع التواصل عشان توصلك أحدث التخفيضات والكوبونات أول بأول          </p>
+          <div className="flex flex-wrap gap-3 text-xl">
+            {[
+              { Icon: FaFacebook, color: "#1877F2", href: "#" },
+              { Icon: FaInstagram, color: "#E4405F", href: "#" },
+              { Icon: FaTwitter, color: "#1DA1F2", href: "#" },
+              { Icon: FaTiktok, color: "#000000", href: "#" },
+              { Icon: FaPinterest, color: "#BD081C", href: "#" },
+              { Icon: FaTelegram, color: "#0088cc", href: "#" },
+              { Icon: FaYoutube, color: "#FF0000", href: "#" },
+            ].map((item, i) => (
               <a
                 key={i}
-                href="#"
-                className="hover:text-[#14b8a6] transition-transform duration-200 hover:scale-110"
+                href={item.href}
+                className="transition-transform duration-200 hover:scale-110"
+                style={{ color: item.color }}
               >
-                <Icon />
+                <item.Icon />
               </a>
             ))}
           </div>
-          <h5 className="font-semibold mt-6">حمل التطبيق الآن</h5>
-          <div className="flex flex-wrap gap-3">
-            <a
-              href="#"
-              className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm shadow hover:shadow-md transition"
-            >
-              <FaGooglePlay /> Google Play
-            </a>
-            <a
-              href="#"
-              className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm shadow hover:shadow-md transition"
-            >
-              <FaApple /> App Store
-            </a>
-          </div>
+ 
         </div>
 
         {/* Links */}

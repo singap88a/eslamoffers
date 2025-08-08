@@ -40,7 +40,7 @@ export default function Numbers_matter() {
   }, [])
 
   return (
-    <section ref={ref} className="py-16 bg-white text-center">
+    <section ref={ref} className="pb-16 bg-white text-center">
       <h2 className="text-3xl md:text-4xl font-bold text-[#14b8a6] mb-2">أرقام تهمك</h2>
       <div className="w-40 h-1 bg-gradient-to-r from-[#14b8a6]    mx-auto mb-10 rounded-full"></div>
 

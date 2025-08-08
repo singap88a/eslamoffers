@@ -53,7 +53,7 @@ const StoresPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [visibleCount, setVisibleCount] = useState(15);
+  const [visibleCount, setVisibleCount] = useState(90);
 
   useEffect(() => {
     const fetchStores = async () => {
@@ -151,9 +151,10 @@ const StoresPage = () => {
                 {hasMore && (
                   <div className="flex justify-center mt-6 md:mt-8">
                     <button
+                      onClick={() => setVisibleCount(prevCount => prevCount + 40)}
                       className="px-6 md:px-8 py-2 md:py-3 rounded-full bg-[#14b8a6] text-white font-bold shadow hover:bg-[#0d9488] transition flex items-center gap-2"
-                    eu
-                      >
+                    >
+                      عرض المزيد
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
