@@ -2,6 +2,12 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
+import img_1 from  "../../public/1.svg";
+ import img_2 from  "../../public/2.svg";
+ import img_3 from  "../../public/3.svg";
+ import img_4 from  "../../public/4.svg";
+
+
 
 export default function AboutUs() {
   return (
@@ -15,18 +21,18 @@ export default function AboutUs() {
         {/* ✅ Hero Section with Image Background */}
         <div className="relative h-[400px] md:h-[500px] w-full">
           <Image
-            src="/images/hero-banner.jpg" // ✅ ضع الصورة المناسبة هنا داخل public/images
+            src= {img_1} // ✅ ضع الصورة المناسبة هنا داخل public/images
             alt="Eslamoffers Hero Banner"
             fill
-            className="object-cover"
+            className=" "
             priority
           />
-          <div className="absolute inset-0 bg-black bg-opacity-60 flex flex-col items-center justify-center text-center text-white px-4">
+          {/* <div className="absolute inset-0   flex flex-col items-center justify-center text-center text-white px-4">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">من نحن</h1>
             <p className="text-xl md:text-2xl max-w-3xl">
               Eslamoffers.com - وجهتك الأولى لأكواد الخصم الموثوقة في العالم العربي
             </p>
-          </div>
+          </div> */}
         </div>
 
         {/* ✅ Main Content */}
@@ -34,12 +40,12 @@ export default function AboutUs() {
           {/* Mission Section */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
             <div className="md:flex">
-              <div className="md:w-1/3 relative h-64 md:h-auto">
+              <div className="md:w-1/3 relative   ">
                 <Image 
-                  src="/images/mission.jpg"
+            src= {img_2}  
                   alt="مهمتنا"
                   fill
-                  className="object-cover"
+                  className=" "
                   priority
                 />
               </div>
@@ -70,10 +76,10 @@ export default function AboutUs() {
             <div className="md:flex flex-row-reverse">
               <div className="md:w-1/3 relative h-64 md:h-auto">
                 <Image 
-                  src="/images/why-us.jpg"
+            src= {img_3}  
                   alt="ليه Eslam Offers؟"
                   fill
-                  className="object-cover"
+                  className=" "
                 />
               </div>
               <div className="md:w-2/3 p-8">
@@ -104,10 +110,10 @@ export default function AboutUs() {
             <div className="md:flex">
               <div className="md:w-1/3 relative h-64 md:h-auto">
                 <Image 
-                  src="/images/work.jpg"
+            src= {img_4}  
                   alt="بنشتغل علشانك"
                   fill
-                  className="object-cover"
+                  className=" "
                 />
               </div>
               <div className="md:w-2/3 p-8">

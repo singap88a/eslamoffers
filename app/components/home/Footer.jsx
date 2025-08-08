@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import {
   FaFacebook,
@@ -30,7 +31,7 @@ const Footer = () => {
           "https://api.eslamoffers.com/api/Store/GetBastStores/Bast"
         );
         const data = await response.json();
-        setPopularStores(data.slice(0, 5)); // عرض أول 5 متاجر فقط
+        setPopularStores(data.slice(0, 5));
       } catch (error) {
         console.error("Error fetching popular stores:", error);
       } finally {
@@ -55,121 +56,265 @@ const Footer = () => {
 
   return (
     <footer className="bg-white border-t border-[#0000003b] mt-10 text-gray-800 text-sm">
-      <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Social & App */}
-        <div className="space-y-4">
-          <h4 className="text-lg font-bold">   وفر أكتر… بكل سهولة!
-       </h4>
-          <p className="text-gray-500">
-تابعنا على مواقع التواصل عشان توصلك أحدث التخفيضات والكوبونات أول بأول          </p>
-          <div className="flex flex-wrap gap-3 text-xl">
-            {[
-              { Icon: FaFacebook, color: "#1877F2", href: "#" },
-              { Icon: FaInstagram, color: "#E4405F", href: "#" },
-              { Icon: FaTwitter, color: "#1DA1F2", href: "#" },
-              { Icon: FaTiktok, color: "#000000", href: "#" },
-              { Icon: FaPinterest, color: "#BD081C", href: "#" },
-              { Icon: FaTelegram, color: "#0088cc", href: "#" },
-              { Icon: FaYoutube, color: "#FF0000", href: "#" },
-            ].map((item, i) => (
-              <a
-                key={i}
-                href={item.href}
-                className="transition-transform duration-200 hover:scale-110"
-                style={{ color: item.color }}
-              >
-                <item.Icon />
-              </a>
-            ))}
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        {/* Desktop Layout - 3 columns */}
+        <div className="hidden md:grid md:grid-cols-3 gap-8">
+          {/* Social & App */}
+          <div className="space-y-4">
+            <h4 className="text-lg font-bold"> وفر أكتر… بكل سهولة!</h4>
+            <p className="text-gray-500">
+              تابعنا على مواقع التواصل عشان توصلك أحدث التخفيضات
+              والكوبونات أول بأول{" "}
+            </p>
+            <div className="flex flex-wrap gap-3 text-xl">
+              {[
+                {
+                  Icon: FaFacebook,
+                  color: "#1877F2",
+                  href: "https://www.facebook.com/Eslam.offers",
+                },
+                {
+                  Icon: FaInstagram,
+                  color: "#E4405F",
+                  href: "https://www.instagram.com/eslam.offers",
+                },
+                {
+                  Icon: FaTwitter,
+                  color: "#1DA1F2",
+                  href: "https://x.com/Eslam_offers",
+                },
+                {
+                  Icon: FaTiktok,
+                  color: "#000000",
+                  href: "https://www.tiktok.com/@eslam.offers",
+                },
+                {
+                  Icon: FaTelegram,
+                  color: "#0088cc",
+                  href: "https://t.me/Saudi_offerss",
+                },
+                {
+                  Icon: FaYoutube,
+                  color: "#FF0000",
+                  href: "https://youtube.com/@eslamoffers",
+                },
+              ].map((item, i) => (
+                <a
+                  key={i}
+                  href={item.href}
+                  className="transition-transform duration-200 hover:scale-110"
+                  style={{ color: item.color }}
+                >
+                  <item.Icon />
+                </a>
+              ))}
+            </div>
           </div>
- 
-        </div>
 
-        {/* Links */}
-        <div className="space-y-6 md:space-y-0 md:flex md:gap-8">
-          {/* Popular Stores */}
-          <div className="w-full md:w-1/3">
-            <button
-              onClick={() => handleToggle(0)}
-              className="flex justify-between items-center w-full text-right font-bold text-base text-gray-800 hover:text-[#14b8a6] md:cursor-default md:pointer-events-none md:hover:text-gray-800"
-            >
-              أشهر المتاجر
-              <FaChevronDown
-                className={`transition-transform duration-300 md:hidden ${
-                  openSection === 0 ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-            <ul
-              className={`overflow-hidden transition-all duration-300 text-gray-600 text-sm pl-4 space-y-1 mt-2 w-[150px] ${
-                openSection === 0 ? "max-h-64" : "max-h-0"
-              } md:max-h-full md:block`}
-            >
-              {loading ? (
-                <li>جاري التحميل...</li>
-              ) : (
-                popularStores.map((store, i) => (
-                  <li key={i}>
+          {/* Links */}
+          <div className="flex gap-8">
+            {/* Popular Stores */}
+            <div className="w-1/2">
+              <h4 className="text-right font-bold text-base text-gray-800 mb-2">
+                أشهر المتاجر
+              </h4>
+              <ul className="text-gray-600 text-sm space-y-1">
+                {loading ? (
+                  <li>جاري التحميل...</li>
+                ) : (
+                  popularStores.map((store, i) => (
+                    <li key={i} className="text-right">
+                      <Link
+                        href={`/stores/${store.slug}`}
+                        className="hover:text-[#14b8a6] transition duration-200 block"
+                      >
+                        {store.name}
+                      </Link>
+                    </li>
+                  ))
+                )}
+              </ul>
+            </div>
+
+            {/* Site Info */}
+            <div className="w-1/2">
+              <h4 className="text-right font-bold text-base text-gray-800 mb-2">
+                معلومات الموقع
+              </h4>
+              <ul className="text-gray-600 text-sm space-y-1">
+                {siteInfoLinks.map((link, i) => (
+                  <li key={i} className="text-right">
                     <a
-                      href={`/store/${store.id}`} // يمكنك تغيير الرابط حسب احتياجاتك
+                      href={link.path}
                       className="hover:text-[#14b8a6] transition duration-200 block"
                     >
-                      {store.name}
+                      {link.title}
                     </a>
                   </li>
-                ))
-              )}
-            </ul>
+                ))}
+              </ul>
+            </div>
           </div>
 
-          {/* Site Info */}
-          <div className="w-full md:w-1/3">
-            <button
-              onClick={() => handleToggle(1)}
-              className="flex justify-between items-center w-full text-right font-bold text-base text-gray-800 hover:text-[#14b8a6] md:cursor-default md:pointer-events-none md:hover:text-gray-800"
-            >
-              معلومات الموقع
-              <FaChevronDown
-                className={`transition-transform duration-300 md:hidden ${
-                  openSection === 1 ? "rotate-180" : ""
-                }`}
+          {/* Contact & Logo */}
+          <div className="space-y-4 text-right">
+            <div className="flex justify-end">
+              <Image
+                src="/logo4.png"
+                alt="إسلام أوفرز"
+                width={150}
+                height={150}
+                className=""
+                loading="lazy"
               />
-            </button>
-            <ul
-              className={`overflow-hidden transition-all duration-300 text-gray-600 text-sm pl-4 space-y-1 mt-2 w-[150px] ${
-                openSection === 1 ? "max-h-64" : "max-h-0"
-              } md:max-h-full md:block`}
-            >
-              {siteInfoLinks.map((link, i) => (
-                <li key={i}>
-                  <a
-                    href={link.path}
-                    className="hover:text-[#14b8a6] transition duration-200 block"
-                  >
-                    {link.title}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            </div>
+            <div className="space-y-2 text-sm text-gray-600">
+              <div className="flex justify-end items-center gap-2">
+                <FaEnvelope className="text-[#14b8a6]" />{" "}
+                support@eslamoffers.com
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Contact & Logo */}
-        <div className="space-y-4 text-right">
-          <div className="flex justify-center md:justify-end">
-            <Image
-              src="/logo4.png"
-              alt="إسلام أوفرز"
-              width={150}
-              height={150}
-              className=""
-              loading="lazy"
-            />
+        {/* Mobile Layout - Single column */}
+        <div className="md:hidden space-y-8">
+
+
+          {/* Links */}
+          <div className="space-y-6">
+            {/* Popular Stores */}
+            <div>
+              <button
+                onClick={() => handleToggle(0)}
+                className="flex justify-between items-center w-full text-right font-bold text-base text-gray-800 hover:text-[#14b8a6]"
+              >
+                أشهر المتاجر
+                <FaChevronDown
+                  className={`transition-transform duration-300 ${
+                    openSection === 0 ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              <ul
+                className={`overflow-hidden transition-all duration-300 text-gray-600 text-sm space-y-1 mt-2 ${
+                  openSection === 0 ? "max-h-64" : "max-h-0"
+                }`}
+              >
+                {loading ? (
+                  <li>جاري التحميل...</li>
+                ) : (
+                  popularStores.map((store, i) => (
+                    <li key={i} className="text-right">
+                      <Link
+                        href={`/stores/${store.slug}`}
+                        className="hover:text-[#14b8a6] transition duration-200 block"
+                      >
+                        {store.name}
+                      </Link>
+                    </li>
+                  ))
+                )}
+              </ul>
+            </div>
+
+            {/* Site Info */}
+            <div>
+              <button
+                onClick={() => handleToggle(1)}
+                className="flex justify-between items-center w-full text-right font-bold text-base text-gray-800 hover:text-[#14b8a6]"
+              >
+                معلومات الموقع
+                <FaChevronDown
+                  className={`transition-transform duration-300 ${
+                    openSection === 1 ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              <ul
+                className={`overflow-hidden transition-all duration-300 text-gray-600 text-sm space-y-1 mt-2 ${
+                  openSection === 1 ? "max-h-64" : "max-h-0"
+                }`}
+              >
+                {siteInfoLinks.map((link, i) => (
+                  <li key={i} className="text-right">
+                    <a
+                      href={link.path}
+                      className="hover:text-[#14b8a6] transition duration-200 block"
+                    >
+                      {link.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
- 
-          <div className="space-y-2 text-sm text-gray-600">
-            <div className="flex justify-end items-center gap-2">
-              <FaEnvelope className="text-[#14b8a6]" /> support@eslamoffers.com
+                    {/* Logo and Contact */}
+          <div className="flex items-center justify-between">
+            {/* Social & App */}
+            <div className="space-y-4  mt-11">
+              <h4 className="text-lg font-bold"> وفر أكتر… بكل سهولة!</h4>
+              <p className="text-gray-500">
+                تابعنا على مواقع التواصل عشان توصلك أحدث التخفيضات
+                والكوبونات أول بأول{" "}
+              </p>
+              <div className="flex flex-wrap justify-center gap-3 text-xl">
+                {[
+                  {
+                    Icon: FaFacebook,
+                    color: "#1877F2",
+                    href: "https://www.facebook.com/Eslam.offers",
+                  },
+                  {
+                    Icon: FaInstagram,
+                    color: "#E4405F",
+                    href: "https://www.instagram.com/eslam.offers",
+                  },
+                  {
+                    Icon: FaTwitter,
+                    color: "#1DA1F2",
+                    href: "https://x.com/Eslam_offers",
+                  },
+                  {
+                    Icon: FaTiktok,
+                    color: "#000000",
+                    href: "https://www.tiktok.com/@eslam.offers",
+                  },
+                  {
+                    Icon: FaTelegram,
+                    color: "#0088cc",
+                    href: "https://t.me/Saudi_offerss",
+                  },
+                  {
+                    Icon: FaYoutube,
+                    color: "#FF0000",
+                    href: "https://youtube.com/@eslamoffers",
+                  },
+                ].map((item, i) => (
+                  <a
+                    key={i}
+                    href={item.href}
+                    className="transition-transform duration-200 hover:scale-110"
+                    style={{ color: item.color }}
+                  >
+                    <item.Icon />
+                  </a>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-col items-center">
+              <Image
+                src="/logo4.png"
+                alt="إسلام أوفرز"
+                width={150}
+                height={150}
+                className=""
+                loading="lazy"
+              />
+              <div className="flex items-center gap-2 mt-4">
+                <FaEnvelope className="text-[#14b8a6]" />{" "}
+                support@eslamoffers.com
+              </div>
             </div>
           </div>
         </div>

@@ -100,21 +100,10 @@ export default function ContactPage() {
               {
                 icon: <FaEnvelope />,
                 title: "البريد الإلكتروني",
-                value: "info@eslamoffers.com",
-                link: "mailto:info@eslamoffers.com",
+                value: "support@eslam.offers.com",
+                link: "support@eslam.offers.com",
               },
-              {
-                icon: <FaPhoneAlt />,
-                title: "الهاتف",
-                value: "+20 123 456 7890",
-                link: "tel:+201234567890",
-              },
-              {
-                icon: <FaMapMarkerAlt />,
-                title: "العنوان",
-                value: "القاهرة، مصر",
-                link: "",
-              },
+ 
             ].map((item, i) => (
               <div
                 key={i}
@@ -141,27 +130,25 @@ export default function ContactPage() {
             {/* السوشيال ميديا */}
             <div className="flex justify-center gap-4 text-2xl mt-3">
               <a
-                href="#"
+                href="https://www.facebook.com/Eslam.offers"
                 className="text-gray-400 hover:text-teal-500 transition"
               >
                 <FaFacebookF />
               </a>
               <a
-                href="#"
+                href="https://x.com/Eslam_offers"
                 className="text-gray-400 hover:text-teal-500 transition"
               >
                 <FaTwitter />
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/eslam.offers"
                 className="text-gray-400 hover:text-teal-500 transition"
               >
                 <FaInstagram />
               </a>
             </div>
-          </div>
-          {/* الخريطة */}
-          <div className="p-4 pb-6 flex-1 flex items-end">
+                      <div className="p-4 pb-6 flex-1 flex items-end">
             <div className="w-full h-56 md:h-64 rounded-2xl overflow-hidden border border-teal-200 shadow-md">
               <iframe
                 title="خريطة الموقع"
@@ -175,6 +162,9 @@ export default function ContactPage() {
               ></iframe>
             </div>
           </div>
+          </div>
+          {/* الخريطة */}
+
         </div>
 
         {/* يسار: الفرم */}
