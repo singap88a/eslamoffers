@@ -88,7 +88,7 @@ export default function CategoryPage() {
             key={store.id}
 className="bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-xl overflow-hidden shadow-sm h-full flex flex-col relative transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl group"          >
             <Link href={`/stores/${store.slug || store.id}`} prefetch={false}>
-              <div className="relative  w-[200] h-[80] w-full">
+              <div className="relative    h-[80] w-full">
                 <Image
                   src={store.logoUrl ? `https://api.eslamoffers.com/uploads/${store.logoUrl}` : '/default-store.png'}
                   alt={store.name}
@@ -96,11 +96,11 @@ className="bg-white border-2 border-gray-300 border-dashed hover:border-teal-400
           className="   group-hover:scale-110 transition-transform duration-300 w-[200] h-[80px]"
                  />
               </div>
-              <div className="p-4 border-t border-gray-100">
-                <h3 className="font-semibold text-center text-gray-800 group-hover:text-teal-600 transition-colors">
-                  {store.name}
-                </h3>
-              </div>
+      <div className="p-1 text-center border-t border-gray-100 flex-grow flex flex-col justify-center">
+        <h3 className="text-sm md:text-base text-gray-800 mb-2 truncate group-hover:text-teal-600 transition-colors">
+          {store.name}
+        </h3>
+      </div>
             </Link>
           </div>
         ))}

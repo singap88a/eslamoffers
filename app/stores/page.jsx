@@ -31,7 +31,7 @@ const StoreCard = ({ store }) => {
         <img
           src={getLogoSrc()}
           alt={`${store.name} logo`}
-          className="   group-hover:scale-110 transition-transform duration-300 w-[200] h-[80px]"
+          className="   group-hover:scale-110 transition-transform duration-300  "
         />
         
         {/* طبقة التدرج عند التحويم */}

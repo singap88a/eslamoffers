@@ -38,14 +38,42 @@ export default function BannerManagement() {
   const [linkType, setLinkType] = useState('external');
   const [selectedStore, setSelectedStore] = useState('');
 
-  // Initialize token from localStorage
+  // دالة للحصول على التوكن من الكوكيز
+  const getTokenFromCookies = () => {
+    if (typeof window === 'undefined') return '';
+    const cookies = document.cookie.split(';');
+    const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='));
+    return tokenCookie ? tokenCookie.split('=')[1] : '';
+  };
+  
+  // التحقق من وجود التوكن وإعادة التوجيه إذا لم يكن موجوداً
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      fetchBanners();
-      fetchStores();
+    const token = getTokenFromCookies();
+    if (!token) {
+      window.location.href = '/admin/login';
+      return;
     }
+    
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    fetchBanners();
+    fetchStores();
+  }, []);
+  
+  // معالجة أخطاء 401 (غير مصرح)
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      response => response,
+      error => {
+        if (error.response?.status === 401) {
+          window.location.href = '/admin/login';
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
   }, []);
   
   // Auto-hide snackbar after 3 seconds

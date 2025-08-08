@@ -99,7 +99,7 @@ const CouponCard = ({
 
   return (
     <>
-      <div className="relative bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-2xl transform hover:-translate-y-2 duration-300 ease-in-out transition-all  p-3 md:h-[250px] flex flex-col justify-between">
+      <div className="relative bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-2xl transform hover:-translate-y-2 duration-300 ease-in-out transition-all  p-3 md:h-[250px] h-[230px] flex flex-col justify-between">
         {/* شارة الحالة - تظهر فقط إذا كان showBadges = true */}
         {/* {showBadges && (
           <span
@@ -122,7 +122,7 @@ const CouponCard = ({
         <div className="mx-auto text-center  mb-2">
           <Link
             href={getStoreInternalLink()}
-            className="md:w-[200px] w-[100px] h-[75px] relative flex justify-center items-center mx-auto"
+            className="md:w-[200px] w-[110px] h-[75px] relative flex justify-center items-center mx-auto"
           >
             <Image
               src={getImageSrc()}

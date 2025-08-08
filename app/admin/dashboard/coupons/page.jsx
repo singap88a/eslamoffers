@@ -10,12 +10,12 @@ import { FiPlus, FiArrowRight, FiSearch } from "react-icons/fi";
 const API_BASE = "https://api.eslamoffers.com/api/Coupons";
 const CATEGORY_API_URL = "https://api.eslamoffers.com/api/Category";
 
-const getCookie = (name) => {
-  if (typeof window === 'undefined') return null;
+const getTokenFromCookies = () => {
+  if (typeof window === 'undefined') return '';
   const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
+  const parts = value.split(`; token=`);
   if (parts.length === 2) return parts.pop().split(';').shift();
-  return null;
+  return '';
 };
 
 const CouponsPageContent = () => {
@@ -38,17 +38,44 @@ const CouponsPageContent = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
+    const token = getTokenFromCookies();
+    if (!token) {
+      router.push('/admin/login');
+      return;
+    }
+    
     if (!storeId) {
       router.replace('/admin/dashboard/stores');
     }
   }, [router, storeId]);
+  
+  // Response interceptor for handling 401 errors
+  useEffect(() => {
+    const handleUnauthorizedResponse = (response) => {
+      if (!response.ok && response.status === 401) {
+        router.push('/admin/login');
+      }
+      return response;
+    };
+
+    // Override fetch to handle 401 errors
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+      const response = await originalFetch(...args);
+      return handleUnauthorizedResponse(response.clone());
+    };
+
+    return () => {
+      window.fetch = originalFetch;
+    };
+  }, [router]);
 
   const fetchCoupons = async () => {
     if (!storeId) return;
     setLoading(true);
     setError(null);
     try {
-      const token = getCookie("token");
+      const token = getTokenFromCookies();
       const res = await fetch(`${API_BASE}/GetCouponsByStore/${storeId}`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -65,7 +92,7 @@ const CouponsPageContent = () => {
   const fetchStoreInfo = async () => {
     if (!storeId) return;
     try {
-      const token = getCookie("token");
+      const token = getTokenFromCookies();
       const res = await fetch(`https://api.eslamoffers.com/api/Store/GetStoreBySlug/${storeId}`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -124,7 +151,7 @@ const CouponsPageContent = () => {
     }
     
     try {
-      const token = getCookie("token");
+      const token = getTokenFromCookies();
       let res;
       if (editCoupon) {
         res = await fetch(`${API_BASE}/UpdateCoupon/${editCoupon.id}`, {

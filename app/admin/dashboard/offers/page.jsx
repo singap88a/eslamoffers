@@ -16,17 +16,50 @@ const OffersPage = () => {
 
   const API_URL = "https://api.eslamoffers.com/api/Offers";
 
-  // أضف هذه الدالة للحصول على الـ token
-  const getAuthToken = () => {
-    return localStorage.getItem("token") || ""; // أو أي مكان آخر تحفظ فيه الـ token
+  // دالة للحصول على التوكن من الكوكيز
+  const getTokenFromCookies = () => {
+    if (typeof window === 'undefined') return '';
+    const cookies = document.cookie.split(';');
+    const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='));
+    return tokenCookie ? tokenCookie.split('=')[1] : '';
   };
+  
+  // التحقق من وجود التوكن وإعادة التوجيه إذا لم يكن موجوداً
+  useEffect(() => {
+    const token = getTokenFromCookies();
+    if (!token) {
+      window.location.href = '/admin/login';
+      return;
+    }
+  }, []);
+  
+  // معالجة أخطاء 401 (غير مصرح)
+  useEffect(() => {
+    const handleUnauthorizedResponse = (response) => {
+      if (!response.ok && response.status === 401) {
+        window.location.href = '/admin/login';
+      }
+      return response;
+    };
+
+    // تعديل الدالة fetch للتعامل مع أخطاء 401
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+      const response = await originalFetch(...args);
+      return handleUnauthorizedResponse(response.clone());
+    };
+
+    return () => {
+      window.fetch = originalFetch;
+    };
+  }, []);
   // Fetch all offers
   const fetchOffers = async () => {
     setLoading(true);
     try {
       const response = await fetch(`${API_URL}/GetAllOffers`, {
         headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
+          Authorization: `Bearer ${getTokenFromCookies()}`,
           Accept: "application/json",
         },
       });
@@ -79,7 +112,7 @@ const handleFormSubmit = async (values, productImageFile, storeImageFile) => {
     const response = await fetch(url, {
       method,
       headers: {
-        'Authorization': `Bearer ${getAuthToken()}`
+        'Authorization': `Bearer ${getTokenFromCookies()}`
       },
       body: formData
     });
