@@ -100,7 +100,7 @@ const CombinedSlider = () => {
   return (
     <div className="">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-[#14b8a6]">العروض والكوبونات</h2>
+        <h2 className="text-2xl font-bold text-[#14b8a6]"> افضل الكوبونات</h2>
         <div className="flex gap-4">
           <Link
             href="/coupons"
@@ -166,6 +166,7 @@ const CombinedSlider = () => {
           imageSrc={modalCoupon ? (modalCoupon.imageUrl?.startsWith('http') ? modalCoupon.imageUrl : `https://api.eslamoffers.com/uploads/${modalCoupon.imageUrl}`) : null}
           couponTitle={modalCoupon?.title || ""}
           couponDescription={modalCoupon?.description || ""}
+          altText={modalCoupon?.altText || ""}
           className="mx-4"
         />
       )}

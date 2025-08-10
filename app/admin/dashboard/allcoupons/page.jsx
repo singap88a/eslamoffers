@@ -30,7 +30,8 @@ const CouponsAdminPanel = () => {
     isBestDiscount: false,
     linkRealStore: '',
     slugStore: '',
-    selectedStore: null
+    selectedStore: null,
+    altText: ''
   });
   
   // Edit coupon state
@@ -116,11 +117,28 @@ const CouponsAdminPanel = () => {
         axios.get(`${API_BASE_URL}/Coupons/GetBestCoupons/BestDiscount`)
       ]);
       
-      setCoupons(allCoupons.data);
-      setBestCoupons(best.data);
-      setBestDiscountCoupons(bestDiscount.data);
+      // Clean and ensure all fields are strings
+      const cleanCoupons = (coupons) => {
+        return coupons.map(coupon => ({
+          ...coupon,
+          title: typeof coupon.title === 'string' ? coupon.title : String(coupon.title || ''),
+          descriptionCoupon: typeof coupon.descriptionCoupon === 'string' ? coupon.descriptionCoupon : String(coupon.descriptionCoupon || ''),
+          couponCode: typeof coupon.couponCode === 'string' ? coupon.couponCode : String(coupon.couponCode || ''),
+          linkRealStore: typeof coupon.linkRealStore === 'string' ? coupon.linkRealStore : String(coupon.linkRealStore || ''),
+          altText: typeof coupon.altText === 'string' ? coupon.altText : String(coupon.altText || ''),
+          imageUrl: typeof coupon.imageUrl === 'string' ? coupon.imageUrl : String(coupon.imageUrl || ''),
+          slugStore: typeof coupon.slugStore === 'string' ? coupon.slugStore : String(coupon.slugStore || '')
+        }));
+      };
+      
+      setCoupons(cleanCoupons(allCoupons.data));
+      setBestCoupons(cleanCoupons(best.data));
+      setBestDiscountCoupons(cleanCoupons(bestDiscount.data));
     } catch (error) {
-      showMessage('فشل في جلب بيانات الكوبونات', 'error');
+      const errorMessage = error.response?.data ? 
+        (typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data)) : 
+        'فشل في جلب بيانات الكوبونات';
+      showMessage(errorMessage, 'error');
     } finally {
       setLoading(false);
     }
@@ -132,7 +150,10 @@ const CouponsAdminPanel = () => {
       const response = await axios.get(`${API_BASE_URL}/Store/GetAllStores`);
       setStores(response.data);
     } catch (error) {
-      showMessage('فشل في جلب بيانات المتاجر', 'error');
+      const errorMessage = error.response?.data ? 
+        (typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data)) : 
+        'فشل في جلب بيانات المتاجر';
+      showMessage(errorMessage, 'error');
     }
   };
 
@@ -166,6 +187,7 @@ const CouponsAdminPanel = () => {
       formData.append('IsBestDiscount', newCoupon.isBestDiscount);
       formData.append('LinkRealStore', newCoupon.linkRealStore);
       formData.append('SlugStore', newCoupon.slugStore);
+      formData.append('AltText', newCoupon.altText);
       
       if (selectedFile) {
         formData.append('ImageUrl', selectedFile);
@@ -178,7 +200,10 @@ const CouponsAdminPanel = () => {
       resetNewCouponForm();
       fetchAllData();
     } catch (error) {
-      showMessage(error.response?.data || 'فشل في إضافة الكوبون', 'error');
+      const errorMessage = error.response?.data ? 
+        (typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data)) : 
+        'فشل في إضافة الكوبون';
+      showMessage(errorMessage, 'error');
     }
   };
 
@@ -199,6 +224,7 @@ const CouponsAdminPanel = () => {
       formData.append('IsBestDiscount', editCoupon.isBestDiscount);
       formData.append('LinkRealStore', editCoupon.linkRealStore);
       formData.append('SlugStore', editCoupon.slugStore);
+      formData.append('AltText', editCoupon.altText);
       
       if (selectedFile) {
         formData.append('ImageUrl', selectedFile);
@@ -210,7 +236,10 @@ const CouponsAdminPanel = () => {
       setOpenEditModal(false);
       fetchAllData();
     } catch (error) {
-      showMessage(error.response?.data || 'فشل في تحديث الكوبون', 'error');
+      const errorMessage = error.response?.data ? 
+        (typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data)) : 
+        'فشل في تحديث الكوبون';
+      showMessage(errorMessage, 'error');
     }
   };
 
@@ -222,7 +251,10 @@ const CouponsAdminPanel = () => {
       setOpenDeleteDialog(false);
       fetchAllData();
     } catch (error) {
-      showMessage(error.response?.data || 'فشل في حذف الكوبون', 'error');
+      const errorMessage = error.response?.data ? 
+        (typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data)) : 
+        'فشل في حذف الكوبون';
+      showMessage(errorMessage, 'error');
     }
   };
 
@@ -232,7 +264,10 @@ const CouponsAdminPanel = () => {
       await axios.put(`${API_BASE_URL}/Coupons/NumberUsed/${couponId}`);
       fetchAllData();
     } catch (error) {
-      showMessage('فشل في تحديث استخدام الكوبون', 'error');
+      const errorMessage = error.response?.data ? 
+        (typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data)) : 
+        'فشل في تحديث استخدام الكوبون';
+      showMessage(errorMessage, 'error');
     }
   };
 
@@ -267,7 +302,8 @@ const CouponsAdminPanel = () => {
       isBestDiscount: false,
       linkRealStore: '',
       slugStore: '',
-      selectedStore: null
+      selectedStore: null,
+      altText: ''
     });
     setPreviewUrl('');
     setSelectedFile(null);
@@ -413,8 +449,8 @@ const CouponsAdminPanel = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {coupon.imageUrl ? (
                         <img 
-                          src={`https://api.eslamoffers.com/uploads/${coupon.imageUrl}`} 
-                          alt="Coupon" 
+                          src={`https://api.eslamoffers.com/uploads/${typeof coupon.imageUrl === 'string' ? coupon.imageUrl : String(coupon.imageUrl || '')}`} 
+                          alt={typeof (coupon.altText || coupon.title) === 'string' ? (coupon.altText || coupon.title) : String(coupon.altText || coupon.title || "Coupon")} 
                           className="     "
                         />
                       ) : (
@@ -422,40 +458,40 @@ const CouponsAdminPanel = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 max-w-xs">
-                      <div className="font-medium">{coupon.title}</div>
-                      <div className="text-sm text-gray-500 truncate">{coupon.descriptionCoupon}</div>
+                      <div className="font-medium">{typeof coupon.title === 'string' ? coupon.title : String(coupon.title || '')}</div>
+                      <div className="text-sm text-gray-500 truncate">{typeof coupon.descriptionCoupon === 'string' ? coupon.descriptionCoupon : String(coupon.descriptionCoupon || '')}</div>
                       {coupon.slugStore && (
                         <div className="text-xs text-gray-400 mt-1 flex items-center">
                           <Store className="text-xs ml-1" /> 
-                          {coupon.slugStore}
+                          {typeof coupon.slugStore === 'string' ? coupon.slugStore : String(coupon.slugStore || '')}
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap font-mono">
-                      {coupon.couponCode}
-                      <div className="text-xs text-gray-500 mt-1">استخدم: {coupon.number || 0} مرة</div>
+                      {typeof coupon.couponCode === 'string' ? coupon.couponCode : String(coupon.couponCode || '')}
+                      <div className="text-xs text-gray-500 mt-1">استخدم: {typeof coupon.number === 'number' ? coupon.number : (typeof coupon.number === 'string' ? parseInt(coupon.number) || 0 : 0)} مرة</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="px-2 py-1 bg-teal-100 text-teal-800 rounded-full text-sm">
-                        {coupon.discount}%
+                        {typeof coupon.discount === 'number' ? coupon.discount : (typeof coupon.discount === 'string' ? parseInt(coupon.discount) || 0 : 0)}%
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div>البداية: {formatDate(coupon.stratDate)}</div>
-                      <div>النهاية: {formatDate(coupon.endDate)}</div>
+                      <div>البداية: {formatDate(typeof coupon.stratDate === 'string' ? coupon.stratDate : String(coupon.stratDate || ''))}</div>
+                      <div>النهاية: {formatDate(typeof coupon.endDate === 'string' ? coupon.endDate : String(coupon.endDate || ''))}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        coupon.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        Boolean(coupon.isActive) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}>
-                        {coupon.isActive ? 'نشط' : 'غير نشط'}
+                        {Boolean(coupon.isActive) ? 'نشط' : 'غير نشط'}
                       </span>
-                      {coupon.isBest && (
+                      {Boolean(coupon.isBest) && (
                         <span className="mr-1 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">
                           أفضل
                         </span>
                       )}
-                      {coupon.isBestDiscount && (
+                      {Boolean(coupon.isBestDiscount) && (
                         <span className="mr-1 px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
                           أفضل خصم
                         </span>
@@ -669,6 +705,17 @@ const CouponsAdminPanel = () => {
                       rows="3"
                       value={newCoupon.descriptionCoupon}
                       onChange={(e) => setNewCoupon({...newCoupon, descriptionCoupon: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">النص البديل للصورة (Alt Text)</label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
+                      value={newCoupon.altText}
+                      onChange={(e) => setNewCoupon({...newCoupon, altText: e.target.value})}
+                      placeholder="أدخل نص بديل للصورة لتحسين إمكانية الوصول"
                     />
                   </div>
                   
@@ -920,6 +967,17 @@ const CouponsAdminPanel = () => {
                       rows="3"
                       value={editCoupon.descriptionCoupon}
                       onChange={(e) => setEditCoupon({...editCoupon, descriptionCoupon: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">النص البديل للصورة (Alt Text)</label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
+                      value={editCoupon.altText || ''}
+                      onChange={(e) => setEditCoupon({...editCoupon, altText: e.target.value})}
+                      placeholder="أدخل نص بديل للصورة لتحسين إمكانية الوصول"
                     />
                   </div>
                   

@@ -14,6 +14,7 @@ const CouponCodeModal = ({
   couponTitle,        // جديد: اسم الكوبون
   couponDescription,  // جديد: وصف الكوبون (اختياري)
   lastUseAt,          // جديد: آخر استخدام للكود
+  altText,            // جديد: النص البديل للصورة
 }) => {
   // دالة لحساب الوقت المنقضي منذ آخر استخدام
   const getLastUsedTime = () => {
@@ -75,7 +76,7 @@ const CouponCodeModal = ({
           <div className="flex flex-col items-center mb-2">
             <Image
               src={imageSrc}
-              alt={couponTitle || "شعار المتجر"}
+              alt={altText || couponTitle || "شعار المتجر"}
               width={80}
               height={40}
               className="mb-2"

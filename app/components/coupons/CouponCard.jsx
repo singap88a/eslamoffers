@@ -122,7 +122,7 @@ const CouponCard = ({
             >
               <Image
                 src={getImageSrc()}
-                alt={coupon.title}
+                alt={coupon.altText || coupon.title}
                 layout="fill"
                 objectFit="contain"
                 className="rounded-md"
@@ -130,10 +130,10 @@ const CouponCard = ({
             </Link>
             <div className="flex-1">
               <h3 className="md:text-[16px] font-semibold text-gray-900 mb-1 line-clamp-2 text-[12px]">
-                {coupon.title}
+                {typeof coupon.title === 'string' ? coupon.title : String(coupon.title || '')}
               </h3>
               <p className="text-center text-gray-500 text-[11px] md:text-[13px] line-clamp-2 overflow-hidden">
-                {coupon.descriptionCoupon || coupon.description}
+                {typeof (coupon.descriptionCoupon || coupon.description) === 'string' ? (coupon.descriptionCoupon || coupon.description) : String(coupon.descriptionCoupon || coupon.description || '')}
               </p>
             </div>
           </div>
@@ -194,7 +194,7 @@ const CouponCard = ({
             <div className="flex flex-col items-center mb-2">
               <Image
                 src={getImageSrc()}
-                alt={coupon.title}
+                alt={coupon.altText || coupon.title}
                 width={80}
                 height={40}
                 className="mb-2"
@@ -202,10 +202,10 @@ const CouponCard = ({
             </div>
 
             <h2 className="text-xl font-bold text-center mb-2 text-gray-800">
-              {coupon.title}
+              {typeof coupon.title === 'string' ? coupon.title : String(coupon.title || '')}
             </h2>
             <p className="text-center text-gray-500 mb-4">
-              {coupon.descriptionCoupon || coupon.description}
+              {typeof (coupon.descriptionCoupon || coupon.description) === 'string' ? (coupon.descriptionCoupon || coupon.description) : String(coupon.descriptionCoupon || coupon.description || '')}
             </p>
 
             {/* معلومات الخصم */}

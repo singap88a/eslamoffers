@@ -48,10 +48,10 @@ const StoreOffersCard = ({ offer }) => {
         onClick={handleCardClick}
       >
         <h3 className="text-[16px] font-semibold text-gray-900 mb-1 line-clamp-2 text-center">
-          {offer.title}
+          {typeof offer.title === 'string' ? offer.title : String(offer.title || '')}
         </h3>
         <p className="text-center text-gray-500 text-[13px] line-clamp-2 overflow-hidden">
-          {offer.description}
+          {typeof offer.description === 'string' ? offer.description : String(offer.description || '')}
         </p>
       </div>
 

@@ -13,7 +13,18 @@ const fetchBestDiscounts = async () => {
     const res = await fetch("https://api.eslamoffers.com/api/Coupons/GetBestCoupons/BestDiscount");
     if (!res.ok) throw new Error("Failed to fetch discounts");
     const data = await res.json();
-    return data.filter(c => c.isBastDiscount).slice(0, 8);
+    
+    // Filter and clean the data to ensure all fields are strings
+    return data.filter(c => c.isBastDiscount).slice(0, 8).map(coupon => ({
+      ...coupon,
+      title: typeof coupon.title === 'string' ? coupon.title : String(coupon.title || ''),
+      descriptionCoupon: typeof coupon.descriptionCoupon === 'string' ? coupon.descriptionCoupon : String(coupon.descriptionCoupon || ''),
+      couponCode: typeof coupon.couponCode === 'string' ? coupon.couponCode : String(coupon.couponCode || ''),
+      linkRealStore: typeof coupon.linkRealStore === 'string' ? coupon.linkRealStore : String(coupon.linkRealStore || ''),
+      altText: typeof coupon.altText === 'string' ? coupon.altText : String(coupon.altText || ''),
+      imageUrl: typeof coupon.imageUrl === 'string' ? coupon.imageUrl : String(coupon.imageUrl || ''),
+      slugStore: typeof coupon.slugStore === 'string' ? coupon.slugStore : String(coupon.slugStore || '')
+    }));
   } catch (e) {
     console.error(e);
     return [];
@@ -25,7 +36,17 @@ const fetchBestOffers = async () => {
     const res = await fetch("https://api.eslamoffers.com/api/StoreOffers/GetAllOffers");
     if (!res.ok) throw new Error("Failed to fetch offers");
     const data = await res.json();
-    return data.slice(0, 8); // Get first 8 offers
+    
+    // Clean the data to ensure all fields are strings
+    return data.slice(0, 8).map(offer => ({
+      ...offer,
+      title: typeof offer.title === 'string' ? offer.title : String(offer.title || ''),
+      description: typeof offer.description === 'string' ? offer.description : String(offer.description || ''),
+      linkPage: typeof offer.linkPage === 'string' ? offer.linkPage : String(offer.linkPage || ''),
+      altText: typeof offer.altText === 'string' ? offer.altText : String(offer.altText || ''),
+      logoUrl: typeof offer.logoUrl === 'string' ? offer.logoUrl : String(offer.logoUrl || ''),
+      slugStore: typeof offer.slugStore === 'string' ? offer.slugStore : String(offer.slugStore || '')
+    }));
   } catch (e) {
     console.error(e);
     return [];
@@ -84,7 +105,7 @@ const BestDiscountsSlider = () => {
   return (
     <div className="mt-12">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-[#14b8a6]">أفضل العروض والخصومات</h2>
+        <h2 className="text-2xl font-bold text-[#14b8a6]">أفضل    الخصومات</h2>
         <div className="flex gap-4">
           <Link
             href="/coupons"
@@ -152,6 +173,7 @@ const BestDiscountsSlider = () => {
           couponTitle={modalCoupon?.title || ""}
           couponDescription={modalCoupon?.descriptionCoupon || ""}
           lastUseAt={modalCoupon?.lastUseAt || null}
+          altText={modalCoupon?.altText || ""}
           className="mx-4"
         />
       )}

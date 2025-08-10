@@ -47,8 +47,9 @@ const CouponTable = ({ coupons, onEdit, onDelete, loading }) => {
               <th className="py-4 px-6 text-sm font-bold text-gray-600 uppercase tracking-wider">العنوان</th>
               <th className="py-4 px-6 text-sm font-bold text-gray-600 uppercase tracking-wider hidden md:table-cell">الخصم</th>
               <th className="py-4 px-6 text-sm font-bold text-gray-600 uppercase tracking-wider">الكود</th>
+              <th className="py-4 px-6 text-sm font-bold text-gray-600 uppercase tracking-wider hidden lg:table-cell">النص البديل</th>
               <th className="py-4 px-6 text-sm font-bold text-gray-600 uppercase tracking-wider hidden md:table-cell">تاريخ الانتهاء</th>
-                              <th className="py-4 px-6 text-sm font-bold text-gray-600 uppercase tracking-wider hidden lg:table-cell">النسخ</th>
+              <th className="py-4 px-6 text-sm font-bold text-gray-600 uppercase tracking-wider hidden lg:table-cell">النسخ</th>
               <th className="py-4 px-6 text-sm font-bold text-gray-600 uppercase tracking-wider">الحالة</th>
               <th className="py-4 px-6 text-sm font-bold text-gray-600 uppercase tracking-wider">إجراءات</th>
             </tr>
@@ -80,6 +81,13 @@ const CouponTable = ({ coupons, onEdit, onDelete, loading }) => {
                         <FiCode className="text-gray-400"/>
                         <span className="font-mono bg-gray-100 text-gray-700 px-2 py-1 rounded-md text-sm">{coupon.couponCode}</span>
                     </div>
+                </td>
+                <td className="py-4 px-6 whitespace-nowrap hidden lg:table-cell">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 text-sm max-w-[150px] truncate" title={coupon.altText || "لا يوجد نص بديل"}>
+                      {coupon.altText || "لا يوجد نص بديل"}
+                    </span>
+                  </div>
                 </td>
                 <td className="py-4 px-6 whitespace-nowrap hidden md:table-cell">
                   <div className="flex items-center gap-2">

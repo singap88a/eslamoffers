@@ -26,6 +26,7 @@ const CouponFormModal = ({
     title: "",
     description: "",
     imageUrl: "",
+    altText: "",
     discount: 0,
     couponCode: "",
     stratDate: "",
@@ -48,6 +49,7 @@ const CouponFormModal = ({
         title: initialData.title || "",
         description: initialData.descriptionCoupon || "",
         imageUrl: initialData.imageUrl || "",
+        altText: initialData.altText || "",
         discount: initialData.discount || 0,
         couponCode: initialData.couponCode || "",
         stratDate: initialData.stratDate 
@@ -69,6 +71,7 @@ const CouponFormModal = ({
         title: "",
         description: "",
         imageUrl: "",
+        altText: "",
         discount: 0,
         couponCode: "",
         stratDate: "",
@@ -196,6 +199,19 @@ const CouponFormModal = ({
               className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pl-10 p-2.5 transition"
               rows="3"
             ></textarea>
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+              <FiImage />
+            </div>
+            <input
+              name="altText"
+              value={formData.altText}
+              onChange={handleChange}
+              placeholder="نص بديل للصورة (Alt Text)"
+              className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pl-10 p-2.5 transition"
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
