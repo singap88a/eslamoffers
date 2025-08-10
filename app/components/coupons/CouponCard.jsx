@@ -97,78 +97,69 @@ const CouponCard = ({
 
   const lastUsedTime = getLastUsedTime();
 
+  const handleOpenModal = () => {
+    if (onGetCode) {
+      onGetCode(coupon);
+    } else {
+      setShowModal(true);
+      setIsCopied(false);
+    }
+  };
+
   return (
     <>
       <div className="relative bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-2xl transform hover:-translate-y-2 duration-300 ease-in-out transition-all  p-3 md:h-[250px] h-[230px] flex flex-col justify-between">
-        {/* شارة الحالة - تظهر فقط إذا كان showBadges = true */}
-        {/* {showBadges && (
-          <span
-            className={`absolute top-2 left-2 px-3 py-1 rounded-full text-xs font-bold ${
-              isExpired
-                ? "bg-red-100 text-red-600"
-                : (coupon.isActive ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-600")
-            }`}
-          >
-            {isExpired ? "منتهي" : (coupon.isActive ? "نشط" : "غير نشط")}
-          </span>
-        )}
-
-         {showBadges && (coupon.isBest || coupon.isBastDiscount) && (
-          <span className="absolute top-2 right-2 bg-yellow-100 text-yellow-600 px-2 py-1 rounded-full text-xs font-bold">
-            الأفضل
-          </span>
-        )} */}
-
-        <div className="mx-auto text-center  mb-2">
-          <Link
-            href={getStoreInternalLink()}
-            className="md:w-[200px] w-[110px] h-[75px] relative flex justify-center items-center mx-auto"
-          >
-            <Image
-              src={getImageSrc()}
-              alt={coupon.title}
-              layout="fill"
-              objectFit="contain"
-              className="rounded-md"
-            />
-          </Link>
-          <div className="flex-1">
-            <h3 className="md:text-[16px] font-semibold text-gray-900 mb-1 line-clamp-2 text-[12px]">
-              {coupon.title}
-            </h3>
-            <p className="text-center text-gray-500 text-[11px] md:text-[13px] line-clamp-2 overflow-hidden">
-              {coupon.descriptionCoupon || coupon.description}
-            </p>
+        {/* الجزء العلوي (من تحت الصورة حتى قبل الزر) - قابل للنقر */}
+        <div 
+          className="flex-1 flex flex-col cursor-pointer" 
+          onClick={handleOpenModal}
+        >
+          <div className="mx-auto text-center mb-2">
+            <Link
+              href={getStoreInternalLink()}
+              className="md:w-[200px] w-[110px] h-[75px] relative flex justify-center items-center mx-auto"
+              onClick={(e) => e.stopPropagation()} // لمنع فتح المودال عند الضغط على الصورة
+            >
+              <Image
+                src={getImageSrc()}
+                alt={coupon.title}
+                layout="fill"
+                objectFit="contain"
+                className="rounded-md"
+              />
+            </Link>
+            <div className="flex-1">
+              <h3 className="md:text-[16px] font-semibold text-gray-900 mb-1 line-clamp-2 text-[12px]">
+                {coupon.title}
+              </h3>
+              <p className="text-center text-gray-500 text-[11px] md:text-[13px] line-clamp-2 overflow-hidden">
+                {coupon.descriptionCoupon || coupon.description}
+              </p>
+            </div>
           </div>
+
+          {/* عرض آخر نسخ للكود - يظهر فقط إذا كان showLastUsed = true */}
+          {showLastUsed && lastUsedTime && (
+            <div className="bg-green-50 border border-green-100 rounded-md px-2 flex items-center justify-center gap-1 text-[11px]  mb-1  font-medium w-fit mx-auto">
+              <FiClock className="text-green-500 text-[13px] -mt-[1px]" />
+              <span className="text-gray-700">{lastUsedTime.text}:</span>
+              <span className="text-green-600 font-bold">
+                {lastUsedTime.time}
+              </span>
+            </div>
+          )}
+          {showLastUsed && !lastUsedTime && coupon.number === 0 && (
+            <div className="bg-blue-50 border border-blue-100 rounded-md px-2 flex items-center justify-center gap-1 text-[11px] font-medium w-fit mx-auto">
+              <FiClock className="text-blue-500 text-[13px] -mt-[1px]" />
+              <span className="text-gray-700">لم يتم نسخ الكود بعد</span>
+            </div>
+          )}
         </div>
 
-        {/* عرض آخر نسخ للكود - يظهر فقط إذا كان showLastUsed = true */}
-        {showLastUsed && lastUsedTime && (
-          <div className="bg-green-50 border border-green-100 rounded-md px-2 flex items-center justify-center gap-1 text-[11px]  mb-1  font-medium w-fit mx-auto    ">
-            <FiClock className="text-green-500 text-[13px] -mt-[1px]" />
-            <span className="text-gray-700">{lastUsedTime.text}:</span>
-            <span className="text-green-600 font-bold">
-              {lastUsedTime.time}
-            </span>
-          </div>
-        )}
-        {showLastUsed && !lastUsedTime && coupon.number === 0 && (
-          <div className="bg-blue-50 border border-blue-100 rounded-md px-2 flex items-center justify-center gap-1 text-[11px] font-medium w-fit mx-auto">
-            <FiClock className="text-blue-500 text-[13px] -mt-[1px]" />
-            <span className="text-gray-700">لم يتم نسخ الكود بعد</span>
-          </div>
-        )}
-
-        <div className="flex items-center justify-between gap-2     ">
+        {/* الزر (غير قابل للنقر على المنطقة المحيطة) */}
+        <div className="flex items-center justify-between gap-2">
           <button
-            onClick={() => {
-              if (onGetCode) {
-                onGetCode(coupon);
-              } else {
-                setShowModal(true);
-                setIsCopied(false);
-              }
-            }}
+            onClick={handleOpenModal}
             className="w-full bg-gradient-to-r from-teal-500 to-teal-600 text-white font-semibold px-4 py-1 rounded-lg hover:from-teal-600 hover:to-teal-700 transition md:text-sm text-[11px]"
           >
             انسخ الكود
