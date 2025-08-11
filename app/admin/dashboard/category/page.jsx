@@ -138,7 +138,7 @@ const CategoryPage = () => {
     }
   };
 
-  const handleSave = async (category, imageFile) => {
+  const handleSave = async (category, imageFile, tagsInput) => {
     const token = getToken();
     if (!token) {
       router.push('/admin/login');
@@ -154,6 +154,7 @@ const CategoryPage = () => {
       const formData = new FormData();
       formData.append('Name', category.name);
       formData.append('Slug', category.slug);
+      formData.append('AltText', category.altText || '');
       if (imageFile) {
         formData.append('IconUrl', imageFile);
       } else if (category.iconUrl) {
@@ -176,6 +177,30 @@ const CategoryPage = () => {
 
       if (!response.ok) throw new Error(`Failed to ${category.id ? 'update' : 'add'} category`);
 
+      // Handle tags separately
+      if (tagsInput && tagsInput.trim().length > 0) {
+        const categoryId = category.id;
+        try {
+          if (!categoryId) {
+            // For new categories, we need to get the ID from the response
+            const responseData = await response.json();
+            if (responseData.id) {
+              console.log('New category created with ID:', responseData.id);
+              await addTagsToCategory(responseData.id, tagsInput.trim());
+            } else {
+              console.error('No ID returned from category creation');
+            }
+          } else {
+            // For existing categories, update tags
+            console.log('Updating tags for existing category:', categoryId);
+            await updateCategoryTags(categoryId, tagsInput.trim());
+          }
+        } catch (tagError) {
+          console.error('Error handling tags:', tagError);
+          showToast(`تم ${category.id ? 'تحديث' : 'إضافة'} الفئة بنجاح، لكن فشل في حفظ الوسوم`, 'warning');
+        }
+      }
+
       fetchCategories();
       showToast(`تم ${category.id ? 'تحديث' : 'إضافة'} الفئة بنجاح`, 'success');
     } catch (error) {
@@ -183,6 +208,58 @@ const CategoryPage = () => {
       showToast(error.message, 'error');
     } finally {
       setIsModalOpen(false);
+    }
+  };
+
+  const addTagsToCategory = async (categoryId, tags) => {
+    const token = getToken();
+    if (!token) return;
+
+    try {
+      console.log(`Adding tags to category ${categoryId}:`, tags);
+      const response = await fetch(`${API_URL}/AddTagsToCategory/${categoryId}?tags=${encodeURIComponent(tags)}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Failed to add tags to category:', response.status, errorText);
+        throw new Error(`Failed to add tags: ${response.status}`);
+      } else {
+        console.log('Tags added successfully to category:', categoryId);
+      }
+    } catch (error) {
+      console.error('Error adding tags to category:', error);
+      throw error;
+    }
+  };
+
+  const updateCategoryTags = async (categoryId, tags) => {
+    const token = getToken();
+    if (!token) return;
+
+    try {
+      console.log(`Updating tags for category ${categoryId}:`, tags);
+      const response = await fetch(`${API_URL}/UpdateCategoryTag/${categoryId}?tags=${encodeURIComponent(tags)}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Failed to update category tags:', response.status, errorText);
+        throw new Error(`Failed to update tags: ${response.status}`);
+      } else {
+        console.log('Tags updated successfully for category:', categoryId);
+      }
+    } catch (error) {
+      console.error('Error updating category tags:', error);
+      throw error;
     }
   };
 
@@ -209,8 +286,16 @@ const CategoryPage = () => {
         </div>
         
         {toast.show && (
-          <div className={`mb-4 p-4 rounded-md border-l-4 ${toast.type === 'error' ? 'bg-red-100 border-red-500 text-red-700' : 'bg-green-100 border-green-500 text-green-700'}`}>
-            <p className="font-bold">{toast.type === 'error' ? 'خطأ' : 'نجاح'}</p>
+          <div className={`mb-4 p-4 rounded-md border-l-4 ${
+            toast.type === 'error' ? 'bg-red-100 border-red-500 text-red-700' : 
+            toast.type === 'warning' ? 'bg-yellow-100 border-yellow-500 text-yellow-700' :
+            'bg-green-100 border-green-500 text-green-700'
+          }`}>
+            <p className="font-bold">
+              {toast.type === 'error' ? 'خطأ' : 
+               toast.type === 'warning' ? 'تحذير' : 
+               'نجاح'}
+            </p>
             <p>{toast.message}</p>
           </div>
         )}

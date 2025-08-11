@@ -70,9 +70,10 @@ const AllCategoriesPage = () => {
                             href={`/categories/${encodeURIComponent(category.slug || category.id)}`}
                             className="flex flex-col items-center gap-2 group text-center"
                         >
-                            <div className="rounded-full bg-gradient-to-tr from-teal-100 via-white to-gray-50 shadow-md flex items-center justify-center w-28 h-28 group-hover:scale-105 group-hover:shadow-lg transition-all duration-300 ease-in-out border-2 border-white group-hover:border-teal-200">                                <Image
+                            <div className="rounded-full bg-gradient-to-tr from-teal-100 via-white to-gray-50 shadow-md flex items-center justify-center w-28 h-28 group-hover:scale-105 group-hover:shadow-lg transition-all duration-300 ease-in-out border-2 border-white group-hover:border-teal-200">
+                                <Image
                                     src={getSafeIconUrl(category.iconUrl)}
-                                    alt={category.name}
+                                    alt={category.altText || category.name}
                                     width={60}
                                     height={60}
                                     className="rounded-full p-1"
