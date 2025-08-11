@@ -91,7 +91,7 @@ className="bg-white border-2 border-gray-300 border-dashed hover:border-teal-400
               <div className="relative    h-[80] w-full">
                 <Image
                   src={store.logoUrl ? `https://api.eslamoffers.com/uploads/${store.logoUrl}` : '/default-store.png'}
-                  alt={store.name}
+                  alt={store.altText || store.name}
                   fill
           className="   group-hover:scale-110 transition-transform duration-300 w-[200] h-[80px]"
                  />

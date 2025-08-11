@@ -19,7 +19,7 @@ const StoreCard = ({ store }) => {
           <div className="w-[200] h-[80] relative flex justify-center items-center cursor-pointer">
             <Image
               src={getImageSrc()}
-              alt={store.name}
+              alt={store.altText || store.name}
               layout="fill"
               objectFit="contain"
               className="rounded-md"

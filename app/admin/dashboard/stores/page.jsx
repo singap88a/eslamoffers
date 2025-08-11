@@ -118,11 +118,10 @@ const StoresPage = () => {
     }
   }, [token]);
 
-  const handleSubmit = async (formData) => {
+  const handleSubmit = async ({ formData, tags, isEditing }) => {
     setModalLoading(true);
     setError(null);
     try {
-      const isEditing = !!editStore;
       const url = isEditing 
         ? `${API_BASE}/UpdateStore/${editStore.id}`
         : `${API_BASE}/AddStore`;
@@ -144,6 +143,27 @@ const StoresPage = () => {
       }
 
       const data = await res.json();
+
+      // If store has no tags and user provided tags, add them once
+      try {
+        const storeId = data?.id || editStore?.id;
+        if (storeId && tags && tags.trim().length > 0) {
+          const tagsCheck = await fetch(`${API_BASE}/GetStoreTags/${storeId}`, {
+            headers: { accept: '*/*', Authorization: `Bearer ${token}` },
+          });
+          let hasTags = false;
+          if (tagsCheck.ok) {
+            const existing = await tagsCheck.json();
+            hasTags = Array.isArray(existing) && existing.length > 0;
+          }
+          if (!hasTags) {
+            await fetch(`${API_BASE}/AddTagsToStore?storeId=${storeId}&tags=${encodeURIComponent(tags.trim())}`, {
+              method: 'POST',
+              headers: { accept: '*/*', Authorization: `Bearer ${token}` },
+            });
+          }
+        }
+      } catch (_) {}
       setToast({ 
         message: isEditing 
           ? "تم تعديل المتجر بنجاح!" 

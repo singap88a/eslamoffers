@@ -10,6 +10,7 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
     description: "",
     isBast: false,
     logoUrl: "",
+    altText: "",
     descriptionStores: [],
     categories: []
   });
@@ -28,6 +29,7 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
   const [dragActive, setDragActive] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [tagsInput, setTagsInput] = useState("");
   const fileInputRef = useRef();
   const descFileInputRef = useRef();
 
@@ -49,6 +51,7 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
         description: initialData.description || "",
         isBast: initialData.isBast || false,
         logoUrl: initialData.logoUrl || "",
+        altText: initialData.altText || "",
         descriptionStores: descriptions,
         categories: initialData.categorys || []
       });
@@ -77,6 +80,23 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
     fetchCategories();
   }, [isOpen]);
 
+  // Prefill tags for edit mode
+  useEffect(() => {
+    const loadTags = async () => {
+      try {
+        if (!isOpen || !initialData?.id) return;
+        const res = await fetch(`https://api.eslamoffers.com/api/Store/GetStoreTags/${initialData.id}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          const tags = data.map(t => t?.slug || t?.name).filter(Boolean).join(",");
+          setTagsInput(tags);
+        }
+      } catch {}
+    };
+    loadTags();
+  }, [isOpen, initialData]);
+
   const resetForm = () => {
     setFormData({
       name: "",
@@ -85,6 +105,7 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
       description: "",
       isBast: false,
       logoUrl: "",
+      altText: "",
       descriptionStores: [],
       categories: []
     });
@@ -94,6 +115,7 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
       image: null
     });
     setLogoFile(null);
+    setTagsInput("");
   };
 
   const handleChange = (e) => {
@@ -347,6 +369,7 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
     formDataToSend.append("Slug", slugValue);
     formDataToSend.append("HeaderDescription", formData.headerDescription);
     formDataToSend.append("Description", formData.description);
+    formDataToSend.append("AltText", formData.altText || "");
     formDataToSend.append("IsBast", formData.isBast.toString());
     formDataToSend.append("IsUpdateCategory", "true");
     formDataToSend.append("IsUpdateDescriptionStore", "true");
@@ -392,7 +415,12 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
     });
     }
 
-    onSubmit(formDataToSend);
+    // Tags: comma-separated
+    if (tagsInput && tagsInput.trim().length > 0) {
+      formDataToSend.append("Tags", tagsInput.trim());
+    }
+
+    onSubmit({ formData: formDataToSend, tags: (tagsInput || "").trim(), isEditing: !!initialData });
   };
 
   const getImageSrc = (url) => {
@@ -474,6 +502,18 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
                       onChange={handleChange}
                     />
                   </div>
+
+          <div>
+            <label className="block mb-2 font-medium text-gray-700">نص بديل للصورة (Alt Text)</label>
+            <input
+              type="text"
+              name="altText"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              value={formData.altText}
+              onChange={handleChange}
+              placeholder="وصف موجز للصورة لتحسين الوصول ومحركات البحث"
+            />
+          </div>
                   
                   <div className="flex items-center">
                     <input
@@ -605,6 +645,18 @@ const StoreFormModal = ({ isOpen, onClose, onSubmit, initialData, loading }) => 
                     )}
                   </div>
                 </div>
+
+        <div>
+          <label className="block mb-2 font-medium text-gray-700">الوسوم (Tags)</label>
+          <input
+            type="text"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            value={tagsInput}
+            onChange={(e) => setTagsInput(e.target.value)}
+            placeholder="افصل الوسوم بفواصل، مثال: black-friday,7447,summer"
+          />
+          <p className="text-xs text-gray-500 mt-1">يُمكن إدخال أسماء/سلاجات الوسوم مفصولة بفواصل.</p>
+        </div>
               </>
             )}
             

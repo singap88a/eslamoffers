@@ -188,7 +188,7 @@ const StoreCouponsPage = () => {
           <div className="bg-white border-b pb-4 border-gray-300 mb-8 md:mb-12 flex flex-col sm:flex-row items-center">
             <img
               src={getLogoSrc()}
-              alt={store.name}
+              alt={store.altText || store.name}
               className=" md:w-44    h-24 md:h-24  rounded-lg   p-1 shadow-lg mb-4 sm:mb-0"
               loading="lazy"
             />

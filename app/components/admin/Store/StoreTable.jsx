@@ -78,7 +78,7 @@ const StoreTable = ({ stores, onEdit, onDelete, onNavigateToCoupons, loading }) 
                         <img
                           className="h-12 w-12 rounded-lg object-contain border border-gray-200 bg-white shadow-sm"
                           src={store.logoUrl ? `https://api.eslamoffers.com/uploads/${store.logoUrl}` : "/default-store.png"}
-                          alt={store.name}
+                          alt={store.altText || store.name}
                         />
                       </div>
                       <div className="mr-4">

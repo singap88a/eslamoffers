@@ -30,7 +30,7 @@ const StoreCard = ({ store }) => {
         {/* صورة المتجر تغطي كامل الهيدر */}
         <img
           src={getLogoSrc()}
-          alt={`${store.name} logo`}
+          alt={store.altText || `${store.name} logo`}
           className="   group-hover:scale-110 transition-transform duration-300  "
         />
         
