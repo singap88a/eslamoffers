@@ -7,10 +7,12 @@ import CouponCard from "../../components/coupons/CouponCard";
 import PromoCard from "../../components/home/Coupon/PromoCard";
 import CountdownOfferBox from "../../components/home/Coupon/CountdownOfferBox";
 import BestStores from "../../components/home/BestStores";
+import StoreOffersCard from "../../components/StoreOffers/StoreOffersCard";
 
 const StoreCouponsPage = () => {
   const [store, setStore] = useState(null);
   const [coupons, setCoupons] = useState([]);
+  const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -43,7 +45,7 @@ const StoreCouponsPage = () => {
         : storeResponse.data;
       setStore(storeData);
 
-      // جلب الكوبونات بشكل منفصل
+      // جلب الكوبونات الخاصة بالمتجر فقط
       let couponsData = [];
       try {
         const couponsResponse = await axios.get(
@@ -53,11 +55,23 @@ const StoreCouponsPage = () => {
           ? couponsResponse.data
           : [];
       } catch (couponErr) {
-        // إذا فشل جلب الكوبونات، لا تظهر خطأ، فقط اعتبر لا يوجد كوبونات
         console.log("No coupons found for store:", slug);
         couponsData = [];
       }
       setCoupons(couponsData);
+
+      // جلب العروض وتصفيتها حسب المتجر
+      const offersResponse = await axios.get(
+        "https://api.eslamoffers.com/api/StoreOffers/GetAllOffers"
+      );
+      const allOffers = offersResponse.data || [];
+      
+      // تصفية العروض لتعرض فقط عروض المتجر الحالي باستخدام slug
+      const storeOffers = allOffers.filter(offer => 
+        offer.slugStore?.trim().toLowerCase() === slug?.trim().toLowerCase()
+      );
+      
+      setOffers(storeOffers);
     } catch (err) {
       setError("فشل تحميل بيانات المتجر. يرجى المحاولة مرة أخرى لاحقًا.");
       console.error(err);
@@ -182,14 +196,14 @@ const StoreCouponsPage = () => {
   }
 
   return (
-    <div className="min-h-screen " dir="rtl">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto md:py-14    px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen" dir="rtl">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto md:py-14 px-4 sm:px-6 lg:px-8">
         <div className="lg:col-span-2">
           <div className="bg-white border-b pb-4 border-gray-300 mb-8 md:mb-12 flex flex-col sm:flex-row items-center">
             <img
               src={getLogoSrc()}
               alt={store.altText || store.name}
-              className=" md:w-44    h-24 md:h-24  rounded-lg   p-1 shadow-lg mb-4 sm:mb-0"
+              className="md:w-44 h-24 md:h-24 rounded-lg p-1 shadow-lg mb-4 sm:mb-0"
               loading="lazy"
             />
             <div className="sm:mr-6 flex-1 text-center sm:text-right">
@@ -201,132 +215,69 @@ const StoreCouponsPage = () => {
                   `جميع الكوبونات والعروض الخاصة بـ ${store.name}`}
               </h2>
             </div>
-            <div className="text-center sm:text-left mt-4 sm:mt-0 md:block flex items-center justify-center gap-10 hidden ">
-              <div className=" pb-2">
-                {store.isBast && (
-                  <div className="flex items-center gap-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-bold">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      className="w-4 h-4"
-                    >
-                      <path d="M10 2l2.39 4.84 5.34.78-3.87 3.77.91 5.33L10 14.77l-4.77 2.51.91-5.33-3.87-3.77 5.34-.78L10 2z" />
-                    </svg>
-                    متجر مميز
-                  </div>
-                )}
-              </div>
-              <div
-                className={`px-4 py-2 rounded-lg text-center shadow-sm ${
-                  coupons.length > 0
-                    ? "bg-teal-50 text-teal-700"
-                    : "bg-gray-50 text-gray-500"
-                }`}
-              >
-                <div className="text-xl sm:text-2xl font-bold">
-                  {coupons.length}
-                </div>
-                <div className="text-xs sm:text-sm">
-                  {coupons.length > 0 ? "كوبون متاح" : "لا توجد كوبونات"}
-                </div>
-              </div>
-            </div>
           </div>
 
-          {coupons.length > 0 ? (
-            <>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between  ">
-                {/* <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-0 text-center sm:text-right">
-                  كوبونات {store.name}
-                </h2> */}
-                <div className="text-sm text-gray-500 text-center sm:text-right"></div>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 md:mb-12">
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold mb-4">الكوبونات المتاحة:</h3>
+            {coupons.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {coupons.map((coupon) => (
-                  <CouponCard key={coupon.id} coupon={coupon}
-  />
+                  <CouponCard key={coupon.id} coupon={coupon} />
                 ))}
               </div>
-            </>
-          ) : (
-            <>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
-                {/* <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-0 text-center sm:text-right">
-                  كوبونات {store.name}
-                </h2> */}
-                {/* <div className="text-sm text-gray-500 text-center sm:text-right">
-                  لا توجد كوبونات
-                </div> */}
+            ) : (
+              <div className="bg-gray-50 rounded-lg p-8 text-center">
+                <svg
+                  className="w-16 h-16 mx-auto text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p className="mt-4 text-gray-600">لا توجد كوبونات متاحة حالياً لهذا المتجر</p>
               </div>
-              <div className="text-center py-12 sm:py-20 bg-white rounded-lg shadow-md mb-12">
-                <div className="mb-4 sm:mb-6">
-                  <svg
-                    className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-3 sm:mb-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-2">
-                    لا توجد كوبونات متاحة
-                  </h3>
-                  <p className="text-sm sm:text-base text-gray-500 px-2 sm:px-4">
-                    لا توجد كوبونات متاحة حاليًا لـ {store.name}. تحقق مرة أخرى
-                    لاحقًا للحصول على أحدث العروض!
-                  </p>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-                  <Link
-                    href="/coupons"
-                    className="inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-teal-500 text-white text-sm sm:text-base rounded-lg hover:bg-teal-600 transition"
-                  >
-                    <span>تصفح جميع الكوبونات</span>
-                    <svg
-                      className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
-                  </Link>
-                  <Link
-                    href="/stores"
-                    className="inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-gray-500 text-white text-sm sm:text-base rounded-lg hover:bg-gray-600 transition"
-                  >
-                    <span>تصفح المتاجر الأخرى</span>
-                    <svg
-                      className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
-                  </Link>
-                </div>
-              </div>
-            </>
-          )}
+            )}
+          </div>
 
-          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="mt-12">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold">العروض المتاحة:</h3>
+              <span className="text-sm text-gray-500">عروض خاصة بـ {store.name}</span>
+            </div>
+            {offers.length > 0 ? (
+              <div className=" grid  grid-cols-2 md:grid-cols-3 gap-4">
+                {offers.map((offer) => (
+                  <StoreOffersCard key={offer.id} offer={offer} />
+                ))}
+              </div>
+            ) : (
+              <div className="bg-gray-50 rounded-lg p-8 text-center">
+                <svg
+                  className="w-16 h-16 mx-auto text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p className="mt-4 text-gray-600">لا توجد عروض متاحة حالياً لهذا المتجر</p>
+              </div>
+            )}
+          </div>
+
+          {/* باقي محتوى الصفحة... */}
+                              <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6">
               <div className="flex justify-between items-center">
                 <div className="">
