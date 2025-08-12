@@ -39,14 +39,17 @@ const Hero = () => {
 
   const renderBannerContent = (banner) => {
     const imageUrl = getBannerImageUrl(banner.imageUrl);
+    const altText = banner.altText || `بانر إعلاني ${banner.priority}`;
+    
     const content = (
-      <div className="w-full md:h-72 h-full  object-cover">
+      <div className="w-full md:h-72 h-full object-cover">
         <Image
           src={imageUrl}
-          alt={`عرض ${banner.id}`}
+          alt={altText}
           width={1000}
           height={200}
-          className="w-full h-full  "
+          className="w-full h-full"
+          title={altText} // إضافة title للتوافق مع بعض المتصفحات
         />
       </div>
     );
@@ -54,7 +57,7 @@ const Hero = () => {
     // إذا كان الرابط يبدأ بـ /stores/ فهو رابط داخلي
     if (banner.link && banner.link.startsWith('/stores/')) {
       return (
-        <Link href={banner.link}>
+        <Link href={banner.link} aria-label={altText}>
           {content}
         </Link>
       );
@@ -62,7 +65,7 @@ const Hero = () => {
     // إذا كان رابط خارجي
     else if (banner.link) {
       return (
-        <a href={banner.link} target="_blank" rel="noopener noreferrer">
+        <a href={banner.link} target="_blank" rel="noopener noreferrer" aria-label={altText}>
           {content}
         </a>
       );
@@ -72,7 +75,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="px-4 md:py-8 " dir="rtl">
+    <section className="px-4 md:py-8" dir="rtl">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* ✅ السلايدر */}
         <div className="lg:col-span-2 order-1">

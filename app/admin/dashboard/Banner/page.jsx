@@ -14,6 +14,7 @@ export default function BannerManagement() {
   // State for banner form
   const [bannerData, setBannerData] = useState({
     imageUrl: null,
+    altText: '',
     link: '',
     priority: 0
   });
@@ -170,6 +171,7 @@ export default function BannerManagement() {
       if (selectedFile) {
         formData.append('ImageUrl', selectedFile);
       }
+      formData.append('AltText', bannerData.altText);
       formData.append('Link', bannerData.link);
       formData.append('Priority', bannerData.priority);
       
@@ -189,6 +191,7 @@ export default function BannerManagement() {
       if (selectedFile) {
         formData.append('ImageUrl', selectedFile);
       }
+      formData.append('AltText', bannerData.altText);
       formData.append('Link', bannerData.link);
       formData.append('Priority', bannerData.priority);
       
@@ -217,6 +220,7 @@ export default function BannerManagement() {
     setEditBannerId(banner.id);
     setBannerData({
       link: banner.link,
+      altText: banner.altText || '',
       priority: banner.priority
     });
     
@@ -236,6 +240,7 @@ export default function BannerManagement() {
   const resetForm = () => {
     setBannerData({
       imageUrl: null,
+      altText: '',
       link: '',
       priority: 0
     });
@@ -352,6 +357,19 @@ export default function BannerManagement() {
                 </div>
               </div>
               
+              {/* Alt Text Input */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">نص بديل للصورة (Alt Text)</label>
+                <input
+                  type="text"
+                  value={bannerData.altText}
+                  onChange={(e) => setBannerData({...bannerData, altText: e.target.value})}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
+                  placeholder="أدخل النص البديل للصورة"
+                />
+                <p className="text-xs text-gray-500 mt-1">هذا النص يظهر عندما لا تظهر الصورة، وهو مهم لتحسين محركات البحث</p>
+              </div>
+              
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">نوع الرابط</label>
                 <select
@@ -402,6 +420,7 @@ export default function BannerManagement() {
                   className="w-full p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
                   placeholder="أدخل الأولوية"
                 />
+                <p className="text-xs text-gray-500 mt-1">كلما زاد الرقم زادت أولوية ظهور البانر</p>
               </div>
               
               <div className="flex justify-end space-x-3">
@@ -447,6 +466,7 @@ export default function BannerManagement() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الصورة</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">النص البديل</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الرابط</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الأولوية</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ الإنشاء</th>
@@ -458,20 +478,32 @@ export default function BannerManagement() {
                   <tr key={banner.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       {banner.imageUrl ? (
-                        <div className="relative group">
+                        <div className="relative group w-[150px]">
                           <img 
                             src={`https://api.eslamoffers.com/uploads/${banner.imageUrl}`} 
-                            alt="Banner" 
-                            className="h-16 w-auto rounded-lg object-cover border border-gray-200"
+                            alt={banner.altText || 'بصري إعلاني'} 
+                            className="h-16   rounded-lg  w-[300px] border border-gray-200"
                           />
                          </div>
                       ) : (
                         <span className="text-gray-400">لا توجد صورة</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {banner.link}
-                    </td>
+<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+  {banner.altText
+    ? banner.altText.split(" ").slice(0, 5).join(" ") + 
+      (banner.altText.split(" ").length > 5 ? "..." : "")
+    : 'لا يوجد نص بديل'}
+</td>
+
+<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+  {banner.link
+    ? banner.link.length > 30
+      ? banner.link.substring(0, 30) + "..."
+      : banner.link
+    : 'لا يوجد رابط'}
+</td>
+
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {banner.priority}
                     </td>

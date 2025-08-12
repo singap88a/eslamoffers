@@ -31,7 +31,7 @@ const Footer = () => {
           "https://api.eslamoffers.com/api/Store/GetBastStores/Bast"
         );
         const data = await response.json();
-        setPopularStores(data.slice(0, 5));
+        setPopularStores(data.slice(0, 6));
       } catch (error) {
         console.error("Error fetching popular stores:", error);
       } finally {
@@ -52,7 +52,9 @@ const Footer = () => {
     { title: "الأسئلة الشائعة", path: "/faq" },
     { title: "الشروط والاحكام", path: "/terms" },
     { title: "سياسة الخصوصية", path: "/privacy" },
-  ];
+    
+     { title: "خريطة الموقع", path: "/sitemap" },
+   ];
 
   return (
     <footer className="bg-white border-t border-[#0000003b] mt-10 text-gray-800 text-sm">
