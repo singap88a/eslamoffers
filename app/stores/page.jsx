@@ -6,6 +6,12 @@ import PromoCard from "../components/home/Coupon/PromoCard";
 import Link from "next/link";
 import CountdownOfferBox from "../components/home/Coupon/CountdownOfferBox";
 
+// Swiper imports
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/free-mode";
+import { FreeMode } from "swiper/modules";
+
 const StoreCardSkeleton = () => (
   <div className="bg-white shadow-lg rounded-lg overflow-hidden border-2 border-dashed border-gray-200 animate-pulse">
     <div className="relative h-48 bg-gray-200"></div>
@@ -98,32 +104,41 @@ const StoresPage = () => {
               <div className="w-40 h-1 bg-gradient-to-l from-[#14b8a6] mb-5 rounded-full"></div>
             </div>
 
-            {/* أزرار التصنيفات */}
-            <div className="flex flex-wrap gap-2 mb-6">
-              <button
-                onClick={() => setSelectedCategory("all")}
-                className={`px-4 py-2 rounded-full border ${
-                  selectedCategory === "all"
-                    ? "bg-teal-500 text-white"
-                    : "bg-white text-gray-700 hover:bg-gray-100"
-                } transition`}
-              >
-                الكل
-              </button>
-              {categories.map((cat) => (
+            {/* أزرار التصنيفات داخل Swiper */}
+            <Swiper
+              slidesPerView="auto"
+              spaceBetween={8}
+              freeMode={true}
+              modules={[FreeMode]}
+              className="mb-6"
+            >
+              <SwiperSlide style={{ width: "auto" }}>
                 <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-4 py-2 rounded-full border ${
-                    selectedCategory === cat.id
+                  onClick={() => setSelectedCategory("all")}
+                  className={`px-4 py-2 rounded-full border whitespace-nowrap ${
+                    selectedCategory === "all"
                       ? "bg-teal-500 text-white"
                       : "bg-white text-gray-700 hover:bg-gray-100"
                   } transition`}
                 >
-                  {cat.name}
+                  الكل
                 </button>
+              </SwiperSlide>
+              {categories.map((cat) => (
+                <SwiperSlide key={cat.id} style={{ width: "auto" }}>
+                  <button
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={`px-4 py-2 rounded-full border whitespace-nowrap ${
+                      selectedCategory === cat.id
+                        ? "bg-teal-500 text-white"
+                        : "bg-white text-gray-700 hover:bg-gray-100"
+                    } transition`}
+                  >
+                    {cat.name}
+                  </button>
+                </SwiperSlide>
               ))}
-            </div>
+            </Swiper>
 
             {/* حالة التحميل */}
             {loading && (

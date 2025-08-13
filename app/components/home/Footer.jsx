@@ -16,11 +16,9 @@ import {
   FaEnvelope,
   FaPhone,
   FaWhatsapp,
-  FaChevronDown,
 } from "react-icons/fa";
 
 const Footer = () => {
-  const [openSection, setOpenSection] = useState(null);
   const [popularStores, setPopularStores] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -42,31 +40,26 @@ const Footer = () => {
     fetchPopularStores();
   }, []);
 
-  const handleToggle = (idx) => {
-    setOpenSection(openSection === idx ? null : idx);
-  };
-
   const siteInfoLinks = [
     { title: "عن إسلام أوفرز", path: "/about" },
     { title: "تواصل معنا", path: "/contact" },
     { title: "الأسئلة الشائعة", path: "/faq" },
     { title: "الشروط والاحكام", path: "/terms" },
     { title: "سياسة الخصوصية", path: "/privacy" },
-    
-     { title: "خريطة الموقع", path: "/sitemap" },
-   ];
+    { title: "خريطة الموقع", path: "/sitemap" },
+  ];
 
   return (
     <footer className="bg-white border-t border-[#0000003b] mt-10 text-gray-800 text-sm">
       <div className="max-w-7xl mx-auto px-4 py-12">
-        {/* Desktop Layout - 3 columns */}
+        {/* Desktop Layout */}
         <div className="hidden md:grid md:grid-cols-3 gap-8">
           {/* Social & App */}
           <div className="space-y-4">
             <h4 className="text-lg font-bold"> وفر أكتر… بكل سهولة!</h4>
             <p className="text-gray-500">
-              تابعنا على مواقع التواصل عشان توصلك أحدث التخفيضات
-              والكوبونات أول بأول{" "}
+              تابعنا على مواقع التواصل عشان توصلك أحدث التخفيضات والكوبونات أول
+              بأول
             </p>
             <div className="flex flex-wrap gap-3 text-xl">
               {[
@@ -166,7 +159,6 @@ const Footer = () => {
                 alt="إسلام أوفرز"
                 width={150}
                 height={150}
-                className=""
                 loading="lazy"
               />
             </div>
@@ -179,88 +171,59 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Mobile Layout - Single column */}
+        {/* Mobile Layout */}
         <div className="md:hidden space-y-8">
-
-
-          {/* Links */}
-          <div className="space-y-6">
-            {/* Popular Stores */}
-            <div>
-              <button
-                onClick={() => handleToggle(0)}
-                className="flex justify-between items-center w-full text-right font-bold text-base text-gray-800 hover:text-[#14b8a6]"
-              >
-                أشهر المتاجر
-                <FaChevronDown
-                  className={`transition-transform duration-300 ${
-                    openSection === 0 ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-              <ul
-                className={`overflow-hidden transition-all duration-300 text-gray-600 text-sm space-y-1 mt-2 ${
-                  openSection === 0 ? "max-h-64" : "max-h-0"
-                }`}
-              >
-                {loading ? (
-                  <li>جاري التحميل...</li>
-                ) : (
-                  popularStores.map((store, i) => (
-                    <li key={i} className="text-right">
-                      <Link
-                        href={`/stores/${store.slug}`}
-                        className="hover:text-[#14b8a6] transition duration-200 block"
-                      >
-                        {store.name}
-                      </Link>
-                    </li>
-                  ))
-                )}
-              </ul>
-            </div>
-
-            {/* Site Info */}
-            <div>
-              <button
-                onClick={() => handleToggle(1)}
-                className="flex justify-between items-center w-full text-right font-bold text-base text-gray-800 hover:text-[#14b8a6]"
-              >
-                معلومات الموقع
-                <FaChevronDown
-                  className={`transition-transform duration-300 ${
-                    openSection === 1 ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-              <ul
-                className={`overflow-hidden transition-all duration-300 text-gray-600 text-sm space-y-1 mt-2 ${
-                  openSection === 1 ? "max-h-64" : "max-h-0"
-                }`}
-              >
-                {siteInfoLinks.map((link, i) => (
+          {/* Popular Stores */}
+          <div>
+            <h4 className="text-right font-bold text-base text-gray-800 mb-2">
+              أشهر المتاجر
+            </h4>
+            <ul className="text-gray-600 text-sm space-y-1">
+              {loading ? (
+                <li>جاري التحميل...</li>
+              ) : (
+                popularStores.map((store, i) => (
                   <li key={i} className="text-right">
-                    <a
-                      href={link.path}
+                    <Link
+                      href={`/stores/${store.slug}`}
                       className="hover:text-[#14b8a6] transition duration-200 block"
                     >
-                      {link.title}
-                    </a>
+                      {store.name}
+                    </Link>
                   </li>
-                ))}
-              </ul>
-            </div>
+                ))
+              )}
+            </ul>
           </div>
-                    {/* Logo and Contact */}
-          <div className="flex items-center justify-between">
-            {/* Social & App */}
-            <div className="space-y-4  mt-11">
+
+          {/* Site Info */}
+          <div>
+            <h4 className="text-right font-bold text-base text-gray-800 mb-2">
+              معلومات الموقع
+            </h4>
+            <ul className="text-gray-600 text-sm space-y-1">
+              {siteInfoLinks.map((link, i) => (
+                <li key={i} className="text-right">
+                  <a
+                    href={link.path}
+                    className="hover:text-[#14b8a6] transition duration-200 block"
+                  >
+                    {link.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Social & Email & Logo */}
+          <div className="flex   justify-between items-center space-y-4 mt-6">
+            <div className="">
               <h4 className="text-lg font-bold"> وفر أكتر… بكل سهولة!</h4>
-              <p className="text-gray-500">
-                تابعنا على مواقع التواصل عشان توصلك أحدث التخفيضات
-                والكوبونات أول بأول{" "}
+              <p className="text-gray-500  ">
+                تابعنا على مواقع التواصل عشان توصلك أحدث التخفيضات والكوبونات
+                أول بأول
               </p>
-              <div className="flex flex-wrap justify-center gap-3 text-xl">
+              <div className="flex flex-wrap   gap-3 text-xl py-2">
                 {[
                   {
                     Icon: FaFacebook,
@@ -303,20 +266,22 @@ const Footer = () => {
                   </a>
                 ))}
               </div>
-            </div>
-            <div className="flex flex-col items-center">
-              <Image
-                src="/logo4.png"
-                alt="إسلام أوفرز"
-                width={150}
-                height={150}
-                className=""
-                loading="lazy"
-              />
-              <div className="flex items-center gap-2 mt-4">
+              {/* Email under social icons */}
+              <div className="flex items-center gap-2">
                 <FaEnvelope className="text-[#14b8a6]" />{" "}
                 support@eslamoffers.com
               </div>
+            </div>
+
+            {/* Logo */}
+            <div className="">
+              <Image
+                src="/logo4.png"
+                alt="إسلام أوفرز"
+                width={200}
+                height={150}
+                loading="lazy"
+              />
             </div>
           </div>
         </div>

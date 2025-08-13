@@ -33,7 +33,7 @@ const fetchBestDiscounts = async () => {
 
 const fetchBestOffers = async () => {
   try {
-    const res = await fetch("https://api.eslamoffers.com/api/StoreOffers/GetAllOffers");
+    const res = await fetch("https://api.eslamoffers.com/api/StoreOffers/GetBestDiscountOffers");
     if (!res.ok) throw new Error("Failed to fetch offers");
     const data = await res.json();
     

@@ -11,7 +11,7 @@ const StoreOffersDashboard = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   
-  // Form state
+  // حالة النموذج
   const [formData, setFormData] = useState({
     id: '',
     title: '',
@@ -19,17 +19,19 @@ const StoreOffersDashboard = () => {
     logoUrl: null,
     altText: '',
     linkPage: '',
-    slugStore: ''
+    slugStore: '',
+    isBest: false,
+    isBastDiscount: false
   });
   
   const [logoPreview, setLogoPreview] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   
-  // API base URL
+  // رابط API الأساسي
   const API_BASE_URL = 'https://api.eslamoffers.com/api';
   const UPLOADS_BASE_URL = 'https://api.eslamoffers.com/uploads/';
 
-  // Get token from cookies
+  // الحصول على التوكن من الكوكيز
   const getTokenFromCookies = () => {
     if (typeof window === 'undefined') return '';
     const cookies = document.cookie.split(';');
@@ -37,7 +39,7 @@ const StoreOffersDashboard = () => {
     return tokenCookie ? tokenCookie.split('=')[1] : '';
   };
 
-  // Redirect if no token
+  // إعادة التوجيه إذا لم يكن هناك توكن
   useEffect(() => {
     const token = getTokenFromCookies();
     if (!token) {
@@ -45,7 +47,7 @@ const StoreOffersDashboard = () => {
     }
   }, [router]);
 
-  // Configure axios instance
+  // تكوين نسخة axios
   const api = axios.create({
     baseURL: API_BASE_URL,
     headers: {
@@ -54,7 +56,7 @@ const StoreOffersDashboard = () => {
     }
   });
 
-  // Add response interceptor to handle 401 errors
+  // إضافة معالج للردود للتعامل مع أخطاء 401
   api.interceptors.response.use(
     response => response,
     error => {
@@ -65,7 +67,7 @@ const StoreOffersDashboard = () => {
     }
   );
 
-  // Fetch all offers
+  // جلب جميع العروض
   const fetchOffers = async () => {
     try {
       setLoading(true);
@@ -73,14 +75,14 @@ const StoreOffersDashboard = () => {
       setOffers(response.data);
       setError('');
     } catch (err) {
-      setError('Failed to fetch offers: ' + (err.response?.data?.message || err.message));
+      setError('فشل في جلب العروض: ' + (err.response?.data?.message || err.message));
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch all stores
+  // جلب جميع المتاجر
   const fetchStores = async () => {
     try {
       setLoading(true);
@@ -88,23 +90,23 @@ const StoreOffersDashboard = () => {
       setStores(response.data);
       setError('');
     } catch (err) {
-      setError('Failed to fetch stores');
+      setError('فشل في جلب المتاجر');
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle form input changes
+  // التعامل مع تغييرات إدخال النموذج
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
-  // Handle file input changes
+  // التعامل مع تغييرات ملف الإدخال
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -114,7 +116,7 @@ const StoreOffersDashboard = () => {
       logoUrl: file
     }));
     
-    // Create preview
+    // إنشاء معاينة
     const reader = new FileReader();
     reader.onloadend = () => {
       setLogoPreview(reader.result);
@@ -122,7 +124,7 @@ const StoreOffersDashboard = () => {
     reader.readAsDataURL(file);
   };
 
-  // Handle form submission
+  // التعامل مع إرسال النموذج
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -137,6 +139,8 @@ const StoreOffersDashboard = () => {
       formDataToSend.append('AltText', formData.altText);
       formDataToSend.append('LinkPage', formData.linkPage);
       formDataToSend.append('SlugStore', formData.slugStore);
+      formDataToSend.append('IsBest', formData.isBest);
+      formDataToSend.append('IsBastDiscount', formData.isBastDiscount);
 
       let response;
       if (isEditing) {
@@ -145,18 +149,18 @@ const StoreOffersDashboard = () => {
         response = await api.post('/StoreOffers/AddOffer', formDataToSend);
       }
 
-      setSuccess(`Offer ${isEditing ? 'updated' : 'added'} successfully!`);
+      setSuccess(`تم ${isEditing ? 'تحديث' : 'إضافة'} العرض بنجاح!`);
       resetForm();
       fetchOffers();
     } catch (err) {
-      setError('Operation failed: ' + (err.response?.data?.message || err.message));
+      setError('فشلت العملية: ' + (err.response?.data?.message || err.message));
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Edit offer
+  // تعديل العرض
   const handleEdit = (offer) => {
     setIsEditing(true);
     setFormData({
@@ -166,21 +170,23 @@ const StoreOffersDashboard = () => {
       logoUrl: null,
       altText: offer.altText,
       linkPage: offer.linkPage,
-      slugStore: offer.slugStore
+      slugStore: offer.slugStore,
+      isBest: offer.isBest || false,
+      isBastDiscount: offer.isBastDiscount || false
     });
     setLogoPreview(offer.logoUrl ? `${UPLOADS_BASE_URL}${offer.logoUrl}` : '');
   };
 
-  // Delete offer
+  // حذف العرض
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this offer?')) {
+    if (window.confirm('هل أنت متأكد أنك تريد حذف هذا العرض؟')) {
       try {
         setLoading(true);
         await api.delete(`/StoreOffers/DeleteOffer/${id}`);
-        setSuccess('Offer deleted successfully!');
+        setSuccess('تم حذف العرض بنجاح!');
         fetchOffers();
       } catch (err) {
-        setError('Failed to delete offer');
+        setError('فشل في حذف العرض');
         console.error(err);
       } finally {
         setLoading(false);
@@ -188,7 +194,7 @@ const StoreOffersDashboard = () => {
     }
   };
 
-  // Reset form
+  // إعادة تعيين النموذج
   const resetForm = () => {
     setFormData({
       id: '',
@@ -197,19 +203,21 @@ const StoreOffersDashboard = () => {
       logoUrl: null,
       altText: '',
       linkPage: '',
-      slugStore: ''
+      slugStore: '',
+      isBest: false,
+      isBastDiscount: false
     });
     setLogoPreview('');
     setIsEditing(false);
   };
 
-  // Fetch data on component mount
+  // جلب البيانات عند تحميل المكون
   useEffect(() => {
     fetchOffers();
     fetchStores();
   }, []);
 
-  // Close success message after 5 seconds
+  // إغلاق رسالة النجاح بعد 5 ثوان
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => {
@@ -222,11 +230,11 @@ const StoreOffersDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
+        {/* العنوان */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Store Offers Dashboard</h1>
-            <p className="text-gray-600 mt-1">Manage all store offers in one place</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">لوحة تحكم عروض المتاجر</h1>
+            <p className="text-gray-600 mt-1">إدارة جميع عروض المتاجر في مكان واحد</p>
           </div>
           <div className="flex gap-3 w-full md:w-auto">
             <button
@@ -236,7 +244,7 @@ const StoreOffersDashboard = () => {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
               </svg>
-              Refresh
+              تحديث
             </button>
             <button
               onClick={resetForm}
@@ -245,12 +253,12 @@ const StoreOffersDashboard = () => {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
               </svg>
-              New Offer
+              عرض جديد
             </button>
           </div>
         </div>
         
-        {/* Messages */}
+        {/* الرسائل */}
         {error && (
           <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-r-lg">
             <div className="flex items-center">
@@ -266,7 +274,7 @@ const StoreOffersDashboard = () => {
                 onClick={() => setError('')}
                 className="ml-auto -mx-1.5 -my-1.5 bg-red-50 text-red-500 rounded-lg focus:ring-2 focus:ring-red-400 p-1.5 hover:bg-red-100 inline-flex h-8 w-8"
               >
-                <span className="sr-only">Dismiss</span>
+                <span className="sr-only">إغلاق</span>
                 <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
@@ -290,7 +298,7 @@ const StoreOffersDashboard = () => {
                 onClick={() => setSuccess('')}
                 className="ml-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-100 inline-flex h-8 w-8"
               >
-                <span className="sr-only">Dismiss</span>
+                <span className="sr-only">إغلاق</span>
                 <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
@@ -299,27 +307,27 @@ const StoreOffersDashboard = () => {
           </div>
         )}
         
-        {/* Loading overlay */}
+        {/* شاشة التحميل */}
         {loading && (
-          <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-[#0000006e] bg-opacity-30 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-xl flex flex-col items-center">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-              <p className="mt-3 text-gray-700">Processing your request...</p>
+              <p className="mt-3 text-gray-700">جاري معالجة طلبك...</p>
             </div>
           </div>
         )}
         
-        {/* Form Section */}
+        {/* قسم النموذج */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
           <h2 className="text-xl font-semibold mb-6 text-gray-800 pb-2 border-b border-gray-200">
-            {isEditing ? 'Edit Offer' : 'Add New Offer'}
+            {isEditing ? 'تعديل العرض' : 'إضافة عرض جديد'}
           </h2>
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Title */}
+              {/* العنوان */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Title *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">العنوان *</label>
                 <input
                   type="text"
                   name="title"
@@ -327,13 +335,13 @@ const StoreOffersDashboard = () => {
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
                   required
-                  placeholder="Offer title"
+                  placeholder="عنوان العرض"
                 />
               </div>
               
-              {/* Description */}
+              {/* الوصف */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">الوصف *</label>
                 <input
                   type="text"
                   name="description"
@@ -341,15 +349,15 @@ const StoreOffersDashboard = () => {
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
                   required
-                  placeholder="Offer description"
+                  placeholder="وصف العرض"
                 />
               </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Logo Upload */}
+              {/* تحميل الشعار */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Logo {!isEditing && '*'}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">الشعار {!isEditing && '*'}</label>
                 <div className="flex items-center gap-4">
                   <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
                     <div className="flex flex-col items-center justify-center pt-5 pb-6 px-4 text-center">
@@ -357,9 +365,9 @@ const StoreOffersDashboard = () => {
                         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                       </svg>
                       <p className="mb-2 text-sm text-gray-500">
-                        <span className="font-semibold">Click to upload</span> or drag and drop
+                        <span className="font-semibold">انقر للتحميل</span> أو اسحب وأفلت
                       </p>
-                      <p className="text-xs text-gray-500">PNG, JPG (MAX. 5MB)</p>
+                      <p className="text-xs text-gray-500">PNG, JPG (الحد الأقصى 5MB)</p>
                     </div>
                     <input 
                       type="file" 
@@ -373,7 +381,7 @@ const StoreOffersDashboard = () => {
                     <div className="relative group">
                       <img 
                         src={logoPreview} 
-                        alt="Logo preview" 
+                        alt="معاينة الشعار" 
                         className="h-32 w-32 object-contain rounded-lg border border-gray-200" 
                       />
                       <button
@@ -393,9 +401,9 @@ const StoreOffersDashboard = () => {
                 </div>
               </div>
               
-              {/* Alt Text */}
+              {/* النص البديل */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Alt Text *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">النص البديل *</label>
                 <input
                   type="text"
                   name="altText"
@@ -403,15 +411,15 @@ const StoreOffersDashboard = () => {
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
                   required
-                  placeholder="Alternative text for the logo"
+                  placeholder="النص البديل للشعار"
                 />
               </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Link Page */}
+              {/* رابط الصفحة */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Page URL *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">رابط الصفحة *</label>
                 <input
                   type="url"
                   name="linkPage"
@@ -423,9 +431,9 @@ const StoreOffersDashboard = () => {
                 />
               </div>
               
-              {/* Store */}
+              {/* المتجر */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Store *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">المتجر *</label>
                 <div className="flex gap-3">
                   <select
                     name="slugStore"
@@ -434,7 +442,7 @@ const StoreOffersDashboard = () => {
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
                     required
                   >
-                    <option value="">Select a store</option>
+                    <option value="">اختر متجرًا</option>
                     {stores.map(store => (
                       <option key={store.id} value={store.slug}>
                         {store.name}
@@ -445,13 +453,44 @@ const StoreOffersDashboard = () => {
                     type="button"
                     onClick={fetchStores}
                     className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center"
-                    title="Refresh stores list"
+                    title="تحديث قائمة المتاجر"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
                     </svg>
                   </button>
                 </div>
+              </div>
+            </div>
+
+            {/* خيارات نوع العرض */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="isBest"
+                  name="isBest"
+                  checked={formData.isBest}
+                  onChange={handleChange}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label htmlFor="isBest" className="ml-2 block text-sm text-gray-700">
+                  تضمين في أفضل العروض
+                </label>
+              </div>
+              
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="isBastDiscount"
+                  name="isBastDiscount"
+                  checked={formData.isBastDiscount}
+                  onChange={handleChange}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label htmlFor="isBastDiscount" className="ml-2 block text-sm text-gray-700">
+                  تضمين في أفضل عروض الخصم
+                </label>
               </div>
             </div>
             
@@ -465,14 +504,14 @@ const StoreOffersDashboard = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                     </svg>
-                    Update Offer
+                    تحديث العرض
                   </>
                 ) : (
                   <>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                     </svg>
-                    Add Offer
+                    إضافة عرض
                   </>
                 )}
               </button>
@@ -486,18 +525,18 @@ const StoreOffersDashboard = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
-                  Cancel
+                  إلغاء
                 </button>
               )}
             </div>
           </form>
         </div>
         
-        {/* Offers List */}
+        {/* قائمة العروض */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-800">All Offers</h2>
-            <p className="text-sm text-gray-500">{offers.length} offers found</p>
+            <h2 className="text-xl font-semibold text-gray-800">جميع العروض</h2>
+            <p className="text-sm text-gray-500">تم العثور على {offers.length} عرض</p>
           </div>
           
           {offers.length === 0 ? (
@@ -505,12 +544,12 @@ const StoreOffersDashboard = () => {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <p className="mt-4 text-gray-600">No offers available</p>
+              <p className="mt-4 text-gray-600">لا توجد عروض متاحة</p>
               <button
                 onClick={resetForm}
                 className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
               >
-                Add Your First Offer
+                أضف أول عرض لك
               </button>
             </div>
           ) : (
@@ -518,11 +557,13 @@ const StoreOffersDashboard = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Logo</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Store</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الشعار</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">العنوان</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الوصف</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">المتجر</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">أفضل عروض</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">أفضل خصم</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -549,6 +590,32 @@ const StoreOffersDashboard = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-500">{offer.slugStore}</div>
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          {offer.isBest ? (
+                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                              نعم
+                            </span>
+                          ) : (
+                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                              لا
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          {offer.isBastDiscount ? (
+                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                              نعم
+                            </span>
+                          ) : (
+                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                              لا
+                            </span>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex gap-3">
                           <button
@@ -558,7 +625,7 @@ const StoreOffersDashboard = () => {
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                               <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                             </svg>
-                            Edit
+                            تعديل
                           </button>
                           <button
                             onClick={() => handleDelete(offer.id)}
@@ -567,7 +634,7 @@ const StoreOffersDashboard = () => {
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                               <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                             </svg>
-                            Delete
+                            حذف
                           </button>
                         </div>
                       </td>
