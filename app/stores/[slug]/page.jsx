@@ -203,7 +203,7 @@ const StoreCouponsPage = () => {
             <img
               src={getLogoSrc()}
               alt={store.altText || store.name}
-              className="md:w-44 h-24 md:h-24 rounded-lg p-1 shadow-lg mb-4 sm:mb-0"
+              className="md:w-44 h-24 md:h-24 rounded-lg p-1   mb-4 sm:mb-0"
               loading="lazy"
             />
             <div className="sm:mr-6 flex-1 text-center sm:text-right">
