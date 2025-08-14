@@ -2,12 +2,10 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
-import img_1 from  "../../public/1.svg";
- import img_2 from  "../../public/2.svg";
- import img_3 from  "../../public/3.svg";
- import img_4 from  "../../public/4.svg";
-
-
+import img_1 from "../../public/1.svg";
+import img_2 from "../../public/2.svg";
+import img_3 from "../../public/3.svg";
+import img_4 from "../../public/4.svg";
 
 export default function AboutUs() {
   return (
@@ -17,35 +15,31 @@ export default function AboutUs() {
         <meta name="description" content="تعرف على فريق Eslamoffers.com والخدمات التي نقدمها" />
       </Head>
 
-      <div className="min-h-screen bg-gray-50">
-        {/* ✅ Hero Section with Image Background */}
-        <div className="relative h-[400px] md:h-[500px] w-full">
+      <div className="min-h-screen  ">
+        
+        {/* ✅ Hero Section with Responsive Image */}
+        <div className="relative w-full aspect-[7/2]   md:aspect-[7/2]">
           <Image
-            src= {img_1} // ✅ ضع الصورة المناسبة هنا داخل public/images
+            src={img_1}
             alt="Eslamoffers Hero Banner"
             fill
-            className=" "
+            className="  object-center"
             priority
           />
-          {/* <div className="absolute inset-0   flex flex-col items-center justify-center text-center text-white px-4">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">من نحن</h1>
-            <p className="text-xl md:text-2xl max-w-3xl">
-              Eslamoffers.com - وجهتك الأولى لأكواد الخصم الموثوقة في العالم العربي
-            </p>
-          </div> */}
         </div>
 
         {/* ✅ Main Content */}
         <div className="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+          
           {/* Mission Section */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
             <div className="md:flex">
-              <div className="md:w-1/3 relative   ">
+              <div className="md:w-1/3 relative aspect-[4/3]">
                 <Image 
-            src= {img_2}  
+                  src={img_2}  
                   alt="مهمتنا"
                   fill
-                  className=" "
+                  className="object-contain object-center p-4"
                   priority
                 />
               </div>
@@ -74,12 +68,12 @@ export default function AboutUs() {
           {/* Why Us Section */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
             <div className="md:flex flex-row-reverse">
-              <div className="md:w-1/3 relative h-64 md:h-auto">
+              <div className="md:w-1/3 relative aspect-[4/3]">
                 <Image 
-            src= {img_3}  
+                  src={img_3}  
                   alt="ليه Eslam Offers؟"
                   fill
-                  className=" "
+                  className="object-contain object-center p-4"
                 />
               </div>
               <div className="md:w-2/3 p-8">
@@ -108,12 +102,12 @@ export default function AboutUs() {
           {/* Work Section */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
             <div className="md:flex">
-              <div className="md:w-1/3 relative h-64 md:h-auto">
+              <div className="md:w-1/3 relative aspect-[4/3]">
                 <Image 
-            src= {img_4}  
+                  src={img_4}  
                   alt="بنشتغل علشانك"
                   fill
-                  className=" "
+                  className="object-contain object-center p-4"
                 />
               </div>
               <div className="md:w-2/3 p-8">
