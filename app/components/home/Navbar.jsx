@@ -151,7 +151,7 @@ const Navbar = () => {
                     <div
                       key={store.id}
                       className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#14b8a6]/10 cursor-pointer transition group"
-                      onClick={() => window.location.assign(`/stores/${store.id}`)}
+                      onClick={() => window.location.assign(`/stores/${store.slug}`)}
                     >
                       <img
                         src={`https://api.eslamoffers.com/uploads/${store.logoUrl}`}

@@ -158,10 +158,11 @@ export default function BannerManagement() {
   
   const handleStoreChange = (event) => {
     const storeId = event.target.value;
+    const selectedStore = stores.find(store => store.id === storeId);
     setSelectedStore(storeId);
     setBannerData({
       ...bannerData,
-      link: `/stores/${storeId}`
+      link: `/stores/${selectedStore.slug || storeId}`
     });
   };
   
@@ -226,8 +227,12 @@ export default function BannerManagement() {
     
     if (banner.link && banner.link.startsWith('/stores/')) {
       setLinkType('store');
-      const storeId = banner.link.replace('/stores/', '');
-      setSelectedStore(storeId);
+      const pathParts = banner.link.split('/');
+      const storeIdentifier = pathParts[pathParts.length - 1];
+      
+      // البحث عن المتجر باستخدام الـ slug أو الـ ID
+      const store = stores.find(s => s.slug === storeIdentifier || s.id === storeIdentifier);
+      setSelectedStore(store?.id || '');
     } else {
       setLinkType('external');
       setSelectedStore('');
@@ -255,6 +260,18 @@ export default function BannerManagement() {
     setMessage(msg);
     setSeverity(sev);
     setOpenSnackbar(true);
+  };
+
+  // دالة لاستخراج اسم المتجر من الرابط
+  const getStoreNameFromLink = (link) => {
+    if (!link || !link.startsWith('/stores/')) return null;
+    
+    const pathParts = link.split('/');
+    const storeIdentifier = pathParts[pathParts.length - 1];
+    
+    // البحث عن المتجر باستخدام الـ slug أو الـ ID
+    const store = stores.find(s => s.slug === storeIdentifier || s.id === storeIdentifier);
+    return store?.name || null;
   };
 
   return (
@@ -482,27 +499,31 @@ export default function BannerManagement() {
                           <img 
                             src={`https://api.eslamoffers.com/uploads/${banner.imageUrl}`} 
                             alt={banner.altText || 'بصري إعلاني'} 
-                            className="h-16   rounded-lg  w-[300px] border border-gray-200"
+                            className="h-16 rounded-lg w-[300px] border border-gray-200"
                           />
                          </div>
                       ) : (
                         <span className="text-gray-400">لا توجد صورة</span>
                       )}
                     </td>
-<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-  {banner.altText
-    ? banner.altText.split(" ").slice(0, 5).join(" ") + 
-      (banner.altText.split(" ").length > 5 ? "..." : "")
-    : 'لا يوجد نص بديل'}
-</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {banner.altText
+                        ? banner.altText.split(" ").slice(0, 5).join(" ") + 
+                          (banner.altText.split(" ").length > 5 ? "..." : "")
+                        : 'لا يوجد نص بديل'}
+                    </td>
 
-<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-  {banner.link
-    ? banner.link.length > 30
-      ? banner.link.substring(0, 30) + "..."
-      : banner.link
-    : 'لا يوجد رابط'}
-</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {banner.link ? (
+                        banner.link.startsWith('/stores/') ? (
+                          getStoreNameFromLink(banner.link) || banner.link
+                        ) : (
+                          banner.link.length > 30
+                            ? banner.link.substring(0, 30) + "..."
+                            : banner.link
+                        )
+                      ) : 'لا يوجد رابط'}
+                    </td>
 
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {banner.priority}
