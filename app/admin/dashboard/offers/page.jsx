@@ -18,26 +18,28 @@ const OffersPage = () => {
 
   // دالة للحصول على التوكن من الكوكيز
   const getTokenFromCookies = () => {
-    if (typeof window === 'undefined') return '';
-    const cookies = document.cookie.split(';');
-    const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='));
-    return tokenCookie ? tokenCookie.split('=')[1] : '';
+    if (typeof window === "undefined") return "";
+    const cookies = document.cookie.split(";");
+    const tokenCookie = cookies.find((cookie) =>
+      cookie.trim().startsWith("token=")
+    );
+    return tokenCookie ? tokenCookie.split("=")[1] : "";
   };
-  
+
   // التحقق من وجود التوكن وإعادة التوجيه إذا لم يكن موجوداً
   useEffect(() => {
     const token = getTokenFromCookies();
     if (!token) {
-      window.location.href = '/admin/login';
+      window.location.href = "/admin/login";
       return;
     }
   }, []);
-  
+
   // معالجة أخطاء 401 (غير مصرح)
   useEffect(() => {
     const handleUnauthorizedResponse = (response) => {
       if (!response.ok && response.status === 401) {
-        window.location.href = '/admin/login';
+        window.location.href = "/admin/login";
       }
       return response;
     };
@@ -53,6 +55,7 @@ const OffersPage = () => {
       window.fetch = originalFetch;
     };
   }, []);
+
   // Fetch all offers
   const fetchOffers = async () => {
     setLoading(true);
@@ -86,61 +89,61 @@ const OffersPage = () => {
   }, []);
 
   // Handle Add/Edit
-const handleFormSubmit = async (values, productImageFile, storeImageFile) => {
-  setLoading(true);
-  const formData = new FormData();
-  
-  // أضف كل الحقول هنا
-  formData.append("Title", values.Title);
-  formData.append("LinkPage", values.LinkPage);
-  formData.append("IsBast", values.IsBast);
-  formData.append("Price", values.Price || 0);
-  formData.append("Discount", values.Discount || 0);
-  formData.append("CurrencyCodes", values.CurrencyCodes || "USD");
-  formData.append("couponId", values.couponId || "");
-  
-  if (productImageFile) formData.append("LogoUrl", productImageFile);
-  if (storeImageFile) formData.append("ImageStoreUrl", storeImageFile);
+  const handleFormSubmit = async (values, productImageFile, storeImageFile) => {
+    setLoading(true);
+    const formData = new FormData();
 
-  try {
-    const url = selectedOffer
-      ? `${API_URL}/UpdateOffer/${selectedOffer.id}`
-      : `${API_URL}/AddOffer`;
-      
-    const method = selectedOffer ? "PUT" : "POST";
+    // أضف كل الحقول هنا
+    formData.append("Title", values.Title);
+    formData.append("LinkPage", values.LinkPage);
+    formData.append("IsBast", values.IsBast);
+    formData.append("Price", values.Price || 0);
+    formData.append("Discount", values.Discount || 0);
+    formData.append("CurrencyCodes", values.CurrencyCodes || "USD");
+    formData.append("couponId", values.couponId || "");
 
-    const response = await fetch(url, {
-      method,
-      headers: {
-        'Authorization': `Bearer ${getTokenFromCookies()}`
-      },
-      body: formData
-    });
+    if (productImageFile) formData.append("LogoUrl", productImageFile);
+    if (storeImageFile) formData.append("ImageStoreUrl", storeImageFile);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      if (response.status === 401) {
-        throw new Error("غير مصرح به - يرجى تسجيل الدخول مرة أخرى");
+    try {
+      const url = selectedOffer
+        ? `${API_URL}/UpdateOffer/${selectedOffer.id}`
+        : `${API_URL}/AddOffer`;
+
+      const method = selectedOffer ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          Authorization: `Bearer ${getTokenFromCookies()}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        if (response.status === 401) {
+          throw new Error("غير مصرح به - يرجى تسجيل الدخول مرة أخرى");
+        }
+        throw new Error(errorText || "فشل في حفظ العرض");
       }
-      throw new Error(errorText || "فشل في حفظ العرض");
-    }
 
-    await fetchOffers();
-    setIsModalOpen(false);
-    setToast({
-      message: selectedOffer ? "تم تحديث العرض بنجاح!" : "تمت إضافة العرض بنجاح!",
-      type: "success"
-    });
-  } catch (error) {
-    console.error("Error:", error);
-    setToast({ 
-      message: error.message || "حدث خطأ أثناء حفظ العرض", 
-      type: "error" 
-    });
-  } finally {
-    setLoading(false);
-  }
-};
+      await fetchOffers();
+      setIsModalOpen(false);
+      setToast({
+        message: selectedOffer ? "تم تحديث العرض بنجاح!" : "تمت إضافة العرض بنجاح!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      setToast({
+        message: error.message || "حدث خطأ أثناء حفظ العرض",
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Handle Edit
   const handleEdit = (offer) => {
@@ -154,39 +157,39 @@ const handleFormSubmit = async (values, productImageFile, storeImageFile) => {
     setIsConfirmOpen(true);
   };
 
-const confirmDelete = async () => {
-  if (!offerToDelete) return;
-  setLoading(true);
-  
-  try {
-    const response = await fetch(
-      `${API_URL}/DeleteOffer/${offerToDelete.id}`,
-      {
-        method: "DELETE",
-        headers: {
-          'Authorization': `Bearer ${getAuthToken()}`
+  const confirmDelete = async () => {
+    if (!offerToDelete) return;
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        `${API_URL}/DeleteOffer/${offerToDelete.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${getTokenFromCookies()}`,
+          },
         }
+      );
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("غير مصرح به - يرجى تسجيل الدخول مرة أخرى");
+        }
+        throw new Error("فشل في حذف العرض");
       }
-    );
-    
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error("غير مصرح به - يرجى تسجيل الدخول مرة أخرى");
-      }
-      throw new Error("فشل في حذف العرض");
+
+      await fetchOffers();
+      setIsConfirmOpen(false);
+      setOfferToDelete(null);
+      setToast({ message: "تم حذف العرض بنجاح!", type: "success" });
+    } catch (error) {
+      console.error("Error:", error);
+      setToast({ message: error.message, type: "error" });
+    } finally {
+      setLoading(false);
     }
-    
-    await fetchOffers();
-    setIsConfirmOpen(false);
-    setOfferToDelete(null);
-    setToast({ message: "تم حذف العرض بنجاح!", type: "success" });
-  } catch (error) {
-    console.error("Error:", error);
-    setToast({ message: error.message, type: "error" });
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="flex-1 p-8">
@@ -197,8 +200,7 @@ const confirmDelete = async () => {
             setSelectedOffer(null);
             setIsModalOpen(true);
           }}
-          className="bg-[#14b8a6] cursor-pointer
- text-white px-6 py-2 rounded-lg hover:bg-[#14b8a6]/90 transition font-bold shadow-lg"
+          className="bg-[#14b8a6] cursor-pointer text-white px-6 py-2 rounded-lg hover:bg-[#14b8a6]/90 transition font-bold shadow-lg"
         >
           إضافة عرض جديد
         </button>

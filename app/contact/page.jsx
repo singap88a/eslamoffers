@@ -100,8 +100,8 @@ export default function ContactPage() {
               {
                 icon: <FaEnvelope />,
                 title: "البريد الإلكتروني",
-                value: "support@eslam.offers.com",
-                link: "support@eslam.offers.com",
+                value: "support@eslamoffers.com",
+                link: "support@eslamoffers.com",
               },
  
             ].map((item, i) => (

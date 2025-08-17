@@ -180,26 +180,28 @@ const CouponsPageContent = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (!couponToDelete) return;
-    setConfirmLoading(true);
-    try {
-      const token = getCookie("token");
-      const res = await fetch(`${API_BASE}/DeleteCoupons/${couponToDelete.id}`, {
-        method: "DELETE",
-        headers: { "Authorization": `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("فشل في حذف الكوبون");
-      setToast({ message: "تم حذف الكوبون بنجاح!", type: "success" });
-      setConfirmOpen(false);
-      setCouponToDelete(null);
-      fetchCoupons();
-    } catch (err) {
-      setToast({ message: err.message, type: "error" });
-    } finally {
-      setConfirmLoading(false);
-    }
-  };
+const handleDelete = async () => {
+  if (!couponToDelete) return;
+  setConfirmLoading(true);
+  try {
+    const token = getTokenFromCookies();
+    const res = await fetch(`${API_BASE}/DeleteCoupons/${couponToDelete.id}`, {
+      method: "DELETE",
+      headers: { "Authorization": `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error("فشل في حذف الكوبون");
+    setToast({ message: "تم حذف الكوبون بنجاح!", type: "success" });
+    setConfirmOpen(false);
+    setCouponToDelete(null);
+    fetchCoupons();
+  } catch (err) {
+    setToast({ message: err.message, type: "error" });
+  } finally {
+    setConfirmLoading(false);
+  }
+};
+
+
 
   return (
     <div className="flex-1 p-4 md:p-8 min-h-screen bg-gray-50">

@@ -38,42 +38,73 @@ const StoreCouponsPage = () => {
     try {
       // جلب بيانات المتجر أولاً
       const storeResponse = await axios.get(
-        `https://api.eslamoffers.com/api/Store/GetStoreBySlug/${slug}`
+        `https://api.eslamoffers.com/api/Store/GetStoreBySlug/${slug}`,
+        {
+          validateStatus: function (status) {
+            return status < 500; // Resolve only if the status code is less than 500
+          }
+        }
       );
+
+      if (storeResponse.status === 404) {
+        throw new Error("المتجر غير موجود");
+      }
+
       const storeData = Array.isArray(storeResponse.data)
         ? storeResponse.data[0]
         : storeResponse.data;
+      
+      if (!storeData) {
+        throw new Error("بيانات المتجر غير متوفرة");
+      }
+
       setStore(storeData);
 
       // جلب الكوبونات الخاصة بالمتجر فقط
       let couponsData = [];
       try {
         const couponsResponse = await axios.get(
-          `https://api.eslamoffers.com/api/Coupons/GetCouponsByStore/${slug}`
+          `https://api.eslamoffers.com/api/Coupons/GetCouponsByStore/${slug}`,
+          {
+            validateStatus: (status) => status < 500
+          }
         );
-        couponsData = Array.isArray(couponsResponse.data)
-          ? couponsResponse.data
-          : [];
+        
+        if (couponsResponse.status === 200) {
+          couponsData = Array.isArray(couponsResponse.data)
+            ? couponsResponse.data
+            : [];
+        }
       } catch (couponErr) {
         console.log("No coupons found for store:", slug);
-        couponsData = [];
       }
       setCoupons(couponsData);
 
       // جلب العروض وتصفيتها حسب المتجر
-      const offersResponse = await axios.get(
-        "https://api.eslamoffers.com/api/StoreOffers/GetAllOffers"
-      );
-      const allOffers = offersResponse.data || [];
-      
-      // تصفية العروض لتعرض فقط عروض المتجر الحالي باستخدام slug
-      const storeOffers = allOffers.filter(offer => 
-        offer.slugStore?.trim().toLowerCase() === slug?.trim().toLowerCase()
-      );
-      
-      setOffers(storeOffers);
+      try {
+        const offersResponse = await axios.get(
+          "https://api.eslamoffers.com/api/StoreOffers/GetAllOffers",
+          {
+            validateStatus: (status) => status < 500
+          }
+        );
+        
+        if (offersResponse.status === 200) {
+          const allOffers = offersResponse.data || [];
+          
+          // تصفية العروض لتعرض فقط عروض المتجر الحالي باستخدام slug
+          const storeOffers = allOffers.filter(offer => 
+            offer.slugStore?.trim().toLowerCase() === slug?.trim().toLowerCase()
+          );
+          
+          setOffers(storeOffers);
+        }
+      } catch (offersErr) {
+        console.log("Error fetching offers:", offersErr);
+        setOffers([]);
+      }
     } catch (err) {
-      setError("فشل تحميل بيانات المتجر. يرجى المحاولة مرة أخرى لاحقًا.");
+      setError(err.message || "فشل تحميل بيانات المتجر. يرجى المحاولة مرة أخرى لاحقًا.");
       console.error(err);
     } finally {
       setLoading(false);
@@ -85,8 +116,10 @@ const StoreCouponsPage = () => {
   }, [fetchCategories]);
 
   useEffect(() => {
-    fetchStoreAndCoupons();
-  }, [fetchStoreAndCoupons]);
+    if (slug) {
+      fetchStoreAndCoupons();
+    }
+  }, [slug, fetchStoreAndCoupons]);
 
   const getLogoSrc = useCallback(() => {
     if (!store || !store.logoUrl) return "/logo4.png";
@@ -203,7 +236,7 @@ const StoreCouponsPage = () => {
             <img
               src={getLogoSrc()}
               alt={store.altText || store.name}
-              className="md:w-44 h-24 md:h-24 rounded-lg p-1   mb-4 sm:mb-0"
+              className="md:w-44 h-24 md:h-24 rounded-lg p-1 mb-4 sm:mb-0"
               loading="lazy"
             />
             <div className="sm:mr-6 flex-1 text-center sm:text-right">
@@ -236,7 +269,7 @@ const StoreCouponsPage = () => {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={1.5}
+                    strokeWidth={1.5} 
                     d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
@@ -251,7 +284,7 @@ const StoreCouponsPage = () => {
               <span className="text-sm text-gray-500">عروض خاصة بـ {store.name}</span>
             </div>
             {offers.length > 0 ? (
-              <div className=" grid  grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {offers.map((offer) => (
                   <StoreOffersCard key={offer.id} offer={offer} />
                 ))}
@@ -267,7 +300,7 @@ const StoreCouponsPage = () => {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={1.5}
+                    strokeWidth={1.5} 
                     d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
@@ -276,8 +309,7 @@ const StoreCouponsPage = () => {
             )}
           </div>
 
-          {/* باقي محتوى الصفحة... */}
-                              <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6">
               <div className="flex justify-between items-center">
                 <div className="">
@@ -286,8 +318,8 @@ const StoreCouponsPage = () => {
                   </h3>
                 </div>
 
-                <div className="text-center sm:text-left mt-4 sm:mt-0  block   items-center justify-center gap-10 md:hidden">
-                  <div className=" pb-2">
+                <div className="text-center sm:text-left mt-4 sm:mt-0 block items-center justify-center gap-10 md:hidden">
+                  <div className="pb-2">
                     {store.isBast && (
                       <div className="flex items-center gap-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-bold">
                         <svg
@@ -320,28 +352,8 @@ const StoreCouponsPage = () => {
               </div>
             </div>
 
-            <div className="mb-6 md:mb-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
-                {/* هنا سيتم عرض المتاجر المشابهة */}
-              </div>
-            </div>
-
-            {/* {store.categorys && store.categorys.length > 0 && (
-                <div className="mb-6">
-                  <h4 className="text-lg font-semibold text-gray-800 mb-3">الفئات</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {store.categorys.map((categoryId, index) => (
-                      <span key={index} className="bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-sm font-medium">
-                        {getCategoryName(categoryId)}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )} */}
-
             {store.description && (
               <div className="mb-4 sm:mb-6">
-                {/* <h4 className="text-lg font-semibold text-gray-800 mb-2">الوصف</h4> */}
                 <p className="text-[#000] font-bold text-xl sm:text-2xl text-center sm:text-right">
                   {store.description}
                 </p>
@@ -350,7 +362,6 @@ const StoreCouponsPage = () => {
 
             {store.descriptionStore?.length > 0 && (
               <div className="space-y-4 sm:space-y-6">
-                {/* <h4 className="text-lg font-semibold text-gray-800">تفاصيل إضافية</h4> */}
                 {store.descriptionStore.map((desc, index) => (
                   <div
                     key={desc.id || index}
