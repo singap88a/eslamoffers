@@ -24,20 +24,21 @@ const CouponFormModal = ({
 }) => {
   const [formData, setFormData] = useState({
     title: "",
-    description: "",
+    descriptionCoupon: "",
     imageUrl: "",
     altText: "",
     discount: 0,
     couponCode: "",
-    stratDate: "",
-    endDate: "",
+    stratDate: new Date().toISOString().slice(0, 16),
+    endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16),
     isActive: true,
     isBest: false,
-    isBastDiscount: false,
+    isBestDiscount: false,
     linkRealStore: "",
     storeId: storeId || "",
     slugStore: storeId || "",
   });
+
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
   const fileInputRef = useRef(null);
@@ -47,38 +48,38 @@ const CouponFormModal = ({
     if (initialData) {
       setFormData({
         title: initialData.title || "",
-        description: initialData.descriptionCoupon || "",
+        descriptionCoupon: initialData.descriptionCoupon || "",
         imageUrl: initialData.imageUrl || "",
         altText: initialData.altText || "",
         discount: initialData.discount || 0,
         couponCode: initialData.couponCode || "",
         stratDate: initialData.stratDate 
           ? new Date(initialData.stratDate).toISOString().slice(0, 16)
-          : "",
+          : new Date().toISOString().slice(0, 16),
         endDate: initialData.endDate 
           ? new Date(initialData.endDate).toISOString().slice(0, 16)
-          : "",
-        isActive: initialData.isActive || true,
-        isBest: initialData.isBest || false,
-        isBastDiscount: initialData.isBastDiscount || false,
+          : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16),
+        isActive: initialData.isActive ?? true,
+        isBest: initialData.isBest ?? false,
+        isBestDiscount: initialData.isBestDiscount ?? false,
         linkRealStore: initialData.linkRealStore || "",
         storeId: initialData.storeId || storeId || "",
         slugStore: initialData.slugStore || storeId || "",
       });
-      setImagePreview(initialData.imageUrl || "");
+      setImagePreview(initialData.imageUrl ? `https://api.eslamoffers.com/uploads/${initialData.imageUrl}` : "");
     } else {
       setFormData({
         title: "",
-        description: "",
+        descriptionCoupon: "",
         imageUrl: "",
         altText: "",
         discount: 0,
         couponCode: "",
-        stratDate: "",
-        endDate: "",
+        stratDate: new Date().toISOString().slice(0, 16),
+        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16),
         isActive: true,
         isBest: false,
-        isBastDiscount: false,
+        isBestDiscount: false,
         linkRealStore: "",
         storeId: storeId || "",
         slugStore: storeId || "",
@@ -119,7 +120,9 @@ const CouponFormModal = ({
   const handleRemoveImage = () => {
     setImageFile(null);
     setImagePreview("");
-    if (!initialData) setFormData((prev) => ({ ...prev, imageUrl: "" }));
+    if (!initialData?.imageUrl) {
+      setFormData(prev => ({ ...prev, imageUrl: "" }));
+    }
   };
 
   const handleDragOver = (e) => {
@@ -132,7 +135,8 @@ const CouponFormModal = ({
     const dataToSubmit = {
       ...formData,
       imageFile,
-      isBastDiscount: formData.isBastDiscount,
+      isBestDiscount: formData.isBestDiscount,
+      description: formData.descriptionCoupon, // للحفاظ على التوافق مع الخادم
     };
     onSubmit(dataToSubmit);
   };
@@ -192,8 +196,8 @@ const CouponFormModal = ({
               <FiType />
             </div>
             <textarea
-              name="description"
-              value={formData.description}
+              name="descriptionCoupon"
+              value={formData.descriptionCoupon}
               onChange={handleChange}
               placeholder="وصف الكوبون"
               className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#14b8a6] focus:border-[#14b8a6] block pl-10 p-2.5 transition"
@@ -312,7 +316,7 @@ const CouponFormModal = ({
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                  {/* <FiCalendar /> */}
+                  <FiCalendar />
                 </div>
                 <input
                   name="stratDate"
@@ -329,7 +333,7 @@ const CouponFormModal = ({
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                  {/* <FiCalendar /> */}
+                  <FiCalendar />
                 </div>
                 <input
                   name="endDate"
@@ -372,8 +376,8 @@ const CouponFormModal = ({
             <label className="flex items-center gap-2 cursor-pointer text-gray-700">
               <input
                 type="checkbox"
-                name="isBastDiscount"
-                checked={formData.isBastDiscount}
+                name="isBestDiscount"
+                checked={formData.isBestDiscount}
                 onChange={handleChange}
                 className="w-5 h-5 text-[#14b8a6] bg-gray-100 border-gray-300 rounded focus:ring-[#14b8a6] focus:ring-2"
               />

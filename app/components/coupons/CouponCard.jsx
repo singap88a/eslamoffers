@@ -160,7 +160,7 @@ const CouponCard = ({
         <div className="flex items-center justify-between gap-2">
           <button
             onClick={handleOpenModal}
-            className="w-full bg-gradient-to-r from-teal-500 to-teal-600 text-white font-semibold px-4 py-1 rounded-lg hover:from-teal-600 hover:to-teal-700 transition md:text-sm text-[11px]"
+            className="w-full bg-gradient-to-r  cursor-pointer from-teal-500 to-teal-600 text-white font-semibold px-4 py-1 rounded-lg hover:from-teal-600 hover:to-teal-700 transition md:text-sm text-[11px]"
           >
             انسخ الكود
           </button>

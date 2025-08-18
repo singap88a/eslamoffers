@@ -65,7 +65,15 @@ const StoresPage = () => {
           axios.get("https://api.eslamoffers.com/api/Category/GetAllCategories"),
         ]);
 
-        setStores(storesRes.data);
+        // ✨ ترتيب المتاجر: الأقدم فوق → الأحدث تحت
+        const sortedStores = storesRes.data.sort((a, b) => {
+          if (a.createdAt && b.createdAt) {
+            return new Date(a.createdAt) - new Date(b.createdAt); // بالـ createdAt
+          }
+          return a.id - b.id; // fallback بالـ id
+        });
+
+        setStores(sortedStores);
         setCategories(categoriesRes.data);
       } catch (err) {
         console.error(err);
@@ -93,7 +101,7 @@ const StoresPage = () => {
 
   return (
     <div className="min-h-screen" dir="rtl">
-      <div className="container mx-auto px-3 sm:px-4 py-6 md:py-8">
+      <div className="container mx-auto px-3 sm:px-4 md:py-6 md:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto">
           {/* المحتوى الرئيسي */}
           <div className="lg:col-span-2">

@@ -259,27 +259,7 @@ export default function ContactPage() {
       </div>
 
       {/* زر واتساب عائم */}
-      <div
-        className="fixed bottom-8 right-8 z-50 flex items-center group cursor-pointer"
-        onMouseEnter={() => setShowWhatsApp(true)}
-        onMouseLeave={() => setShowWhatsApp(false)}
-        onClick={() => window.open("https://wa.me/201234567890", "_blank")}
-      >
-        {/* فقاعة النص */}
-        <div
-          className={`transition-all duration-300 ease-in-out ${
-            showWhatsApp
-              ? "opacity-100 scale-100 mr-0"
-              : "opacity-0 scale-90 mr-[-20px]"
-          } bg-green-500 text-white px-4 py-2 rounded-xl shadow-lg font-bold text-base whitespace-nowrap ml-3`}
-        >
-          تواصل على واتساب
-        </div>
-        {/* الأيقونة */}
-        <div className="w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center text-3xl shadow-2xl transition-all duration-200 border-4 border-white">
-          <FaWhatsapp />
-        </div>
-      </div>
+ 
 
       {/* أنيميشن مبسطة */}
       <style jsx>{`

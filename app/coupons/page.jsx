@@ -20,8 +20,17 @@ export default function CouponsPage() {
           "https://api.eslamoffers.com/api/Coupons/GetAllCoupons"
         );
         const data = await res.json();
-        setCoupons(data);
-        setCategory(data[0]?.category || "default");
+
+        // ✨ ترتيب بحيث الجديد يظهر في الأول
+        const sortedCoupons = data.sort((a, b) => {
+          if (a.createdAt && b.createdAt) {
+            return new Date(b.createdAt) - new Date(a.createdAt); // الأحدث أولاً
+          }
+          return b.id - a.id; // fallback بالـ id
+        });
+
+        setCoupons(sortedCoupons);
+        setCategory(sortedCoupons[0]?.category || "default");
       } catch (error) {
         console.error("Failed to fetch coupons:", error);
       } finally {
@@ -36,7 +45,7 @@ export default function CouponsPage() {
 
   return (
     <div className="min-h-screen text-gray-800 dark:text-white">
-      <div className="max-w-7xl mx-auto px-4 py-10">
+      <div className="max-w-7xl mx-auto px-4 md:py-10">
         <h1 className="text-4xl font-bold text-start mb-3">كل الكوبونات</h1>
         <div className="w-40 h-1 bg-gradient-to-l from-[#14b8a6] mb-5 rounded-full"></div>
 
@@ -49,10 +58,10 @@ export default function CouponsPage() {
               <>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:mr-0">
                   {visibleCoupons.map((coupon) => (
-                    <CouponCard 
-                      key={coupon.id} 
-                      coupon={coupon} 
-                      showLastUsed={false} // إضافة هذه الخاصية لإخفاء آخر استخدام
+                    <CouponCard
+                      key={coupon.id}
+                      coupon={coupon}
+                      showLastUsed={false} // إخفاء آخر استخدام
                     />
                   ))}
                 </div>

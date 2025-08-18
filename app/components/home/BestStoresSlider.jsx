@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import CouponCard from "../coupons/CouponCard";
- import Link from "next/link";
+import Link from "next/link";
 import { FiArrowLeft } from "react-icons/fi";
 import CouponCodeModal from "./Coupon/CouponCodeModal";
 import StoreOffersCard from "../StoreOffers/StoreOffersCard";
@@ -14,8 +14,8 @@ const fetchBestDiscounts = async () => {
     if (!res.ok) throw new Error("Failed to fetch discounts");
     const data = await res.json();
     
-    // Filter and clean the data to ensure all fields are strings
-    return data.filter(c => c.isBastDiscount).slice(0, 8).map(coupon => ({
+    // Filter coupons with isBestDiscount = true and clean the data
+    return data.filter(coupon => coupon.isBestDiscount === true).slice(0, 8).map(coupon => ({
       ...coupon,
       title: typeof coupon.title === 'string' ? coupon.title : String(coupon.title || ''),
       descriptionCoupon: typeof coupon.descriptionCoupon === 'string' ? coupon.descriptionCoupon : String(coupon.descriptionCoupon || ''),
@@ -23,7 +23,8 @@ const fetchBestDiscounts = async () => {
       linkRealStore: typeof coupon.linkRealStore === 'string' ? coupon.linkRealStore : String(coupon.linkRealStore || ''),
       altText: typeof coupon.altText === 'string' ? coupon.altText : String(coupon.altText || ''),
       imageUrl: typeof coupon.imageUrl === 'string' ? coupon.imageUrl : String(coupon.imageUrl || ''),
-      slugStore: typeof coupon.slugStore === 'string' ? coupon.slugStore : String(coupon.slugStore || '')
+      slugStore: typeof coupon.slugStore === 'string' ? coupon.slugStore : String(coupon.slugStore || ''),
+      isBestDiscount: coupon.isBestDiscount === true // Ensure this is boolean
     }));
   } catch (e) {
     console.error(e);
@@ -37,7 +38,6 @@ const fetchBestOffers = async () => {
     if (!res.ok) throw new Error("Failed to fetch offers");
     const data = await res.json();
     
-    // Clean the data to ensure all fields are strings
     return data.slice(0, 8).map(offer => ({
       ...offer,
       title: typeof offer.title === 'string' ? offer.title : String(offer.title || ''),
@@ -62,14 +62,24 @@ const BestDiscountsSlider = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [discountsData, offersData] = await Promise.all([
-        fetchBestDiscounts(),
-        fetchBestOffers()
-      ]);
-      
-      setDiscounts(discountsData);
-      setOffers(offersData);
-      setLoading(false);
+      try {
+        setLoading(true);
+        const [discountsData, offersData] = await Promise.all([
+          fetchBestDiscounts(),
+          fetchBestOffers()
+        ]);
+        
+        // Debugging: Log the fetched data
+        console.log("Fetched discounts:", discountsData);
+        console.log("Fetched offers:", offersData);
+        
+        setDiscounts(discountsData);
+        setOffers(offersData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
     };
     
     fetchData();
@@ -89,10 +99,11 @@ const BestDiscountsSlider = () => {
   };
   
   const handleCopy = () => {
-    if (modalCoupon) {
+    if (modalCoupon && modalCoupon.couponCode) {
       navigator.clipboard.writeText(modalCoupon.couponCode);
       setIsCopied(true);
       
+      // Update last use in the backend
       fetch(`https://api.eslamoffers.com/api/Coupons/UpdateLastUse/${modalCoupon.id}`, {
         method: 'PUT',
         headers: {
@@ -105,7 +116,7 @@ const BestDiscountsSlider = () => {
   return (
     <div className="mt-12">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-[#14b8a6]">أفضل    الخصومات</h2>
+        <h2 className="text-2xl font-bold text-[#14b8a6]">أفضل الخصومات</h2>
         <div className="flex gap-4">
           <Link
             href="/coupons"
@@ -114,7 +125,6 @@ const BestDiscountsSlider = () => {
             <span>كل الخصومات</span>
             <FiArrowLeft />
           </Link>
- 
         </div>
       </div>
       <div className="w-40 h-1 bg-gradient-to-l from-[#14b8a6] mt-2 mb-5 rounded-full"></div>
@@ -127,53 +137,63 @@ const BestDiscountsSlider = () => {
           </div>
         </div>
       ) : (
-        <Swiper
-          spaceBetween={20}
-          slidesPerView="auto"
-          breakpoints={{
-            640: { slidesPerView: "auto" },
-            1024: { slidesPerView: "auto" },
-          }}
-          loop
-          autoplay={{
-            delay: 3000,
-            disableOnInteraction: false,
-          }}
-        >
-          {combinedItems.map((item) => (
-            <SwiperSlide 
-              key={item.id} 
-              className="my-2 !w-[140px] md:!w-[220px] lg:!w-[220px]"
+        <>
+          {discounts.length === 0 && offers.length === 0 ? (
+            <div className="text-center py-10 text-gray-500">
+              لا توجد عروض متاحة حالياً
+            </div>
+          ) : (
+            <Swiper
+              spaceBetween={20}
+              slidesPerView="auto"
+              breakpoints={{
+                640: { slidesPerView: "auto" },
+                1024: { slidesPerView: "auto" },
+              }}
+              loop
+              autoplay={{
+                delay: 3000,
+                disableOnInteraction: false,
+              }}
             >
-              {item.couponCode ? (
-                <CouponCard 
-                  coupon={item} 
-                  onGetCode={openModal} 
-                  showLastUsed={false}
-                  showBadges={false}  
-                />
-              ) : (
-                <StoreOffersCard offer={item} />
-              )}
-            </SwiperSlide>
-          ))}
-        </Swiper>
+              {combinedItems.map((item) => (
+                <SwiperSlide 
+                  key={item.id} 
+                  className="my-2 !w-[140px] md:!w-[220px] lg:!w-[220px]"
+                >
+                  {item.couponCode ? (
+                    <CouponCard 
+                      coupon={item} 
+                      onGetCode={openModal} 
+                      showLastUsed={false}
+                      showBadges={false}  
+                    />
+                  ) : (
+                    <StoreOffersCard offer={item} />
+                  )}
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          )}
+        </>
       )}
       
-      {/* Modal will only show for coupon items */}
+      {/* Modal for coupon code */}
       {modalCoupon && modalCoupon.couponCode && (
         <CouponCodeModal
           show={!!modalCoupon}
-          couponCode={modalCoupon?.couponCode || ""}
-          linkRealStore={modalCoupon?.linkRealStore || ""}
+          couponCode={modalCoupon.couponCode}
+          linkRealStore={modalCoupon.linkRealStore}
           isCopied={isCopied}
           onCopy={handleCopy}
           onClose={closeModal}
-          imageSrc={modalCoupon ? (modalCoupon.imageUrl?.startsWith('http') ? modalCoupon.imageUrl : `https://api.eslamoffers.com/uploads/${modalCoupon.imageUrl}`) : null}
-          couponTitle={modalCoupon?.title || ""}
-          couponDescription={modalCoupon?.descriptionCoupon || ""}
-          lastUseAt={modalCoupon?.lastUseAt || null}
-          altText={modalCoupon?.altText || ""}
+          imageSrc={modalCoupon.imageUrl?.startsWith('http') ? 
+            modalCoupon.imageUrl : 
+            `https://api.eslamoffers.com/uploads/${modalCoupon.imageUrl}`}
+          couponTitle={modalCoupon.title}
+          couponDescription={modalCoupon.descriptionCoupon}
+          lastUseAt={modalCoupon.lastUseAt}
+          altText={modalCoupon.altText}
           className="mx-4"
         />
       )}

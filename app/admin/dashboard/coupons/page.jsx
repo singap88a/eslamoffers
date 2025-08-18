@@ -37,6 +37,7 @@ const CouponsPageContent = () => {
   const [storeInfo, setStoreInfo] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Authentication check
   useEffect(() => {
     const token = getTokenFromCookies();
     if (!token) {
@@ -48,28 +49,8 @@ const CouponsPageContent = () => {
       router.replace('/admin/dashboard/stores');
     }
   }, [router, storeId]);
-  
-  // Response interceptor for handling 401 errors
-  useEffect(() => {
-    const handleUnauthorizedResponse = (response) => {
-      if (!response.ok && response.status === 401) {
-        router.push('/admin/login');
-      }
-      return response;
-    };
 
-    // Override fetch to handle 401 errors
-    const originalFetch = window.fetch;
-    window.fetch = async (...args) => {
-      const response = await originalFetch(...args);
-      return handleUnauthorizedResponse(response.clone());
-    };
-
-    return () => {
-      window.fetch = originalFetch;
-    };
-  }, [router]);
-
+  // Fetch data functions
   const fetchCoupons = async () => {
     if (!storeId) return;
     setLoading(true);
@@ -115,12 +96,14 @@ const CouponsPageContent = () => {
     }
   };
 
+  // Initial data fetch
   useEffect(() => {
     fetchCoupons();
     fetchCategories();
     fetchStoreInfo();
   }, [storeId]);
 
+  // Filter coupons based on search term
   const filteredCoupons = useMemo(() => {
     return coupons.filter(coupon => 
       coupon.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -128,32 +111,39 @@ const CouponsPageContent = () => {
     );
   }, [coupons, searchTerm]);
 
+  // Handle form submission
   const handleSubmit = async (values) => {
     setModalLoading(true);
     const formData = new FormData();
+    
+    // Append image file if exists
     if (values.imageFile) {
       formData.append('imageUrl', values.imageFile);
     } else if (values.imageUrl) {
       formData.append('imageUrl', values.imageUrl);
     }
     
+    // Append all other form values
     Object.keys(values).forEach(key => {
       if (key !== 'imageFile' && key !== 'imageUrl') {
         formData.append(key, values[key]);
       }
     });
     
+    // Ensure storeId and slugStore are set
     if (!values.storeId && storeId) {
-        formData.set('storeId', storeId);
+      formData.set('storeId', storeId);
     }
     if (!values.slugStore && storeId) {
-        formData.set('slugStore', storeId);
+      formData.set('slugStore', storeId);
     }
     
     try {
       const token = getTokenFromCookies();
       let res;
+      
       if (editCoupon) {
+        // Update existing coupon
         res = await fetch(`${API_BASE}/UpdateCoupon/${editCoupon.id}`, {
           method: "PUT",
           headers: { "Authorization": `Bearer ${token}` },
@@ -162,6 +152,7 @@ const CouponsPageContent = () => {
         if (!res.ok) throw new Error("فشل في تعديل الكوبون");
         setToast({ message: "تم تعديل الكوبون بنجاح!", type: "success" });
       } else {
+        // Create new coupon
         res = await fetch(`${API_BASE}/AddCoupon`, {
           method: "POST",
           headers: { "Authorization": `Bearer ${token}` },
@@ -170,9 +161,10 @@ const CouponsPageContent = () => {
         if (!res.ok) throw new Error("فشل في إضافة الكوبون");
         setToast({ message: "تمت إضافة الكوبون بنجاح!", type: "success" });
       }
+      
       setModalOpen(false);
       setEditCoupon(null);
-      fetchCoupons();
+      fetchCoupons(); // Refresh coupons list
     } catch (err) {
       setToast({ message: err.message, type: "error" });
     } finally {
@@ -180,49 +172,48 @@ const CouponsPageContent = () => {
     }
   };
 
-const handleDelete = async () => {
-  if (!couponToDelete) return;
-  setConfirmLoading(true);
-  try {
-    const token = getTokenFromCookies();
-    const res = await fetch(`${API_BASE}/DeleteCoupons/${couponToDelete.id}`, {
-      method: "DELETE",
-      headers: { "Authorization": `Bearer ${token}` },
-    });
-    if (!res.ok) throw new Error("فشل في حذف الكوبون");
-    setToast({ message: "تم حذف الكوبون بنجاح!", type: "success" });
-    setConfirmOpen(false);
-    setCouponToDelete(null);
-    fetchCoupons();
-  } catch (err) {
-    setToast({ message: err.message, type: "error" });
-  } finally {
-    setConfirmLoading(false);
-  }
-};
-
-
+  // Handle coupon deletion
+  const handleDelete = async () => {
+    if (!couponToDelete) return;
+    setConfirmLoading(true);
+    try {
+      const token = getTokenFromCookies();
+      const res = await fetch(`${API_BASE}/DeleteCoupons/${couponToDelete.id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("فشل في حذف الكوبون");
+      setToast({ message: "تم حذف الكوبون بنجاح!", type: "success" });
+      setConfirmOpen(false);
+      setCouponToDelete(null);
+      fetchCoupons(); // Refresh coupons list
+    } catch (err) {
+      setToast({ message: err.message, type: "error" });
+    } finally {
+      setConfirmLoading(false);
+    }
+  };
 
   return (
     <div className="flex-1 p-4 md:p-8 min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto">
-        {/* معلومات المتجر */}
+        {/* Store Info Section */}
         {storeInfo && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
                 <img
                   src={storeInfo.logoUrl ? `https://api.eslamoffers.com/uploads/${storeInfo.logoUrl}` : "/default-store.png"}
                   alt={storeInfo.name}
                   className="w-16 h-16 rounded-lg object-contain border border-gray-200 bg-white shadow-sm"
                 />
-                <div className="mr-4">
+                <div>
                   <h2 className="text-2xl font-bold text-gray-800">{storeInfo.name}</h2>
                   <p className="text-gray-600">إدارة كوبونات المتجر</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex flex-wrap gap-2">
                   {storeInfo.isBast && (
                     <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-bold">
                       متجر مميز
@@ -246,24 +237,24 @@ const handleDelete = async () => {
           </div>
         )}
 
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">
+        {/* Page Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
             {storeInfo ? `كوبونات ${storeInfo.name}` : 'إدارة الكوبونات'}
           </h1>
           <button
-            data-add-coupon
             onClick={() => {
               setEditCoupon(null);
               setModalOpen(true);
             }}
-            className="flex cursor-pointer items-center gap-2 bg-[#14b8a6] text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-[#11a394] transition-all duration-300 font-semibold"
+            className="flex items-center gap-2 bg-[#14b8a6] text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-[#11a394] transition-all duration-300 font-semibold"
           >
             <FiPlus size={20} />
             <span>إضافة كوبون جديد</span>
           </button>
         </div>
 
-        {/* شريط البحث */}
+        {/* Search Bar */}
         <div className="mb-6">
           <div className="relative max-w-md">
             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
@@ -279,32 +270,33 @@ const handleDelete = async () => {
           </div>
         </div>
 
-        {/* إحصائيات سريعة */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <div className="text-3xl font-bold text-teal-600 mb-2">{filteredCoupons.length}</div>
-            <div className="text-gray-600">إجمالي الكوبونات</div>
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white rounded-lg shadow-md p-4 text-center">
+            <div className="text-2xl md:text-3xl font-bold text-teal-600 mb-1">{filteredCoupons.length}</div>
+            <div className="text-sm md:text-base text-gray-600">إجمالي الكوبونات</div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <div className="text-3xl font-bold text-green-600 mb-2">
+          <div className="bg-white rounded-lg shadow-md p-4 text-center">
+            <div className="text-2xl md:text-3xl font-bold text-green-600 mb-1">
               {filteredCoupons.filter(c => c.isActive).length}
             </div>
-            <div className="text-gray-600">كوبونات نشطة</div>
+            <div className="text-sm md:text-base text-gray-600">كوبونات نشطة</div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <div className="text-3xl font-bold text-yellow-600 mb-2">
-              {filteredCoupons.filter(c => c.isBest || c.isBastDiscount).length}
+          <div className="bg-white rounded-lg shadow-md p-4 text-center">
+            <div className="text-2xl md:text-3xl font-bold text-yellow-600 mb-1">
+              {filteredCoupons.filter(c => c.isBest).length}
             </div>
-            <div className="text-gray-600">كوبونات مميزة</div>
+            <div className="text-sm md:text-base text-gray-600">كوبونات مميزة</div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <div className="text-3xl font-bold text-orange-600 mb-2">
-              {filteredCoupons.filter(c => c.isBastDiscount).length}
+          <div className="bg-white rounded-lg shadow-md p-4 text-center">
+            <div className="text-2xl md:text-3xl font-bold text-orange-600 mb-1">
+              {filteredCoupons.filter(c => c.isBestDiscount).length}
             </div>
-            <div className="text-gray-600">أفضل الخصومات</div>
+            <div className="text-sm md:text-base text-gray-600">أفضل الخصومات</div>
           </div>
         </div>
 
+        {/* Error Message */}
         {error && (
           <div className="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-md">
             <p className="font-bold">خطأ</p>
@@ -312,6 +304,7 @@ const handleDelete = async () => {
           </div>
         )}
 
+        {/* Coupons Table */}
         <CouponTable
           coupons={filteredCoupons}
           loading={loading}
@@ -325,6 +318,7 @@ const handleDelete = async () => {
           }}
         />
 
+        {/* Modals */}
         <CouponFormModal
           isOpen={modalOpen}
           onClose={() => {
@@ -357,7 +351,7 @@ const handleDelete = async () => {
 };
 
 const CouponsPage = () => (
-  <Suspense fallback={<div>Loading...</div>}>
+  <Suspense fallback={<div className="flex justify-center items-center h-screen">جاري التحميل...</div>}>
     <CouponsPageContent />
   </Suspense>
 );
