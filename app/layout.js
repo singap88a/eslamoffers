@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "./components/home/Navbar";
 import Footer from "./components/home/Footer";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // مهم عشان التنسيقات
 
 // تحميل خط Cairo
 const cairo = Cairo({
@@ -11,7 +12,7 @@ const cairo = Cairo({
   display: "swap",
 });
 
-// تعريف البيانات الوصفية للموقع
+// تعريف البيانات الوصفية للموقع (Next.js هيتولى تحويلها لـ <meta> tags تلقائيًا)
 export const metadata = {
   title: "Eslam Offers",
   description: "أفضل العروض والخصومات على الإنترنت",
@@ -32,14 +33,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="ar" dir="rtl">
-      <head>
-        <link rel="icon" href="/logo4.png" type="image/png" sizes="32x32" />
-        <link rel="icon" href="/logo4.png" type="image/png" sizes="16x16" />
-        <link rel="apple-touch-icon" href="/logo4.png" />
-      </head>
       <body className={cairo.className} suppressHydrationWarning>
         <Navbar />
-        <ToastContainer />
+        <ToastContainer position="top-right" autoClose={3000} />
         {children}
         <Footer />
       </body>
