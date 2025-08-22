@@ -287,9 +287,18 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="text-center text-xs text-gray-400 py-3 border-t">
-        جميع الحقوق محفوظة © إسلام أوفرز 2025
-      </div>
+<div className="text-center text-xs text-gray-400 py-3 border-t">
+  جميع الحقوق محفوظة © إسلام أوفرز 2025 | 
+  <a 
+    href="https://ahmed-singap.netlify.app/" 
+    target="_blank" 
+    rel="noopener noreferrer" 
+    className="text-blue-500 hover:underline ml-1 px-1"
+  >
+     Ahmed Singap
+  </a>
+</div>
+
     </footer>
   );
 };
