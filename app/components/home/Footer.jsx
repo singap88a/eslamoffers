@@ -293,7 +293,7 @@ const Footer = () => {
     href="https://ahmed-singap.netlify.app/" 
     target="_blank" 
     rel="noopener noreferrer" 
-    className="text-blue-500 hover:underline ml-1 px-1"
+    className="text-[#14b8a6] hover:underline ml-1 px-1 font-bold"
   >
      Ahmed Singap
   </a>
