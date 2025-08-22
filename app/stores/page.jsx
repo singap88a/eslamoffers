@@ -50,7 +50,7 @@ const StoreCard = ({ store }) => {
 const StoresPage = () => {
   const [stores, setStores] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("all"); // 👈 الافتراضي
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [visibleCount, setVisibleCount] = useState(90);
@@ -86,14 +86,12 @@ const StoresPage = () => {
     fetchStoresAndCategories();
   }, []);
 
-  // فلترة المتاجر حسب الكاتوجري ID
+  // ✅ فلترة المتاجر حسب الـ slug مش الـ id
   const filteredStores =
     selectedCategory === "all"
       ? stores
       : stores.filter((store) =>
-          store.categorys?.some(
-            (cat) => typeof cat === "string" && cat === selectedCategory
-          )
+          store.categorys?.some((catSlug) => catSlug === selectedCategory)
         );
 
   const visibleStores = filteredStores.slice(0, visibleCount);
@@ -135,9 +133,9 @@ const StoresPage = () => {
               {categories.map((cat) => (
                 <SwiperSlide key={cat.id} style={{ width: "auto" }}>
                   <button
-                    onClick={() => setSelectedCategory(cat.id)}
+                    onClick={() => setSelectedCategory(cat.slug)} // ✅ هنا slug مش id
                     className={`px-4 py-2 rounded-full border whitespace-nowrap ${
-                      selectedCategory === cat.id
+                      selectedCategory === cat.slug
                         ? "bg-teal-500 text-white"
                         : "bg-white text-gray-700 hover:bg-gray-100"
                     } transition`}
