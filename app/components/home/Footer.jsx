@@ -288,7 +288,7 @@ const Footer = () => {
       </div>
 
 <div className="text-center text-xs text-gray-400 py-3 border-t">
-  جميع الحقوق محفوظة © إسلام أوفرز 2025  
+  جميع الحقوق محفوظة © EslamOffers.com 2025  
   {/* <a 
     href="https://ahmed-singap.netlify.app/" 
     target="_blank" 

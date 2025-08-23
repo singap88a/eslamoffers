@@ -79,7 +79,7 @@ const CouponCard = ({
     if (diffHours < 24) {
       return {
         text: "تم النسخ منذ",
-        time: `${diffHours} ساعة${diffHours > 1 ? "ات" : ""}`,
+        time: `${diffHours} ساعات${diffHours > 1 ? "  " : ""}`,
       };
     }
 
