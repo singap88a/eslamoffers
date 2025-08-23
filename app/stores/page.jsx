@@ -5,6 +5,7 @@ import SubscribeBox from "../components/home/Coupon/SubscribeBox";
 import PromoCard from "../components/home/Coupon/PromoCard";
 import Link from "next/link";
 import CountdownOfferBox from "../components/home/Coupon/CountdownOfferBox";
+import Image from "next/image"; // ✅ استبدال img بـ Image من next/image
 
 // Swiper imports
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -28,13 +29,20 @@ const StoreCard = ({ store }) => {
     if (store.logoUrl.startsWith("http")) return store.logoUrl;
     return `https://api.eslamoffers.com/uploads/${store.logoUrl}`;
   };
+
   return (
     <div className="bg-white border-2 border-gray-300 border-dashed hover:border-teal-400 rounded-xl overflow-hidden shadow-sm h-full flex flex-col relative transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl group">
       <div className="relative w-full aspect-[4/2] flex items-center justify-center overflow-hidden">
-        <img
+        <Image
           src={getLogoSrc()}
           alt={store.altText || `${store.name} logo`}
-          className="group-hover:scale-110 transition-transform duration-300"
+          fill
+          sizes="(max-width: 768px) 100vw, 
+                 (max-width: 1200px) 50vw, 
+                 20vw"
+          className="object-contain group-hover:scale-110 transition-transform duration-300"
+          placeholder="blur"
+          blurDataURL="/placeholder.png" // صورة صغيرة خفيفة بتظهر الأول
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </div>
@@ -50,7 +58,7 @@ const StoreCard = ({ store }) => {
 const StoresPage = () => {
   const [stores, setStores] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("all"); // 👈 الافتراضي
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [visibleCount, setVisibleCount] = useState(90);
@@ -65,12 +73,11 @@ const StoresPage = () => {
           axios.get("https://api.eslamoffers.com/api/Category/GetAllCategories"),
         ]);
 
-        // ✨ ترتيب المتاجر: الأقدم فوق → الأحدث تحت
         const sortedStores = storesRes.data.sort((a, b) => {
           if (a.createdAt && b.createdAt) {
-            return new Date(a.createdAt) - new Date(b.createdAt); // بالـ createdAt
+            return new Date(a.createdAt) - new Date(b.createdAt);
           }
-          return a.id - b.id; // fallback بالـ id
+          return a.id - b.id;
         });
 
         setStores(sortedStores);
@@ -86,7 +93,6 @@ const StoresPage = () => {
     fetchStoresAndCategories();
   }, []);
 
-  // ✅ فلترة المتاجر حسب الـ slug مش الـ id
   const filteredStores =
     selectedCategory === "all"
       ? stores
@@ -110,7 +116,7 @@ const StoresPage = () => {
               <div className="w-40 h-1 bg-gradient-to-l from-[#14b8a6] mb-5 rounded-full"></div>
             </div>
 
-            {/* أزرار التصنيفات داخل Swiper */}
+            {/* أزرار التصنيفات */}
             <Swiper
               slidesPerView="auto"
               spaceBetween={8}
@@ -133,7 +139,7 @@ const StoresPage = () => {
               {categories.map((cat) => (
                 <SwiperSlide key={cat.id} style={{ width: "auto" }}>
                   <button
-                    onClick={() => setSelectedCategory(cat.slug)} // ✅ هنا slug مش id
+                    onClick={() => setSelectedCategory(cat.slug)}
                     className={`px-4 py-2 rounded-full border whitespace-nowrap ${
                       selectedCategory === cat.slug
                         ? "bg-teal-500 text-white"

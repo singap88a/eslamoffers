@@ -8,6 +8,7 @@ import PromoCard from "../../components/home/Coupon/PromoCard";
 import CountdownOfferBox from "../../components/home/Coupon/CountdownOfferBox";
 import BestStores from "../../components/home/BestStores";
 import StoreOffersCard from "../../components/StoreOffers/StoreOffersCard";
+import Image from "next/image";
 
 const StoreCouponsPage = () => {
   const [store, setStore] = useState(null);
@@ -16,6 +17,7 @@ const StoreCouponsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [imageLoading, setImageLoading] = useState(true);
   const params = useParams();
   const { slug } = params;
 
@@ -137,6 +139,17 @@ const StoreCouponsPage = () => {
     [categories]
   );
 
+  // دالة لمعالجة أخطاء تحميل الصور
+  const handleImageError = (e) => {
+    e.target.src = "/logo4.png";
+    e.target.onerror = null; // منع التكرار في حالة فشل الصورة الاحتياطية أيضًا
+  };
+
+  // دالة لمعالجة تحميل الصور في وصف المتجر
+  const handleDescImageError = (e, index) => {
+    e.target.style.display = "none"; // إخفاء الصورة المعطلة
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center">
@@ -233,12 +246,21 @@ const StoreCouponsPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto md:py-14 px-4 sm:px-6 lg:px-8">
         <div className="lg:col-span-2">
           <div className="bg-white border-b pb-4 border-gray-300 mb-8 md:mb-12 flex flex-col sm:flex-row items-center">
-            <img
-              src={getLogoSrc()}
-              alt={store.altText || store.name}
-              className="md:w-44 h-24 md:h-24 rounded-lg p-1 mb-4 sm:mb-0"
-              loading="lazy"
-            />
+            <div className="relative md:w-44 h-24 md:h-24 rounded-lg p-1 mb-4 sm:mb-0">
+              {imageLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-lg">
+                  <div className="animate-pulse rounded-full h-10 w-10 border-t-2 border-b-2 border-teal-500"></div>
+                </div>
+              )}
+              <img
+                src={getLogoSrc()}
+                alt={store.altText || store.name}
+                className={`md:w-44 h-24 md:h-24 rounded-lg object-contain ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
+                loading="lazy"
+                onLoad={() => setImageLoading(false)}
+                onError={handleImageError}
+              />
+            </div>
             <div className="sm:mr-6 flex-1 text-center sm:text-right">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">
                 {store.name}
@@ -378,12 +400,23 @@ const StoreCouponsPage = () => {
                       </p>
                     )}
                     {desc.image && (
-                      <img
-                        src={`https://api.eslamoffers.com/uploads/${desc.image}`}
-                        alt={desc.subHeader || `صورة توضيحية ${index + 1}`}
-                        className="w-full h-auto rounded-lg shadow-sm"
-                        loading="lazy"
-                      />
+                      <div className="relative w-full h-64 rounded-lg overflow-hidden shadow-sm">
+                        <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
+                          <div className="animate-pulse rounded-full h-10 w-10 border-t-2 border-b-2 border-teal-500"></div>
+                        </div>
+                        <img
+                          src={`https://api.eslamoffers.com/uploads/${desc.image}`}
+                          alt={desc.subHeader || `صورة توضيحية ${index + 1}`}
+                          className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-300"
+                          loading="lazy"
+                          onLoad={(e) => {
+                            e.target.classList.remove('opacity-0');
+                            e.target.classList.add('opacity-100');
+                            e.target.previousSibling.style.display = 'none';
+                          }}
+                          onError={(e) => handleDescImageError(e, index)}
+                        />
+                      </div>
                     )}
                   </div>
                 ))}
