@@ -288,15 +288,15 @@ const Footer = () => {
       </div>
 
 <div className="text-center text-xs text-gray-400 py-3 border-t">
-  جميع الحقوق محفوظة © إسلام أوفرز 2025 | 
-  <a 
+  جميع الحقوق محفوظة © إسلام أوفرز 2025  
+  {/* <a 
     href="https://ahmed-singap.netlify.app/" 
     target="_blank" 
     rel="noopener noreferrer" 
     className="text-[#14b8a6] hover:underline ml-1 px-1 font-bold"
   >
      Ahmed Singap
-  </a>
+  </a> */}
 </div>
 
     </footer>

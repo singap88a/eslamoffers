@@ -4,6 +4,7 @@ import Navbar from "./components/home/Navbar";
 import Footer from "./components/home/Footer";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // مهم عشان التنسيقات
+import ScrollToTop from "./components/ScrollToTop";
 
 // تحميل خط Cairo
 const cairo = Cairo({
@@ -36,6 +37,7 @@ export default function RootLayout({ children }) {
       <body className={cairo.className} suppressHydrationWarning>
         <Navbar />
         <ToastContainer position="top-right" autoClose={3000} />
+        <ScrollToTop/>
         {children}
         <Footer />
       </body>

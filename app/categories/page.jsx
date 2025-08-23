@@ -56,7 +56,7 @@ const AllCategoriesPage = () => {
 
     return (
         <div className="min-h-screen bg-white">
-            <div className="container mx-auto px-4 py-12">
+            <div className="container mx-auto px-4 md:py-12">
                 <div className="text-center mb-12">
                     <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight">
                         تصفح جميع الفئات

@@ -78,7 +78,7 @@ export default function CategoryPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 md:px-22 py-8 pt-12">
+    <div className="container mx-auto px-4 md:px-22 md:py-8 py-3 md:pt-12">
  
       
       {/* شبكة المتاجر المعدلة */}
