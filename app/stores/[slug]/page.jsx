@@ -234,13 +234,14 @@ const StoreCouponsPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto md:py-14 px-4 sm:px-6 lg:px-8">
         <div className="lg:col-span-2">
           <div className="bg-white border-b pb-4 border-gray-300 mb-8 md:mb-12 flex flex-col sm:flex-row items-center">
-            <div className="relative md:w-44 h-24 md:h-24 rounded-lg p-1 mb-4 sm:mb-0">
-              <div className="relative w-full h-full">
+            <div className="relative w-full h-32 sm:w-44 sm:h-24 md:w-44 md:h-24 rounded-lg p-1 mb-4 sm:mb-0 mx-auto sm:mx-0">
+              <div className="relative w-full h-full ">
                 <Image
                   src={getLogoSrc()}
                   alt={store.altText || store.name}
                   fill
                   className="rounded-lg object-contain"
+                  // sizes="(max-width: 640px) 128px, (max-width: 768px) 176px, 176px"
                   onError={(e) => {
                     e.target.src = "/logo4.png";
                   }}
@@ -386,12 +387,16 @@ const StoreCouponsPage = () => {
                       </p>
                     )}
                     {desc.image && (
-                      <div className="relative w-full h-64 rounded-lg overflow-hidden shadow-sm">
+                      <div className="relative w-full h-48 sm:h-64 rounded-lg overflow-hidden shadow-sm">
                         <Image
                           src={`https://api.eslamoffers.com/uploads/${desc.image}`}
                           alt={desc.subHeader || `صورة توضيحية ${index + 1}`}
                           fill
                           className="object-cover"
+                          // sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                          onError={(e) => {
+                            e.target.src = "/logo4.png";
+                          }}
                         />
                       </div>
                     )}
