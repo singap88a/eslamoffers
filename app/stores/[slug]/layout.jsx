@@ -1,15 +1,42 @@
 // Server layout for dynamic store metadata (title, description, keywords)
 
+function cleanDescription(desc) {
+  if (!desc || typeof desc !== "string") return "";
+  const cleaned = desc.trim();
+
+  // شيل النصوص التجريبية أو الغير مفيدة
+  if (cleaned.toLowerCase().includes("string")) return "";
+  if (/^\d+(\.\d+)?$/.test(cleaned)) return "";
+  if (cleaned.length < 5) return ""; // نص قصير جدا غير مفيد
+
+  return cleaned;
+}
+
 export async function generateMetadata({ params }) {
   const slug = params?.slug;
   const API_BASE = "https://api.eslamoffers.com/api";
 
   let title = "Eslam Offers";
   let description = "أفضل العروض والخصومات على الإنترنت";
-  let keywords = [ ];
+  let keywords = [];
 
   if (!slug) {
-    return { title, description, keywords };
+    return {
+      title,
+      description,
+      keywords,
+      openGraph: {
+        title,
+        description,
+        url: "https://eslamoffers.com",
+        siteName: "Eslam Offers",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+      },
+    };
   }
 
   try {
@@ -20,15 +47,17 @@ export async function generateMetadata({ params }) {
     if (storeRes.ok) {
       const storeJson = await storeRes.json();
       const store = Array.isArray(storeJson) ? storeJson[0] : storeJson;
+
       if (store) {
         title = `${store.name} | Eslam Offers`;
-        if (store.headerDescription && typeof store.headerDescription === "string") {
-          description = store.headerDescription;
-        } else if (store.description && typeof store.description === "string") {
-          description = store.description;
-        } else {
-          description = `جميع الكوبونات والعروض الخاصة بـ ${store.name}`;
+
+        let desc = cleanDescription(store.headerDescription) 
+                || cleanDescription(store.description);
+
+        if (!desc) {
+          desc = `جميع الكوبونات والعروض الخاصة بـ ${store.name}`;
         }
+        description = desc;
 
         // Attempt to load tags to append to keywords
         try {
@@ -54,16 +83,24 @@ export async function generateMetadata({ params }) {
     }
   } catch {}
 
-  // Support both string and array; Next.js accepts either
   return {
     title,
     description,
     keywords,
+    openGraph: {
+      title,
+      description,
+      url: `https://eslamoffers.com/store/${slug}`,
+      siteName: "Eslam Offers",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
   };
 }
 
 export default function StoreLayout({ children }) {
   return children;
 }
-
-
