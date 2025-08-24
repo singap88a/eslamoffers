@@ -5,21 +5,24 @@ import BestStores from "../components/home/BestStores";
 
 async function getOffers() {
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000); // 8 ثواني فقط
+
     const res = await fetch("https://api.eslamoffers.com/api/Offers/GetAllOffers", {
-      // ISR: الصفحة تتجدد كل 60 ثانية
       next: { revalidate: 60 },
+      signal: controller.signal,
     });
 
-    if (!res.ok) {
-      throw new Error("فشل في جلب العروض");
-    }
+    clearTimeout(timeout);
 
+    if (!res.ok) throw new Error("فشل في جلب العروض");
     return res.json();
   } catch (error) {
     console.error("خطأ في جلب العروض:", error);
-    return []; // عشان الصفحة ما تقعش
+    return []; // رجّع Array فاضي بدل ما الصفحة تقع
   }
 }
+
 
 export default async function OffersPage() {
   const offers = await getOffers();
