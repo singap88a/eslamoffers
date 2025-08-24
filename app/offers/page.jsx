@@ -6,8 +6,8 @@ import BestStores from "../components/home/BestStores";
 async function getOffers() {
   try {
     const res = await fetch("https://api.eslamoffers.com/api/Offers/GetAllOffers", {
-      cache: "no-store",
-      next: { revalidate: 60 }, // إعادة التحقق كل دقيقة
+      // ISR: الصفحة تتجدد كل 60 ثانية
+      next: { revalidate: 60 },
     });
 
     if (!res.ok) {
