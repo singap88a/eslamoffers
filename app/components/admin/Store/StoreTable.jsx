@@ -158,7 +158,7 @@ const StoreTable = ({ stores, onEdit, onDelete, onNavigateToCoupons, onManageDes
                         className="flex items-center  cursor-pointer justify-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg shadow-sm transition"
                       >
                         <FiList className="h-4 w-4" />
-                        <span>إدارة معلومات المتجر</span>
+                        <span className="text-[14px]">إدارة معلومات المتجر</span>
                       </button>
                       <div className="flex space-x-2">
                         <button
