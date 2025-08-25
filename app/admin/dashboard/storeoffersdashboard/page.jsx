@@ -239,7 +239,7 @@ const StoreOffersDashboard = () => {
           <div className="flex gap-3 w-full md:w-auto">
             <button
               onClick={fetchOffers}
-              className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors flex items-center gap-2 w-full md:w-auto justify-center"
+              className="px-4 py-2 cursor-pointer bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors flex items-center gap-2 w-full md:w-auto justify-center"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
@@ -248,7 +248,7 @@ const StoreOffersDashboard = () => {
             </button>
             <button
               onClick={resetForm}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 w-full md:w-auto justify-center"
+              className="px-4 py-2 bg-green-600 cursor-pointer text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 w-full md:w-auto justify-center"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
@@ -439,7 +439,7 @@ const StoreOffersDashboard = () => {
                     name="slugStore"
                     value={formData.slugStore}
                     onChange={handleChange}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                    className="flex-1 px-4 cursor-pointer py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
                     required
                   >
                     <option value="">اختر متجرًا</option>
@@ -452,7 +452,7 @@ const StoreOffersDashboard = () => {
                   <button
                     type="button"
                     onClick={fetchStores}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center"
+                    className="px-4 py-2 bg-gray-100 cursor-pointer text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center"
                     title="تحديث قائمة المتاجر"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -465,30 +465,30 @@ const StoreOffersDashboard = () => {
 
             {/* خيارات نوع العرض */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="flex items-center">
+              <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   id="isBest"
                   name="isBest"
                   checked={formData.isBest}
                   onChange={handleChange}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-indigo-600 cursor-pointer focus:ring-indigo-500 border-gray-300 rounded"
                 />
-                <label htmlFor="isBest" className="ml-2 block text-sm text-gray-700">
+                <label htmlFor="isBest" className="ml-2 block text-sm cursor-pointer text-gray-700">
                   تضمين في أفضل العروض
                 </label>
               </div>
               
-              <div className="flex items-center">
+              <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   id="isBastDiscount"
                   name="isBastDiscount"
                   checked={formData.isBastDiscount}
                   onChange={handleChange}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-indigo-600 cursor-pointer focus:ring-indigo-500 border-gray-300 rounded"
                 />
-                <label htmlFor="isBastDiscount" className="ml-2 block text-sm text-gray-700">
+                <label htmlFor="isBastDiscount" className="ml-2 block text-sm cursor-pointer text-gray-700">
                   تضمين في أفضل عروض الخصم
                 </label>
               </div>
@@ -497,7 +497,7 @@ const StoreOffersDashboard = () => {
             <div className="flex gap-4 pt-2">
               <button
                 type="submit"
-                className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors flex items-center gap-2"
+                className="px-6 py-3 cursor-pointer bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors flex items-center gap-2"
               >
                 {isEditing ? (
                   <>
@@ -520,7 +520,7 @@ const StoreOffersDashboard = () => {
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors flex items-center gap-2"
+                  className="px-6 py-3 cursor-pointer bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors flex items-center gap-2"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -547,7 +547,7 @@ const StoreOffersDashboard = () => {
               <p className="mt-4 text-gray-600">لا توجد عروض متاحة</p>
               <button
                 onClick={resetForm}
-                className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                className="mt-4 px-4 py-2 cursor-pointer bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
               >
                 أضف أول عرض لك
               </button>
@@ -616,28 +616,28 @@ const StoreOffersDashboard = () => {
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex gap-3">
-                          <button
-                            onClick={() => handleEdit(offer)}
-                            className="text-indigo-600 hover:text-indigo-900 flex items-center gap-1"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                            </svg>
-                            تعديل
-                          </button>
-                          <button
-                            onClick={() => handleDelete(offer.id)}
-                            className="text-red-600 hover:text-red-900 flex items-center gap-1"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                            حذف
-                          </button>
-                        </div>
-                      </td>
+<td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+  <div className="flex gap-3">
+    <button
+      onClick={() => handleEdit(offer)}
+      className="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-3 py-2 rounded-lg cursor-pointer transition-colors duration-200 flex items-center gap-1 shadow-sm hover:shadow-md"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+      </svg>
+      تعديل
+    </button>
+    <button
+      onClick={() => handleDelete(offer.id)}
+      className="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-2 rounded-lg cursor-pointer transition-colors duration-200 flex items-center gap-1 shadow-sm hover:shadow-md"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+      </svg>
+      حذف
+    </button>
+  </div>
+</td>
                     </tr>
                   ))}
                 </tbody>

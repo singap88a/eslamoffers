@@ -1,9 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { FiEdit2, FiTrash2, FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiChevronDown, FiChevronUp, FiList } from "react-icons/fi";
 import { RiCoupon3Line } from "react-icons/ri";
 
-const StoreTable = ({ stores, onEdit, onDelete, onNavigateToCoupons, loading }) => {
+const StoreTable = ({ stores, onEdit, onDelete, onNavigateToCoupons, onManageDescriptions, loading }) => {
   const [categories, setCategories] = useState([]);
   const [expandedDescriptions, setExpandedDescriptions] = useState({});
 
@@ -148,22 +148,29 @@ const StoreTable = ({ stores, onEdit, onDelete, onNavigateToCoupons, loading }) 
                     <div className="flex flex-col space-y-2">
                       <button
                         onClick={() => onNavigateToCoupons(store)}
-                        className="flex items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow-sm transition"
+                        className="flex items-center justify-center cursor-pointer space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow-sm transition"
                       >
                         <RiCoupon3Line className="h-5 w-5" />
                         <span>كوبونات المتجر</span>
                       </button>
+                      <button
+                        onClick={() => onManageDescriptions(store)}
+                        className="flex items-center  cursor-pointer justify-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg shadow-sm transition"
+                      >
+                        <FiList className="h-4 w-4" />
+                        <span>إدارة معلومات المتجر</span>
+                      </button>
                       <div className="flex space-x-2">
                         <button
                           onClick={() => onEdit(store)}
-                          className="flex-1 flex items-center justify-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg shadow-sm transition"
+                          className="flex-1 flex items-center cursor-pointer justify-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg shadow-sm transition"
                         >
                           <FiEdit2 className="h-4 w-4" />
                           <span>تعديل</span>
                         </button>
                         <button
                           onClick={() => onDelete(store)}
-                          className="flex-1 flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-sm transition"
+                          className="flex-1 flex items-center cursor-pointer justify-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-sm transition"
                         >
                           <FiTrash2 className="h-4 w-4" />
                           <span>حذف</span>

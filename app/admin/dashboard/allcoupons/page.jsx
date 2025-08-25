@@ -392,19 +392,19 @@ const CouponsAdminPanel = () => {
         <div className="flex space-x-2">
           <button
             onClick={() => setActiveTab('all')}
-            className={`px-4 py-2 rounded-lg ${activeTab === 'all' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+            className={`px-4 py-2 rounded-lg cursor-pointer ${activeTab === 'all' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700'}`}
           >
             جميع الكوبونات
           </button>
           <button
             onClick={() => setActiveTab('best')}
-            className={`px-4 py-2 rounded-lg flex items-center ${activeTab === 'best' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+            className={`px-4 py-2 cursor-pointer rounded-lg flex items-center ${activeTab === 'best' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700'}`}
           >
             <Star className="ml-1" /> أفضل الكوبونات
           </button>
           <button
             onClick={() => setActiveTab('bestDiscount')}
-            className={`px-4 py-2 rounded-lg flex items-center ${activeTab === 'bestDiscount' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+            className={`px-4 py-2 rounded-lg cursor-pointer flex items-center ${activeTab === 'bestDiscount' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700'}`}
           >
             <LocalOffer className="ml-1" /> أفضل الخصومات
           </button>
@@ -412,7 +412,7 @@ const CouponsAdminPanel = () => {
         
         <button
           onClick={() => setOpenAddModal(true)}
-          className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg flex items-center"
+          className="px-4 py-2 cursor-pointer bg-teal-600 hover:bg-teal-700 text-white rounded-lg flex items-center"
         >
           <Add className="ml-1" /> إضافة كوبون
         </button>

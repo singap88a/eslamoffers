@@ -531,25 +531,29 @@ export default function BannerManagement() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Date(banner.createdAt).toLocaleDateString('ar-EG')}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => openEditDialog(banner)}
-                        className="text-teal-600 hover:text-teal-900 mr-3 p-1 rounded-full hover:bg-teal-50 cursor-pointer transition-colors duration-200"
-                        title="تعديل"
-                      >
-                        <Edit className="text-xl" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setDeleteBannerId(banner.id);
-                          setOpenDeleteDialog(true);
-                        }}
-                        className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50 cursor-pointer transition-colors duration-200"
-                        title="حذف"
-                      >
-                        <Delete className="text-xl" />
-                      </button>
-                    </td>
+<td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+  <div className="flex items-center gap-2">
+    <button
+      onClick={() => openEditDialog(banner)}
+      className="bg-teal-100 text-teal-700 hover:bg-teal-200 p-2 rounded-lg hover:shadow-md cursor-pointer transition-all duration-200 mr-2"
+      title="تعديل"
+    >
+      تعديل
+      <Edit className="text-xl" />
+    </button>
+    <button
+      onClick={() => {
+        setDeleteBannerId(banner.id);
+        setOpenDeleteDialog(true);
+      }}
+      className="bg-red-100 text-red-700 hover:bg-red-200 p-2 rounded-lg hover:shadow-md cursor-pointer transition-all duration-200"
+      title="حذف"
+    >
+      حذف
+      <Delete className="text-xl" />
+    </button>
+  </div>
+</td>
                   </tr>
                 ))}
               </tbody>

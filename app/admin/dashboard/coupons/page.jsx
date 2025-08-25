@@ -247,7 +247,7 @@ const CouponsPageContent = () => {
               setEditCoupon(null);
               setModalOpen(true);
             }}
-            className="flex items-center gap-2 bg-[#14b8a6] text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-[#11a394] transition-all duration-300 font-semibold"
+            className="flex items-center cursor-pointer gap-2 bg-[#14b8a6] text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-[#11a394] transition-all duration-300 font-semibold"
           >
             <FiPlus size={20} />
             <span>إضافة كوبون جديد</span>

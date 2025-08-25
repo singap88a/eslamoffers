@@ -387,18 +387,20 @@ const StoreCouponsPage = () => {
                       </p>
                     )}
                     {desc.image && (
-                      <div className="relative w-full h-48 sm:h-64 rounded-lg overflow-hidden shadow-sm">
-                        <Image
-                          src={`https://api.eslamoffers.com/uploads/${desc.image}`}
-                          alt={desc.subHeader || `صورة توضيحية ${index + 1}`}
-                          fill
-                          className="object-cover"
-                          // sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
-                          onError={(e) => {
-                            e.target.src = "/logo4.png";
-                          }}
-                        />
-                      </div>
+<div className="relative w-full rounded-lg overflow-hidden shadow-sm flex justify-center">
+  <Image
+    src={`https://api.eslamoffers.com/uploads/${desc.image}`}
+    alt={desc.altText || `صورة توضيحية ${index + 1}`}
+    width={0}
+    height={0}
+    sizes="100vw"
+    style={{ width: 'auto', height: 'auto', maxHeight: '300px' }}
+    className="object-contain"
+    onError={(e) => {
+      e.target.src = "/logo4.png";
+    }}
+  />
+</div>
                     )}
                   </div>
                 ))}

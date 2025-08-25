@@ -142,22 +142,22 @@ const OfferTable = ({ offers, onEdit, onDelete, loading }) => {
                 </td>
 
                 {/* Actions Column */}
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => onEdit(offer)}
-                      className="text-indigo-600 hover:text-indigo-900 flex items-center"
-                    >
-                      <FiEdit2 className="ml-1" /> تعديل
-                    </button>
-                    <button
-                      onClick={() => onDelete(offer)}
-                      className="text-red-600 hover:text-red-900 flex items-center"
-                    >
-                      <FiTrash2 className="ml-1" /> حذف
-                    </button>
-                  </div>
-                </td>
+<td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+  <div className="flex space-x-2 space-x-reverse gap-2">
+    <button
+      onClick={() => onEdit(offer)}
+      className="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-3 py-1 rounded-lg cursor-pointer transition-colors duration-200 flex items-center"
+    >
+      <FiEdit2 className="ml-1" /> تعديل
+    </button>
+    <button
+      onClick={() => onDelete(offer)}
+      className="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1 rounded-lg cursor-pointer transition-colors duration-200 flex items-center"
+    >
+      <FiTrash2 className="ml-1" /> حذف
+    </button>
+  </div>
+</td>
               </tr>
             ))}
           </tbody>

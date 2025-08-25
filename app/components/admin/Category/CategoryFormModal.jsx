@@ -162,10 +162,10 @@ const CategoryFormModal = ({ isOpen, onClose, onSave, category }) => {
             )}
           </div>
           <div className="flex justify-end gap-4 mt-8">
-            <button type="button" onClick={onClose} className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-lg transition-colors">
+            <button type="button" onClick={onClose} className="bg-gray-200 cursor-pointer hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-lg transition-colors">
               إلغاء
             </button>
-            <button type="submit" className="bg-[#14b8a6] hover:bg-[#11a394] text-white font-bold py-2 px-6 rounded-lg transition-colors flex items-center gap-2">
+            <button type="submit" className="bg-[#14b8a6] cursor-pointer hover:bg-[#11a394] text-white font-bold py-2 px-6 rounded-lg transition-colors flex items-center gap-2">
               {category ? 'حفظ التعديلات' : 'إضافة الفئة'}
             </button>
           </div>

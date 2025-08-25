@@ -2,14 +2,13 @@
 import React, { useEffect, useState, useMemo } from "react";
 import StoreTable from "../../../components/admin/Store/StoreTable";
 import StoreFormModal from "../../../components/admin/Store/StoreFormModal";
+import StoreDescriptionsModal from "../../../components/admin/Store/StoreDescriptionsModal";
 import ConfirmDialog from "../../../components/admin/Store/ConfirmDialog";
 import Toast from "../../../components/admin/Store/Toast";
 import { useRouter } from "next/navigation";
 import { FiPlus, FiSearch } from "react-icons/fi";
 
 const API_BASE = "https://api.eslamoffers.com/api/Store";
-
-// Removed getCookie function as we now use getTokenFromCookies
 
 const Spinner = () => (
   <div className="flex justify-center items-center min-h-[300px]">
@@ -27,6 +26,8 @@ const StoresPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
   const [editStore, setEditStore] = useState(null);
+  const [descriptionsModalOpen, setDescriptionsModalOpen] = useState(false);
+  const [selectedStore, setSelectedStore] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [storeToDelete, setStoreToDelete] = useState(null);
   const [confirmLoading, setConfirmLoading] = useState(false);
@@ -47,6 +48,11 @@ const StoresPage = () => {
 
   const handleNavigateToCoupons = (store) => {
     router.push(`/admin/dashboard/coupons?storeId=${store.slug || store.id}`);
+  };
+
+  const handleManageDescriptions = (store) => {
+    setSelectedStore(store);
+    setDescriptionsModalOpen(true);
   };
 
   const fetchStores = async () => {
@@ -209,6 +215,7 @@ const StoresPage = () => {
       setConfirmLoading(false);
     }
   };
+
   return (
     <div className="flex-1 p-4 md:p-8 min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto">
@@ -231,7 +238,7 @@ const StoresPage = () => {
             </div>
             
             <button
-              className="flex items-center justify-center gap-2 bg-[#14b8a6] text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-[#11a394] transition-all duration-300 font-semibold whitespace-nowrap"
+              className="flex items-center cursor-pointer justify-center gap-2 bg-[#14b8a6] text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-[#11a394] transition-all duration-300 font-semibold whitespace-nowrap"
               onClick={() => {
                 setEditStore(null);
                 setModalOpen(true);
@@ -280,6 +287,7 @@ const StoresPage = () => {
                 setConfirmOpen(true);
               }}
               onNavigateToCoupons={handleNavigateToCoupons}
+              onManageDescriptions={handleManageDescriptions}
             />
           </>
         )}
@@ -293,6 +301,17 @@ const StoresPage = () => {
           onSubmit={handleSubmit}
           initialData={editStore}
           loading={modalLoading}
+        />
+
+        <StoreDescriptionsModal
+          isOpen={descriptionsModalOpen}
+          onClose={() => {
+            setDescriptionsModalOpen(false);
+            setSelectedStore(null);
+          }}
+          store={selectedStore}
+          token={token}
+          onUpdate={fetchStores}
         />
 
         <ConfirmDialog
